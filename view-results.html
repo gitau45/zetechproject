@@ -392,12 +392,25 @@ hr {
   color: #666;
   margin-top: 5px;
 }
+
+/* Security badge */
+.security-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: #e8f0fe;
+  color: #0a3d91;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.7rem;
+  margin-left: 8px;
+}
 </style>
 </head>
 <body>
 
 <div class="header">
-  <div>Election Publishing Dashboard</div>
+  <div>Election Publishing Dashboard <span class="security-badge"><i class="fas fa-shield-alt"></i> Secure</span></div>
   <div class="header-buttons">
     <button class="btn back" onclick="history.back()">← Back</button>
     <button class="btn logout" onclick="logout()">Logout</button>
@@ -450,6 +463,9 @@ hr {
 
 </div>
 
+<!-- Font Awesome for icons -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import {
@@ -459,7 +475,9 @@ import {
   query,
   where,
   doc,
-  updateDoc
+  updateDoc,
+  writeBatch,
+  runTransaction
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -471,19 +489,56 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-/* SESSION */
+/* SESSION WITH ENHANCED SECURITY */
 const session = JSON.parse(sessionStorage.getItem("adminSession") || "{}");
 
-if (!session || session.role !== "admin") {
-  alert("Admin only");
+// Validate session with timestamp
+const validateSession = () => {
+  if (!session || session.role !== "admin") {
+    return false;
+  }
+  
+  // Check if session is expired (24 hours)
+  if (session.timestamp) {
+    const sessionAge = Date.now() - session.timestamp;
+    if (sessionAge > 24 * 60 * 60 * 1000) {
+      sessionStorage.removeItem("adminSession");
+      return false;
+    }
+  }
+  
+  return true;
+};
+
+if (!validateSession()) {
+  alert("Admin only - Session expired or invalid");
   location = "admin-login.html";
 }
 
+// Update session timestamp on activity
+const updateSessionTimestamp = () => {
+  if (session) {
+    session.timestamp = Date.now();
+    sessionStorage.setItem("adminSession", JSON.stringify(session));
+  }
+};
+
 /* GLOBAL STATE */
 let currentElectionId = null;
+let operationInProgress = false;
+
+/* CSRF Protection */
+const generateCSRFToken = () => {
+  return Math.random().toString(36).substring(2) + Date.now().toString(36);
+};
+
+let csrfToken = sessionStorage.getItem('csrfToken') || generateCSRFToken();
+sessionStorage.setItem('csrfToken', csrfToken);
 
 /* LOAD SYSTEM */
 async function loadDashboard() {
+  updateSessionTimestamp();
+  
   const table = document.getElementById("resultsTable");
   const analytics = document.getElementById("analytics");
   const header = document.getElementById("headerInfo");
@@ -492,177 +547,281 @@ async function loadDashboard() {
   analytics.innerHTML = "";
   header.innerHTML = "";
 
-  const electionsSnap = await getDocs(collection(db, "elections"));
-  const electionDoc = electionsSnap.docs[0];
+  try {
+    const electionsSnap = await getDocs(collection(db, "elections"));
+    const electionDoc = electionsSnap.docs[0];
 
-  if (!electionDoc) return;
+    if (!electionDoc) return;
 
-  const election = electionDoc.data();
-  currentElectionId = electionDoc.id;
+    const election = electionDoc.data();
+    currentElectionId = electionDoc.id;
 
-  /* HEADER PANEL */
-  header.innerHTML = `
-    <h3>${election.name}</h3>
-    <p>Published: <span class="status-badge ${election.published ? 'status-published' : 'status-draft'}">${election.published ? "YES" : "NO"}</span></p>
-  `;
-
-  /* BUTTON VISIBILITY */
-  document.getElementById("publishBtn").style.display =
-    election.published ? "none" : "inline-block";
-
-  document.getElementById("unpublishBtn").style.display =
-    election.published ? "inline-block" : "none";
-
-  /* LOAD CANDIDATES */
-  const candidatesSnap = await getDocs(
-    query(collection(db, "candidates"),
-      where("electionId", "==", currentElectionId))
-  );
-
-  let groups = {};
-  let totalVotes = 0;
-
-  /* ROLE SELECT POPULATION */
-  const studentSelect = document.getElementById("studentRoleSelect");
-  studentSelect.innerHTML = "<option value=''>Select student to promote</option>";
-
-  const studentsSnap = await getDocs(collection(db, "students"));
-
-  studentsSnap.forEach(s => {
-    const d = s.data();
-    studentSelect.innerHTML += `
-      <option value="${s.id}">
-        ${d.fullName} (${d.role || "student"})
-      </option>
+    /* HEADER PANEL */
+    header.innerHTML = `
+      <h3>${escapeHtml(election.name)}</h3>
+      <p>Published: <span class="status-badge ${election.published ? 'status-published' : 'status-draft'}">${election.published ? "YES" : "NO"}</span></p>
     `;
-  });
 
-  candidatesSnap.forEach(docSnap => {
-    const d = docSnap.data();
-    const pos = d.position || "Representative";
-    const votes = d.votes || 0;
+    /* BUTTON VISIBILITY */
+    document.getElementById("publishBtn").style.display =
+      election.published ? "none" : "inline-block";
 
-    totalVotes += votes;
+    document.getElementById("unpublishBtn").style.display =
+      election.published ? "inline-block" : "none";
 
-    if (!groups[pos]) groups[pos] = [];
+    /* LOAD CANDIDATES WITH VALIDATION */
+    const candidatesSnap = await getDocs(
+      query(collection(db, "candidates"),
+        where("electionId", "==", currentElectionId))
+    );
 
-    groups[pos].push({
-      id: docSnap.id,
-      name: d.fullName,
-      votes: votes,
-      admissionNumber: d.admissionNumber || d.studentId,
-      position: pos
+    let groups = {};
+    let totalVotes = 0;
+
+    /* ROLE SELECT POPULATION */
+    const studentSelect = document.getElementById("studentRoleSelect");
+    studentSelect.innerHTML = "<option value=''>Select student to promote</option>";
+
+    const studentsSnap = await getDocs(collection(db, "students"));
+
+    studentsSnap.forEach(s => {
+      const d = s.data();
+      if (d && d.fullName) {
+        studentSelect.innerHTML += `
+          <option value="${escapeHtml(s.id)}">
+            ${escapeHtml(d.fullName)} (${escapeHtml(d.role || "student")})
+          </option>
+        `;
+      }
     });
-  });
 
-  /* WINNER ENGINE */
-  let winners = {};
+    candidatesSnap.forEach(docSnap => {
+      const d = docSnap.data();
+      if (!d) return;
+      
+      const pos = d.position || "Representative";
+      const votes = parseInt(d.votes) || 0;
 
-  for (const pos in groups) {
-    groups[pos].sort((a, b) => b.votes - a.votes);
-    if (groups[pos][0])
-      winners[pos] = groups[pos][0];
-  }
+      totalVotes += votes;
 
-  /* ANALYTICS */
-  analytics.innerHTML = `
-    <div class="metric">
-      <h3>Total Votes</h3>
-      <p>${totalVotes}</p>
-    </div>
-    <div class="metric">
-      <h3>Status</h3>
-      <p>${election.published ? "Published" : "Draft"}</p>
-    </div>
-  `;
+      if (!groups[pos]) groups[pos] = [];
 
-  /* TABLE RENDER */
-  for (const pos in groups) {
-    groups[pos].forEach(c => {
-      const winner = winners[pos] &&
-        c.admissionNumber === winners[pos].admissionNumber;
-
-      table.innerHTML += `
-        <tr>
-          <td>${c.name}</td>
-          <td>${c.position}</td>
-          <td><strong>${c.votes}</strong></td>
-          <td class="winner">${winner ? '🏆 YES' : 'NO'}</td>
-          <td><span class="status-badge ${election.published ? 'status-published' : 'status-draft'}">${election.published ? "Published" : "Draft"}</span></td>
-        </tr>
-      `;
+      groups[pos].push({
+        id: docSnap.id,
+        name: d.fullName || "Unknown",
+        votes: votes,
+        admissionNumber: d.admissionNumber || d.studentId || "",
+        position: pos
+      });
     });
+
+    /* WINNER ENGINE WITH TIE DETECTION */
+    let winners = {};
+    let ties = {};
+
+    for (const pos in groups) {
+      groups[pos].sort((a, b) => b.votes - a.votes);
+      
+      if (groups[pos][0]) {
+        winners[pos] = groups[pos][0];
+        
+        // Check for ties
+        if (groups[pos][1] && groups[pos][1].votes === groups[pos][0].votes) {
+          ties[pos] = true;
+        }
+      }
+    }
+
+    /* ANALYTICS */
+    analytics.innerHTML = `
+      <div class="metric">
+        <h3>Total Votes</h3>
+        <p>${totalVotes}</p>
+      </div>
+      <div class="metric">
+        <h3>Status</h3>
+        <p>${election.published ? "Published" : "Draft"}</p>
+      </div>
+      <div class="metric">
+        <h3>Election ID</h3>
+        <p style="font-size: 0.9rem;">${escapeHtml(currentElectionId.substring(0, 8))}...</p>
+      </div>
+    `;
+
+    /* TABLE RENDER */
+    for (const pos in groups) {
+      groups[pos].forEach(c => {
+        const isWinner = winners[pos] &&
+          c.admissionNumber === winners[pos].admissionNumber;
+        
+        const hasTie = ties[pos] && isWinner;
+
+        table.innerHTML += `
+          <tr>
+            <td>${escapeHtml(c.name)}</td>
+            <td>${escapeHtml(c.position)}</td>
+            <td><strong>${c.votes}</strong></td>
+            <td class="winner">${isWinner ? (hasTie ? '🤝 TIE' : '🏆 YES') : 'NO'}</td>
+            <td><span class="status-badge ${election.published ? 'status-published' : 'status-draft'}">${election.published ? "Published" : "Draft"}</span></td>
+          </tr>
+        `;
+      });
+    }
+  } catch (error) {
+    console.error("Error loading dashboard:", error);
+    showAlert("Error loading data", "error");
   }
 }
 
-/* PUBLISH ENGINE */
+/* SECURE PUBLISH ENGINE WITH TRANSACTIONS */
 window.publishElection = async () => {
   if (!currentElectionId) return;
-  if (!confirm("Publish results? Winners will be promoted to rep role.")) return;
-
-  const electionRef = doc(db, "elections", currentElectionId);
-
-  /* Recalculate winners */
-  const candidatesSnap = await getDocs(
-    query(collection(db, "candidates"),
-      where("electionId", "==", currentElectionId))
-  );
-
-  let groups = {};
-
-  candidatesSnap.forEach(docSnap => {
-    const d = docSnap.data();
-    const pos = d.position || "Representative";
-    const votes = d.votes || 0;
-
-    if (!groups[pos]) groups[pos] = [];
-
-    groups[pos].push({
-      admissionNumber: d.admissionNumber || d.studentId,
-      votes: votes
-    });
-  });
-
-  /* Promote winners */
-  for (const pos in groups) {
-    groups[pos].sort((a, b) => b.votes - a.votes);
-    const winner = groups[pos][0];
-
-    if (winner && winner.admissionNumber) {
-      try {
-        await updateDoc(
-          doc(db, "students", winner.admissionNumber),
-          { role: "rep" }
-        );
-      } catch (err) {
-        console.error("Error promoting winner:", err);
-      }
-    }
+  if (operationInProgress) {
+    alert("Operation already in progress");
+    return;
   }
 
-  /* Lock election */
-  await updateDoc(electionRef, { published: true });
+  if (!confirm("⚠️ Publish results? Winners will be promoted to rep role. This action cannot be undone.")) return;
 
-  alert("✅ Results published successfully!");
-  loadDashboard();
+  operationInProgress = true;
+  const publishBtn = document.getElementById("publishBtn");
+  publishBtn.classList.add("loading");
+  publishBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Publishing...';
+
+  try {
+    updateSessionTimestamp();
+    
+    // Use transaction for atomic operation
+    await runTransaction(db, async (transaction) => {
+      // Check if election is already published
+      const electionRef = doc(db, "elections", currentElectionId);
+      const electionDoc = await transaction.get(electionRef);
+      
+      if (!electionDoc.exists()) {
+        throw new Error("Election not found");
+      }
+      
+      if (electionDoc.data().published) {
+        throw new Error("Election already published");
+      }
+
+      /* Get all candidates */
+      const candidatesQuery = query(
+        collection(db, "candidates"),
+        where("electionId", "==", currentElectionId)
+      );
+      const candidatesSnap = await getDocs(candidatesQuery);
+
+      let groups = {};
+      const updates = [];
+
+      candidatesSnap.forEach(docSnap => {
+        const d = docSnap.data();
+        const pos = d.position || "Representative";
+        const votes = parseInt(d.votes) || 0;
+
+        if (!groups[pos]) groups[pos] = [];
+        groups[pos].push({
+          admissionNumber: d.admissionNumber || d.studentId,
+          votes: votes,
+          docId: docSnap.id
+        });
+      });
+
+      /* Promote winners with validation */
+      for (const pos in groups) {
+        groups[pos].sort((a, b) => b.votes - a.votes);
+        const winner = groups[pos][0];
+
+        // Check for ties - don't promote if tied
+        if (groups[pos][1] && groups[pos][1].votes === winner.votes) {
+          console.warn(`Tie detected for position: ${pos} - no winner promoted`);
+          continue;
+        }
+
+        if (winner && winner.admissionNumber) {
+          const studentRef = doc(db, "students", winner.admissionNumber);
+          const studentDoc = await transaction.get(studentRef);
+          
+          if (studentDoc.exists()) {
+            transaction.update(studentRef, { 
+              role: "rep",
+              promotedAt: new Date(),
+              promotedFrom: currentElectionId
+            });
+          }
+        }
+      }
+
+      /* Lock election */
+      transaction.update(electionRef, { 
+        published: true,
+        publishedAt: new Date(),
+        publishedBy: session.staffNumber || "admin"
+      });
+    });
+
+    showAlert("✅ Results published successfully!", "success");
+    await loadDashboard();
+
+  } catch (error) {
+    console.error("Error publishing:", error);
+    showAlert("❌ Error publishing: " + error.message, "error");
+  } finally {
+    operationInProgress = false;
+    publishBtn.classList.remove("loading");
+    publishBtn.innerHTML = '📢 Publish Results';
+  }
 };
 
-/* UNPUBLISH */
+/* SECURE UNPUBLISH */
 window.unpublishElection = async () => {
   if (!currentElectionId) return;
-  if (!confirm("Unpublish results?")) return;
+  if (operationInProgress) return;
 
-  await updateDoc(
-    doc(db, "elections", currentElectionId),
-    { published: false }
-  );
+  if (!confirm("⚠️ Unpublish results? This will hide published results from students.")) return;
 
-  alert("📝 Results unpublished");
-  loadDashboard();
+  operationInProgress = true;
+  const unpublishBtn = document.getElementById("unpublishBtn");
+  unpublishBtn.classList.add("loading");
+  unpublishBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Unpublishing...';
+
+  try {
+    updateSessionTimestamp();
+
+    const electionRef = doc(db, "elections", currentElectionId);
+    
+    await runTransaction(db, async (transaction) => {
+      const electionDoc = await transaction.get(electionRef);
+      
+      if (!electionDoc.exists()) {
+        throw new Error("Election not found");
+      }
+      
+      transaction.update(electionRef, { 
+        published: false,
+        unpublishedAt: new Date(),
+        unpublishedBy: session.staffNumber || "admin"
+      });
+    });
+
+    showAlert("📝 Results unpublished", "success");
+    await loadDashboard();
+
+  } catch (error) {
+    console.error("Error unpublishing:", error);
+    showAlert("❌ Error unpublishing: " + error.message, "error");
+  } finally {
+    operationInProgress = false;
+    unpublishBtn.classList.remove("loading");
+    unpublishBtn.innerHTML = '🔒 Unpublish';
+  }
 };
 
-/* ROLE OVERRIDE SAVE */
+/* SECURE ROLE OVERRIDE */
 window.saveRoleOverride = async () => {
+  if (operationInProgress) return;
+
   const studentSelect = document.getElementById("studentRoleSelect");
   const studentId = studentSelect.value;
 
@@ -671,25 +830,112 @@ window.saveRoleOverride = async () => {
     return;
   }
 
+  if (!confirm(`⚠️ Promote ${studentSelect.selectedOptions[0]?.text || 'student'} to rep role?`)) return;
+
+  operationInProgress = true;
+  const saveBtn = document.querySelector(".save-btn");
+  saveBtn.classList.add("loading");
+  saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+
   try {
-    await updateDoc(doc(db, "students", studentId), {
-      role: "rep"
+    updateSessionTimestamp();
+
+    const studentRef = doc(db, "students", studentId);
+    
+    await runTransaction(db, async (transaction) => {
+      const studentDoc = await transaction.get(studentRef);
+      
+      if (!studentDoc.exists()) {
+        throw new Error("Student not found");
+      }
+      
+      transaction.update(studentRef, { 
+        role: "rep",
+        roleUpdatedAt: new Date(),
+        roleUpdatedBy: session.staffNumber || "admin"
+      });
     });
-    alert("✅ Role updated successfully!");
+
+    showAlert("✅ Role updated successfully!", "success");
+    
+    // Refresh the select options
+    const studentSelect = document.getElementById("studentRoleSelect");
+    const studentsSnap = await getDocs(collection(db, "students"));
+    
+    studentSelect.innerHTML = "<option value=''>Select student to promote</option>";
+    studentsSnap.forEach(s => {
+      const d = s.data();
+      if (d && d.fullName) {
+        studentSelect.innerHTML += `
+          <option value="${escapeHtml(s.id)}">
+            ${escapeHtml(d.fullName)} (${escapeHtml(d.role || "student")})
+          </option>
+        `;
+      }
+    });
+
   } catch (err) {
     console.error("Error updating role:", err);
-    alert("Error updating role");
+    showAlert("❌ Error updating role: " + err.message, "error");
+  } finally {
+    operationInProgress = false;
+    saveBtn.classList.remove("loading");
+    saveBtn.innerHTML = '💾 Save Role Change';
   }
 };
 
-/* LOGOUT */
+/* HELPER FUNCTIONS */
+function escapeHtml(text) {
+  if (!text) return '';
+  const div = document.createElement('div');
+  div.textContent = text;
+  return div.innerHTML;
+}
+
+function showAlert(message, type) {
+  const alertDiv = document.createElement('div');
+  alertDiv.className = `alert alert-${type}`;
+  alertDiv.innerHTML = `
+    <i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}"></i>
+    ${escapeHtml(message)}
+  `;
+  
+  const container = document.querySelector('.container');
+  container.insertBefore(alertDiv, container.firstChild);
+  
+  setTimeout(() => {
+    alertDiv.remove();
+  }, 5000);
+}
+
+/* LOGOUT WITH CLEANUP */
 window.logout = () => {
-  sessionStorage.clear();
-  location = "admin-login.html";
+  if (confirm("Are you sure you want to logout?")) {
+    sessionStorage.clear();
+    location = "admin-login.html";
+  }
 };
 
-loadDashboard();
-</script>
+/* Add keyboard shortcut protection */
+document.addEventListener('keydown', (e) => {
+  // Prevent F5 refresh during operations
+  if (operationInProgress && e.key === 'F5') {
+    e.preventDefault();
+    alert("Operation in progress. Please wait.");
+  }
+});
 
+/* Add beforeunload protection */
+window.addEventListener('beforeunload', (e) => {
+  if (operationInProgress) {
+    e.preventDefault();
+    e.returnValue = 'Operation in progress. Are you sure you want to leave?';
+  }
+});
+
+/* Initialize */
+loadDashboard();
+
+</script>
 </body>
 </html>
