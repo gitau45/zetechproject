@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+<meta name="theme-color" content="#0a3d91">
+<title>University Voting System | Home</title>
+
+<!-- Google Font -->
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<!-- Font Awesome Icons -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<style>
+    :root {
+        --primary: #0a3d91;
+        --primary-light: #1a4da1;
+        --primary-dark: #062a66;
+        --background: linear-gradient(135deg, #ffffff 0%, #e6f0ff 100%);
+        --white: #ffffff;
+        --muted: #6B7280;
+        --shadow: rgba(0,0,0,0.08);
+        --border-radius: 24px;
+        --card-radius: 20px;
+        --transition: all 0.3s ease;
+    }
+
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: 'Poppins', sans-serif;
+    }
+
+    body {
+        background: var(--background);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        padding: 1rem;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+    }
+
+    .container {
+        width: 100%;
+        max-width: 1100px;
+        text-align: center;
+        animation: fadeIn 0.6s ease-out;
+    }
+
+    /* Header Section */
+    .header {
+        margin-bottom: 2.5rem;
+    }
+
+    .header h1 {
+        font-size: 2rem;
+        color: var(--primary);
+        font-weight: 700;
+        letter-spacing: -0.5px;
+        margin-bottom: 0.75rem;
+        line-height: 1.3;
+    }
+
+    .header p {
+        color: var(--muted);
+        font-size: 1rem;
+        max-width: 600px;
+        margin: 0 auto;
+        padding: 0 1rem;
+    }
+
+    /* Cards Grid */
+    .cards {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    /* Card Styles */
+    .card {
+        background: var(--white);
+        padding: 2.5rem 1.5rem;
+        border-radius: var(--border-radius);
+        box-shadow: 0 20px 40px rgba(10,61,145,0.1);
+        transition: var(--transition);
+        cursor: pointer;
+        border: 2px solid transparent;
+        position: relative;
+        overflow: hidden;
+        animation: slideUp 0.4s ease-out;
+    }
+
+    .card:nth-child(1) {
+        animation-delay: 0.1s;
+    }
+
+    .card:nth-child(2) {
+        animation-delay: 0.2s;
+    }
+
+    .card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, var(--primary), var(--primary-light));
+        transform: scaleX(0);
+        transition: transform 0.3s ease;
+    }
+
+    .card:hover::before,
+    .card:active::before {
+        transform: scaleX(1);
+    }
+
+    .card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 30px 50px rgba(10,61,145,0.15);
+    }
+
+    .card:active {
+        transform: translateY(-4px);
+    }
+
+    /* Icon Styles */
+    .icon {
+        font-size: 4rem;
+        margin-bottom: 1.5rem;
+        color: var(--primary);
+        background: rgba(10,61,145,0.1);
+        width: 100px;
+        height: 100px;
+        line-height: 100px;
+        border-radius: 50%;
+        margin: 0 auto 1.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: var(--transition);
+    }
+
+    .card:hover .icon {
+        transform: scale(1.1);
+        background: rgba(10,61,145,0.15);
+    }
+
+    .card h2 {
+        color: var(--primary);
+        margin-bottom: 1rem;
+        font-size: 1.6rem;
+        font-weight: 600;
+    }
+
+    .card p {
+        color: var(--muted);
+        font-size: 0.95rem;
+        line-height: 1.6;
+        margin-bottom: 2rem;
+        padding: 0 0.5rem;
+    }
+
+    /* Button Styles */
+    .btn {
+        display: inline-block;
+        padding: 0.9rem 2rem;
+        background: var(--primary);
+        color: #fff;
+        text-decoration: none;
+        border-radius: 40px;
+        transition: var(--transition);
+        font-size: 0.95rem;
+        font-weight: 500;
+        border: 2px solid transparent;
+        box-shadow: 0 8px 16px rgba(10,61,145,0.2);
+    }
+
+    .btn:hover {
+        background: var(--primary-light);
+        transform: scale(1.05);
+        box-shadow: 0 12px 24px rgba(10,61,145,0.25);
+    }
+
+    .btn:active {
+        transform: scale(0.95);
+    }
+
+    .btn i {
+        margin-right: 0.5rem;
+        font-size: 0.9rem;
+    }
+
+    /* Footer */
+    footer {
+        margin-top: 3rem;
+        font-size: 0.85rem;
+        color: var(--muted);
+        padding: 1.5rem;
+        background: rgba(255,255,255,0.5);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        border-radius: 60px;
+        display: inline-block;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    }
+
+    footer i {
+        color: var(--primary);
+        margin: 0 0.25rem;
+    }
+
+    /* Animations */
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+        }
+        to {
+            opacity: 1;
+        }
+    }
+
+    @keyframes slideUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* Mobile Optimizations */
+    @media (max-width: 600px) {
+        .header h1 {
+            font-size: 1.7rem;
+        }
+
+        .header p {
+            font-size: 0.95rem;
+        }
+
+        .cards {
+            gap: 1.25rem;
+        }
+
+        .card {
+            padding: 2rem 1.25rem;
+        }
+
+        .icon {
+            width: 80px;
+            height: 80px;
+            line-height: 80px;
+            font-size: 3rem;
+        }
+
+        .card h2 {
+            font-size: 1.4rem;
+        }
+
+        .card p {
+            font-size: 0.9rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .btn {
+            padding: 0.8rem 1.5rem;
+            font-size: 0.9rem;
+        }
+
+        footer {
+            font-size: 0.8rem;
+            padding: 1rem 1.5rem;
+        }
+    }
+
+    /* Small Phones */
+    @media (max-width: 380px) {
+        .header h1 {
+            font-size: 1.5rem;
+        }
+
+        .card {
+            padding: 1.5rem 1rem;
+        }
+
+        .icon {
+            width: 70px;
+            height: 70px;
+            line-height: 70px;
+            font-size: 2.5rem;
+        }
+
+        .card h2 {
+            font-size: 1.3rem;
+        }
+    }
+
+    /* Touch Optimizations */
+    @media (hover: none) and (pointer: coarse) {
+        .card, .btn {
+            min-height: 48px;
+        }
+
+        .card:active {
+            transform: scale(0.98);
+            background: #f8f9fa;
+        }
+
+        .btn:active {
+            transform: scale(0.96);
+        }
+    }
+
+    /* Remove Tap Highlight */
+    .card, .btn {
+        -webkit-tap-highlight-color: transparent;
+    }
+
+    /* Feature Badges (optional) */
+    .feature-badge {
+        display: inline-block;
+        background: rgba(10,61,145,0.1);
+        color: var(--primary);
+        padding: 0.3rem 1rem;
+        border-radius: 30px;
+        font-size: 0.7rem;
+        font-weight: 600;
+        margin: 0.5rem 0;
+    }
+
+    /* Loading State (optional) */
+    .loading {
+        opacity: 0.7;
+        pointer-events: none;
+    }
+
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    ::-webkit-scrollbar-track {
+        background: #f1f1f1;
+    }
+
+    ::-webkit-scrollbar-thumb {
+        background: var(--primary-light);
+        border-radius: 6px;
+    }
+
+    /* Glass Morphism Effect for Cards */
+    .card {
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        background: rgba(255, 255, 255, 0.95);
+    }
+</style>
+</head>
+
+<body>
+
+<div class="container">
+    <!-- Header Section -->
+    <div class="header">
+        <h1>
+            <i class="fas fa-university" style="color: var(--primary); margin-right: 0.5rem;"></i>
+            University Online Voting System
+        </h1>
+        <p>
+            <i class="fas fa-shield-alt" style="color: var(--primary);"></i>
+            Secure, transparent, and accessible voting platform for the university community
+        </p>
+    </div>
+
+    <!-- Cards Grid -->
+    <div class="cards">
+        <!-- Student Card -->
+        <div class="card" onclick="goStudent()" role="button" tabindex="0" aria-label="Student login">
+            <div class="icon">
+                <i class="fas fa-user-graduate"></i>
+            </div>
+            <h2>Student Portal</h2>
+            <div class="feature-badge">
+                <i class="fas fa-check-circle"></i> Vote & View Results
+            </div>
+            <p>
+                Login as a registered student to participate in elections, 
+                vote for your preferred candidates, and track election results in real-time.
+            </p>
+            <a href="student-login.html" class="btn" onclick="event.stopPropagation()">
+                <i class="fas fa-sign-in-alt"></i> Student Login
+            </a>
+        </div>
+
+        <!-- Admin Card -->
+        <div class="card" onclick="goAdmin()" role="button" tabindex="0" aria-label="Admin login">
+            <div class="icon">
+                <i class="fas fa-user-shield"></i>
+            </div>
+            <h2>Admin Portal</h2>
+            <div class="feature-badge">
+                <i class="fas fa-cog"></i> Manage Elections
+            </div>
+            <p>
+                Login as an administrator to manage elections, register candidates, 
+                monitor voting activity, and publish official results securely.
+            </p>
+            <a href="admin-login.html" class="btn" onclick="event.stopPropagation()">
+                <i class="fas fa-lock"></i> Admin Login
+            </a>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <i class="fas fa-check-circle" style="color: var(--primary);"></i>
+        &copy; 2026 University Voting System 
+        <i class="fas fa-circle" style="font-size: 0.3rem; color: var(--primary); margin: 0 0.5rem;"></i>
+        Secure & Transparent Elections
+        <i class="fas fa-check-circle" style="color: var(--primary);"></i>
+    </footer>
+</div>
+
+<script>
+    // Navigation functions
+    function goStudent() {
+        window.location.href = "student-login.html";
+    }
+
+    function goAdmin() {
+        window.location.href = "admin-login.html";
+    }
+
+    // Keyboard accessibility
+    document.querySelectorAll('.card').forEach(card => {
+        card.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                card.click();
+            }
+        });
+    });
+
+    // Add loading state on click (optional)
+    document.querySelectorAll('.btn').forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            this.style.opacity = '0.7';
+            setTimeout(() => {
+                this.style.opacity = '1';
+            }, 200);
+        });
+    });
+
+    // Smooth scroll to top on page load
+    window.onload = () => {
+        window.scrollTo({
+            top: 0,
+            behavior: 'smooth'
+        });
+    };
+</script>
+
+</body>
+</html>

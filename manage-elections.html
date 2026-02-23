@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+<title>Manage Elections | Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Poppins', sans-serif;
+}
+
+body {
+  background: linear-gradient(to bottom right, #fff, #e6f0ff);
+  min-height: 100vh;
+}
+
+.header {
+  background: #0a3d91;
+  color: #fff;
+  padding: 12px 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.header h2 {
+  font-weight: 500;
+  font-size: 1.2rem;
+}
+
+.header-buttons {
+  display: flex;
+  gap: 8px;
+}
+
+.logout-btn, .back-btn {
+  background: #fff;
+  color: #0a3d91;
+  padding: 6px 12px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+  font-size: 0.85rem;
+  white-space: nowrap;
+}
+
+.logout-btn:hover, .back-btn:hover {
+  background: #f2f2f2;
+}
+
+.container {
+  padding: 16px;
+}
+
+.form-card, .table-card {
+  background: #fff;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+  margin-bottom: 20px;
+}
+
+.form-card h3, .table-card h3 {
+  margin-bottom: 15px;
+  color: #333;
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.form-group {
+  margin-bottom: 15px;
+}
+
+label {
+  display: block;
+  margin-bottom: 5px;
+  color: #555;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+input, select {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  background-color: #fff;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+input:focus, select:focus {
+  outline: none;
+  border-color: #0a3d91;
+  box-shadow: 0 0 0 2px rgba(10,61,145,0.1);
+}
+
+button {
+  padding: 12px 15px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 500;
+  font-size: 0.95rem;
+  transition: all 0.2s ease;
+}
+
+button:active {
+  transform: scale(0.98);
+}
+
+.add-btn {
+  background: #0a3d91;
+  color: #fff;
+  width: 100%;
+  margin-top: 5px;
+}
+
+.publish-btn {
+  background: #22c55e;
+  color: #fff;
+  padding: 6px 10px;
+  font-size: 0.75rem;
+  border-radius: 6px;
+  margin-right: 5px;
+  min-width: 60px;
+}
+
+.delete-btn {
+  background: #d9534f;
+  color: #fff;
+  padding: 6px 10px;
+  font-size: 0.75rem;
+  border-radius: 6px;
+  min-width: 60px;
+}
+
+/* Table Styles - Mobile Optimized */
+.table-wrapper {
+  overflow-x: auto;
+  margin: 0 -5px;
+  -webkit-overflow-scrolling: touch;
+  border-radius: 8px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 650px;
+}
+
+th, td {
+  padding: 12px 8px;
+  border-bottom: 1px solid #eee;
+  text-align: left;
+  font-size: 0.85rem;
+}
+
+th {
+  background: #f8f9fa;
+  font-weight: 600;
+  color: #333;
+  white-space: nowrap;
+}
+
+td {
+  color: #555;
+}
+
+td:last-child {
+  white-space: nowrap;
+}
+
+.no-data {
+  text-align: center;
+  padding: 20px;
+  color: #777;
+  font-style: italic;
+}
+
+/* Mobile-specific improvements */
+@media (max-width: 480px) {
+  .header {
+    padding: 10px 12px;
+  }
+  
+  .header h2 {
+    font-size: 1rem;
+  }
+  
+  .logout-btn, .back-btn {
+    padding: 5px 8px;
+    font-size: 0.75rem;
+  }
+  
+  .container {
+    padding: 12px;
+  }
+  
+  .form-card, .table-card {
+    padding: 15px;
+  }
+  
+  input, select {
+    padding: 10px;
+    font-size: 0.9rem;
+  }
+  
+  button {
+    padding: 10px;
+  }
+  
+  .add-btn {
+    font-size: 0.9rem;
+  }
+  
+  th, td {
+    padding: 10px 5px;
+    font-size: 0.8rem;
+  }
+  
+  .publish-btn, .delete-btn {
+    padding: 5px 8px;
+    font-size: 0.7rem;
+    min-width: 50px;
+  }
+}
+
+/* Touch-friendly improvements */
+@media (hover: none) and (pointer: coarse) {
+  input, select, button {
+    min-height: 44px;
+  }
+  
+  .logout-btn, .back-btn {
+    min-height: 36px;
+  }
+  
+  .publish-btn, .delete-btn {
+    min-height: 36px;
+    padding: 8px 10px;
+  }
+}
+
+/* Custom select arrow */
+select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23333' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 16px;
+  padding-right: 40px;
+}
+
+/* Disabled input styling */
+select:disabled, input:disabled {
+  background-color: #f5f5f5;
+  color: #666;
+  border-color: #ddd;
+  opacity: 0.7;
+}
+
+/* Date input styling */
+input[type="date"] {
+  min-height: 44px;
+  padding: 10px;
+  font-family: 'Poppins', sans-serif;
+}
+
+/* Card hover effect (optional) */
+.form-card, .table-card {
+  transition: transform 0.2s ease;
+}
+
+.form-card:active, .table-card:active {
+  transform: scale(0.99);
+}
+
+/* Better spacing for labels and inputs */
+label {
+  margin-bottom: 4px;
+}
+
+/* Action buttons container */
+.action-buttons {
+  display: flex;
+  gap: 5px;
+  flex-wrap: wrap;
+}
+
+/* Responsive grid for better spacing */
+@media (min-width: 768px) {
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+}
+
+/* Loading state (optional) */
+.loading {
+  opacity: 0.7;
+  pointer-events: none;
+}
+
+/* Success/Error message styling (if needed) */
+.alert {
+  padding: 12px;
+  border-radius: 8px;
+  margin-bottom: 15px;
+  font-size: 0.9rem;
+}
+
+.alert-success {
+  background: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+}
+
+.alert-error {
+  background: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
+}
+
+/* Table row hover effect (optional) */
+tbody tr:hover {
+  background-color: #f8f9fa;
+}
+
+/* Improve date input appearance on mobile */
+@media (max-width: 480px) {
+  input[type="date"] {
+    font-size: 16px; /* Prevents zoom on iOS */
+  }
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h2>Manage Elections</h2>
+  <div class="header-buttons">
+    <button class="back-btn" onclick="goBack()">← Back</button>
+    <button class="logout-btn" onclick="logout()">Logout</button>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- CREATE ELECTION -->
+  <div class="form-card">
+    <h3>Create New Election</h3>
+
+    <div class="form-group">
+      <label for="electionName">Election Name *</label>
+      <input type="text" id="electionName" placeholder="Enter election name">
+    </div>
+
+    <div class="form-group">
+      <label for="level">Level *</label>
+      <select id="level" onchange="toggleDepartment()">
+        <option value="">Select Level</option>
+        <option value="departmental">Departmental</option>
+        <option value="executive">Executive</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label for="department">Department *</label>
+      <select id="department">
+        <option value="">Select Department</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label for="startDate">Start Date *</label>
+      <input type="date" id="startDate">
+    </div>
+
+    <div class="form-group">
+      <label for="endDate">End Date *</label>
+      <input type="date" id="endDate">
+    </div>
+
+    <button class="add-btn" id="createBtn">Create Election</button>
+  </div>
+
+  <!-- ELECTIONS TABLE -->
+  <div class="table-card">
+    <h3>Existing Elections</h3>
+
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Level</th>
+            <th>Department</th>
+            <th>Start</th>
+            <th>End</th>
+            <th>Published</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="electionsTable"></tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getFirestore, collection, getDocs, addDoc, doc, updateDoc, deleteDoc, Timestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+// Firebase config
+const firebaseConfig = {
+  apiKey: "AIzaSyA6sugBbX6kvd3RuwznAZkgHzAoEigpnj8",
+  authDomain: "zetech-e-voting.firebaseapp.com",
+  projectId: "zetech-e-voting"
+};
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+// ============================
+// SESSION CHECK
+// ============================
+document.addEventListener("DOMContentLoaded", async () => {
+  const adminSession = JSON.parse(sessionStorage.getItem("adminSession"));
+  if(!adminSession || adminSession.role !== "admin"){
+    alert("Access denied! Admins only.");
+    window.location.href = "admin-login.html";
+    return;
+  }
+
+  await loadDepartments();
+  await loadElections();
+});
+
+// ============================
+// LOGOUT & BACK
+// ============================
+window.logout = function(){ 
+  sessionStorage.removeItem("adminSession"); 
+  window.location.href="admin-login.html"; 
+}
+
+window.goBack = function(){
+    if (document.referrer) {
+        window.history.back();
+    } else {
+        window.location.href = "admin-dashboard.html";
+    }
+}
+
+// ============================
+// LOAD DEPARTMENTS
+// ============================
+async function loadDepartments(){
+  const deptSelect = document.getElementById("department");
+  deptSelect.innerHTML = "<option value=''>Select Department</option>";
+  try{
+    const deptSnap = await getDocs(collection(db,"departments"));
+    deptSnap.forEach(docu=>{
+      const d = docu.data();
+      deptSelect.innerHTML += `<option value="${docu.id}">${d.name}</option>`;
+    });
+  }catch(err){ console.error("Error loading departments:",err); }
+}
+
+// ============================
+// TOGGLE DEPARTMENT FIELD
+// ============================
+window.toggleDepartment = function(){
+  const level = document.getElementById("level").value;
+  const deptSelect = document.getElementById("department");
+  if(level === "executive"){ 
+      deptSelect.disabled=true; 
+      deptSelect.value=""; 
+  } else { 
+      deptSelect.disabled=false; 
+  }
+}
+
+// ============================
+// CREATE ELECTION
+// ============================
+document.getElementById("createBtn").addEventListener("click", async ()=>{
+  const name = document.getElementById("electionName").value.trim();
+  const level = document.getElementById("level").value;
+  const departmentId = document.getElementById("department").value;
+  const start = document.getElementById("startDate").value;
+  const end = document.getElementById("endDate").value;
+
+  if(!name || !level || !start || !end || (level==="departmental" && !departmentId)){
+    alert("Please fill all required fields!");
+    return;
+  }
+
+  try{
+    await addDoc(collection(db,"elections"),{
+      name,
+      level,
+      departmentId: level==="executive"?"":departmentId,
+      startDate: Timestamp.fromDate(new Date(start)),
+      endDate: Timestamp.fromDate(new Date(end)),
+      createdBy:"Admin",
+      published:false,
+      status:"upcoming"
+    });
+
+    alert("Election created successfully!");
+    document.getElementById("electionName").value="";
+    document.getElementById("level").value="";
+    document.getElementById("department").value="";
+    document.getElementById("department").disabled=false;
+    document.getElementById("startDate").value="";
+    document.getElementById("endDate").value="";
+
+    loadElections();
+  }catch(err){ console.error("Error creating election:",err); alert("Error creating election!"); }
+});
+
+// ============================
+// LOAD ELECTIONS
+// ============================
+async function loadElections(){
+  const table = document.getElementById("electionsTable");
+  table.innerHTML="";
+
+  try{
+    const snap = await getDocs(collection(db,"elections"));
+    if(snap.empty){ 
+      table.innerHTML="<tr><td colspan='7' class='no-data'>No elections found.</td></tr>"; 
+      return; 
+    }
+
+    snap.forEach(docu=>{
+      const e = docu.data();
+      const start = e.startDate?.toDate().toLocaleDateString() || "";
+      const end = e.endDate?.toDate().toLocaleDateString() || "";
+      const deptName = e.departmentId || "";
+      const published = e.published ? "Yes" : "No";
+
+      table.innerHTML += `<tr>
+        <td>${e.name}</td>
+        <td>${e.level}</td>
+        <td>${deptName}</td>
+        <td>${start}</td>
+        <td>${end}</td>
+        <td>${published}</td>
+        <td>
+          <div class="action-buttons">
+            ${!e.published? `<button class="publish-btn" onclick="publishElection('${docu.id}')">Publish</button>`:""}
+            <button class="delete-btn" onclick="deleteElection('${docu.id}')">Delete</button>
+          </div>
+        </td>
+      </tr>`;
+    });
+
+  }catch(err){ console.error("Error loading elections:",err); }
+}
+
+// ============================
+// PUBLISH ELECTION
+// ============================
+window.publishElection = async function(id){
+  try{
+    const docRef = doc(db,"elections",id);
+    await updateDoc(docRef,{published:true});
+    alert("Election published!");
+    loadElections();
+  }catch(err){ console.error(err); alert("Error publishing!"); }
+}
+
+// ============================
+// DELETE ELECTION
+// ============================
+window.deleteElection = async function(id){
+  if(!confirm("Are you sure you want to delete this election?")) return;
+  try{
+    const docRef = doc(db,"elections",id);
+    await deleteDoc(docRef);
+    alert("Election deleted!");
+    loadElections();
+  }catch(err){ console.error(err); alert("Error deleting!"); }
+}
+</script>
+
+</body>
+</html>

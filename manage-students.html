@@ -1,0 +1,1190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+<meta name="theme-color" content="#0a3d91">
+<title>Manage Students | Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<!-- SheetJS -->
+<script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+
+<!-- Font Awesome for icons -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<style>
+:root {
+  --primary: #0a3d91;
+  --primary-light: #1a4da1;
+  --primary-dark: #082d71;
+  --background: linear-gradient(to bottom right, #fff, #e6f0ff);
+  --white: #fff;
+  --muted: #6B7280;
+  --shadow: rgba(0,0,0,0.08);
+  --danger: #d9534f;
+  --success: #28a745;
+  --warning: #ffc107;
+  --info: #17a2b8;
+  --border-radius: 16px;
+  --card-radius: 14px;
+  --transition: all 0.2s ease;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Poppins', sans-serif;
+}
+
+body {
+  background: var(--background);
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Header - Mobile Optimized */
+.header {
+  background: var(--primary);
+  color: #fff;
+  padding: 1rem 1.25rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.header h2 {
+  font-weight: 600;
+  font-size: 1.2rem;
+  letter-spacing: -0.5px;
+}
+
+.header-buttons {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.logout-btn {
+  background: rgba(255,255,255,0.15);
+  color: white;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid rgba(255,255,255,0.3);
+  border-radius: 20px;
+  cursor: pointer;
+  font-weight: 500;
+  font-size: 0.8rem;
+  transition: var(--transition);
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+  white-space: nowrap;
+}
+
+.logout-btn:active {
+  transform: scale(0.95);
+  background: rgba(255,255,255,0.25);
+}
+
+/* Container */
+.container {
+  padding: 1.25rem;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding-bottom: calc(1.25rem + env(safe-area-inset-bottom));
+}
+
+/* Cards */
+.form-card, .table-card {
+  background: var(--white);
+  padding: 1.5rem;
+  border-radius: var(--border-radius);
+  box-shadow: 0 8px 20px var(--shadow);
+  margin-bottom: 1.5rem;
+  transition: var(--transition);
+  border: 1px solid rgba(255,255,255,0.5);
+}
+
+.form-card:active, .table-card:active {
+  transform: scale(0.99);
+}
+
+.form-card h3, .table-card h3 {
+  margin-bottom: 1.25rem;
+  color: #333;
+  font-size: 1.2rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* Form Groups */
+.form-group {
+  margin-bottom: 1rem;
+}
+
+label {
+  display: block;
+  margin-bottom: 0.25rem;
+  color: #555;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+input, select {
+  width: 100%;
+  padding: 0.9rem 1rem;
+  border: 1px solid #ddd;
+  border-radius: 12px;
+  font-size: 0.95rem;
+  background-color: #fff;
+  -webkit-appearance: none;
+  appearance: none;
+  transition: var(--transition);
+}
+
+input:focus, select:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(10,61,145,0.1);
+}
+
+input::placeholder {
+  color: #999;
+  font-size: 0.9rem;
+}
+
+/* Custom Select Arrow */
+select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23333' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 1rem center;
+  background-size: 16px;
+  padding-right: 2.5rem;
+}
+
+/* Buttons */
+button {
+  padding: 0.9rem 1.25rem;
+  border: none;
+  border-radius: 30px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.95rem;
+  transition: var(--transition);
+}
+
+button:active {
+  transform: scale(0.96);
+}
+
+.add-btn {
+  background: var(--primary);
+  color: #fff;
+  width: 100%;
+  margin-top: 0.5rem;
+  box-shadow: 0 4px 12px rgba(10,61,145,0.2);
+}
+
+.add-btn:active {
+  background: var(--primary-light);
+  box-shadow: 0 2px 6px rgba(10,61,145,0.3);
+}
+
+.action-btn {
+  background: var(--primary);
+  color: #fff;
+  padding: 0.5rem 1rem;
+  font-size: 0.85rem;
+  border-radius: 20px;
+  margin: 0 0.25rem;
+}
+
+.edit-btn {
+  background: var(--warning);
+  color: #333;
+  padding: 0.4rem 0.8rem;
+  font-size: 0.75rem;
+  border-radius: 20px;
+  font-weight: 500;
+  min-width: 60px;
+  margin-right: 0.25rem;
+}
+
+.delete-btn {
+  background: var(--danger);
+  color: #fff;
+  font-size: 0.75rem;
+  padding: 0.4rem 0.8rem;
+  border-radius: 20px;
+  font-weight: 500;
+  min-width: 60px;
+}
+
+.save-btn {
+  background: var(--success);
+  color: #fff;
+  font-size: 0.75rem;
+  padding: 0.4rem 0.8rem;
+  border-radius: 20px;
+  font-weight: 500;
+  min-width: 60px;
+}
+
+.cancel-btn {
+  background: var(--muted);
+  color: #fff;
+  font-size: 0.75rem;
+  padding: 0.4rem 0.8rem;
+  border-radius: 20px;
+  font-weight: 500;
+  min-width: 60px;
+}
+
+.bulk-action-bar {
+  background: var(--primary-light);
+  padding: 1rem;
+  border-radius: 12px;
+  margin-bottom: 1rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+  color: white;
+}
+
+.bulk-action-bar button {
+  background: white;
+  color: var(--primary);
+  padding: 0.5rem 1rem;
+  font-size: 0.85rem;
+}
+
+/* Upload Box */
+.upload-box {
+  border: 2px dashed var(--primary);
+  padding: 1.5rem;
+  text-align: center;
+  margin-top: 1.5rem;
+  border-radius: 16px;
+  background: rgba(10,61,145,0.02);
+}
+
+.upload-box h4 {
+  color: var(--primary);
+  margin-bottom: 1rem;
+  font-size: 1rem;
+}
+
+.upload-box input[type="file"] {
+  border: none;
+  padding: 0.5rem;
+  margin-bottom: 0.5rem;
+  background: #f8f9fa;
+}
+
+/* Search and Filter Bar */
+.search-bar {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+}
+
+.search-input {
+  flex: 1;
+  min-width: 200px;
+  padding: 0.8rem 1rem;
+  border: 1px solid #ddd;
+  border-radius: 30px;
+  font-size: 0.9rem;
+}
+
+.filter-select {
+  width: auto;
+  min-width: 150px;
+  padding: 0.8rem 2rem 0.8rem 1rem;
+  border-radius: 30px;
+}
+
+/* Table Styles - Mobile Optimized */
+.table-wrapper {
+  overflow-x: auto;
+  margin: 0 -0.5rem;
+  -webkit-overflow-scrolling: touch;
+  border-radius: 12px;
+  max-height: 500px;
+  overflow-y: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 700px;
+}
+
+th, td {
+  padding: 1rem 0.5rem;
+  border-bottom: 1px solid #eee;
+  font-size: 0.85rem;
+  text-align: left;
+}
+
+th {
+  background: #f8f9fa;
+  font-weight: 600;
+  color: #333;
+  white-space: nowrap;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+th.sortable {
+  cursor: pointer;
+  user-select: none;
+}
+
+th.sortable:hover {
+  background: #e9ecef;
+}
+
+th.sortable i {
+  margin-left: 0.3rem;
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+td {
+  color: #555;
+  vertical-align: middle;
+}
+
+td:last-child {
+  white-space: nowrap;
+}
+
+/* Checkbox Styles */
+.checkbox-cell {
+  width: 30px;
+  text-align: center;
+}
+
+.checkbox-all, .student-checkbox {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+  accent-color: var(--primary);
+}
+
+/* Editable Row Styles */
+tr.editing {
+  background: #fff3cd;
+}
+
+.editable-input {
+  width: 100%;
+  padding: 0.4rem;
+  border: 1px solid var(--primary);
+  border-radius: 6px;
+  font-size: 0.85rem;
+}
+
+/* Loading States */
+.loading-spinner {
+  text-align: center;
+  padding: 2rem;
+  color: var(--muted);
+}
+
+.loading-spinner::after {
+  content: '';
+  display: block;
+  width: 30px;
+  height: 30px;
+  border: 3px solid #ddd;
+  border-top-color: var(--primary);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  margin: 1rem auto;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Empty State */
+.empty-state {
+  text-align: center;
+  padding: 2rem;
+  color: var(--muted);
+  font-style: italic;
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+  .search-bar {
+    flex-direction: column;
+  }
+  
+  .filter-select {
+    width: 100%;
+  }
+  
+  .bulk-action-bar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .bulk-action-bar span {
+    text-align: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .header {
+    padding: 0.875rem 1rem;
+  }
+  
+  .header h2 {
+    font-size: 1.1rem;
+  }
+  
+  .logout-btn {
+    padding: 0.4rem 0.6rem;
+    font-size: 0.7rem;
+  }
+  
+  .container {
+    padding: 1rem;
+  }
+  
+  .form-card, .table-card {
+    padding: 1.25rem;
+  }
+  
+  .form-card h3, .table-card h3 {
+    font-size: 1.1rem;
+    margin-bottom: 1rem;
+  }
+  
+  input, select {
+    padding: 0.8rem 1rem;
+    font-size: 0.9rem;
+  }
+  
+  button {
+    padding: 0.8rem 1rem;
+    font-size: 0.9rem;
+  }
+  
+  .upload-box {
+    padding: 1rem;
+  }
+  
+  th, td {
+    padding: 0.75rem 0.5rem;
+    font-size: 0.8rem;
+  }
+}
+
+/* Touch Optimizations */
+@media (hover: none) and (pointer: coarse) {
+  input, select, button {
+    min-height: 48px;
+  }
+}
+
+/* Bottom Safe Area */
+@supports (padding-bottom: env(safe-area-inset-bottom)) {
+  .container {
+    padding-bottom: calc(1.25rem + env(safe-area-inset-bottom));
+  }
+}
+
+/* Remove Tap Highlight */
+button, input, select {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.form-card, .table-card, tr {
+  animation: fadeIn 0.3s ease-out;
+}
+
+/* Department Badge */
+.dept-badge {
+  background: #e6f0ff;
+  color: var(--primary);
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  display: inline-block;
+}
+
+/* Action Buttons Container */
+.action-buttons {
+  display: flex;
+  gap: 0.25rem;
+  flex-wrap: wrap;
+}
+
+/* Helper Text */
+.helper-text {
+  font-size: 0.75rem;
+  color: var(--muted);
+  margin-top: 0.25rem;
+}
+
+/* Pagination */
+.pagination {
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-top: 1rem;
+  flex-wrap: wrap;
+}
+
+.page-btn {
+  background: #f8f9fa;
+  color: var(--primary);
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  min-width: 40px;
+}
+
+.page-btn.active {
+  background: var(--primary);
+  color: white;
+}
+
+/* Stats Bar */
+.stats-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  font-size: 0.9rem;
+  color: var(--muted);
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h2>👥 Manage Students</h2>
+  <div class="header-buttons">
+    <button class="logout-btn" onclick="window.location.href='admin-dashboard.html'">← Back</button>
+    <button class="logout-btn" onclick="logout()">Logout</button>
+  </div>
+</div>
+
+<div class="container">
+  <!-- ADD SINGLE STUDENT CARD -->
+  <div class="form-card">
+    <h3>➕ Add Single Student</h3>
+
+    <div class="form-group">
+      <label>Full Name</label>
+      <input type="text" id="fullName" placeholder="e.g. John Doe">
+    </div>
+
+    <div class="form-group">
+      <label>Admission Number</label>
+      <input type="text" id="regNumber" placeholder="e.g. CIT-2023-001">
+    </div>
+
+    <div class="form-group">
+      <label>Email Address</label>
+      <input type="email" id="email" placeholder="student@zetech.ac.ke">
+    </div>
+
+    <div class="form-group">
+      <label>Department</label>
+      <select id="department">
+        <option value="">Loading Departments...</option>
+      </select>
+    </div>
+
+    <button class="add-btn" onclick="addStudent()">📝 Add Student</button>
+
+    <!-- UPLOAD SECTION -->
+    <div class="upload-box">
+      <h4>📤 Bulk Upload Students</h4>
+      <p class="helper-text">Supported formats: .xlsx, .xls, .csv</p>
+      <input type="file" id="excelFile" accept=".xlsx,.xls,.csv">
+      <button class="add-btn" onclick="uploadSpreadsheet()">📎 Upload Spreadsheet</button>
+    </div>
+  </div>
+
+  <!-- STUDENTS TABLE CARD -->
+  <div class="table-card">
+    <h3>📋 Registered Students</h3>
+    
+    <!-- Search and Filter Bar -->
+    <div class="search-bar">
+      <input type="text" id="searchInput" class="search-input" placeholder="🔍 Search by name, admission, email..." onkeyup="filterTable()">
+      <select id="departmentFilter" class="filter-select" onchange="filterTable()">
+        <option value="">All Departments</option>
+      </select>
+    </div>
+
+    <!-- Bulk Action Bar -->
+    <div id="bulkActionBar" class="bulk-action-bar" style="display: none;">
+      <span><span id="selectedCount">0</span> student(s) selected</span>
+      <div>
+        <button onclick="bulkDelete()"><i class="fas fa-trash"></i> Delete Selected</button>
+        <button onclick="clearSelection()"><i class="fas fa-times"></i> Clear</button>
+      </div>
+    </div>
+
+    <!-- Stats Bar -->
+    <div class="stats-bar">
+      <span>Total: <strong id="totalStudents">0</strong></span>
+      <span>Showing: <strong id="showingStudents">0</strong></span>
+    </div>
+    
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th class="checkbox-cell">
+              <input type="checkbox" id="selectAll" class="checkbox-all" onclick="toggleSelectAll()">
+            </th>
+            <th class="sortable" onclick="sortTable('fullName')">
+              Name <i class="fas fa-sort" id="sort-fullName"></i>
+            </th>
+            <th class="sortable" onclick="sortTable('admissionNumber')">
+              Admission <i class="fas fa-sort" id="sort-admissionNumber"></i>
+            </th>
+            <th class="sortable" onclick="sortTable('email')">
+              Email <i class="fas fa-sort" id="sort-email"></i>
+            </th>
+            <th class="sortable" onclick="sortTable('departmentId')">
+              Department <i class="fas fa-sort" id="sort-departmentId"></i>
+            </th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="studentTable"></tbody>
+      </table>
+    </div>
+
+    <!-- Pagination -->
+    <div id="pagination" class="pagination"></div>
+  </div>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { 
+  getFirestore, 
+  collection, 
+  getDocs, 
+  setDoc,
+  deleteDoc, 
+  doc,
+  updateDoc
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyA6sugBbX6kvd3RuwznAZkgHzAoEigpnj8",
+  authDomain: "zetech-e-voting.firebaseapp.com",
+  projectId: "zetech-e-voting"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+// Global variables
+let allStudents = [];
+let filteredStudents = [];
+let currentPage = 1;
+let rowsPerPage = 10;
+let sortColumn = 'fullName';
+let sortDirection = 'asc';
+let selectedStudents = new Set();
+let departments = {};
+
+// ================= PROTECTION =================
+document.addEventListener("DOMContentLoaded", async () => {
+  const adminSession = JSON.parse(sessionStorage.getItem("adminSession"));
+  if (!adminSession || adminSession.role !== "admin") {
+    alert("Admins only!");
+    window.location.href = "admin-login.html";
+    return;
+  }
+
+  await loadDepartments();
+  await loadStudents();
+  setupFilters();
+});
+
+// ================= LOAD DEPARTMENTS =================
+async function loadDepartments(){
+  const select = document.getElementById("department");
+  const filterSelect = document.getElementById("departmentFilter");
+  const snapshot = await getDocs(collection(db, "departments"));
+
+  select.innerHTML = `<option value="">🏛️ Select Department</option>`;
+  filterSelect.innerHTML = `<option value="">All Departments</option>`;
+  
+  snapshot.forEach(docSnap => {
+    departments[docSnap.id] = docSnap.id;
+    select.innerHTML += `<option value="${docSnap.id}">${docSnap.id}</option>`;
+    filterSelect.innerHTML += `<option value="${docSnap.id}">${docSnap.id}</option>`;
+  });
+}
+
+// ================= LOAD STUDENTS =================
+async function loadStudents(){
+  const snapshot = await getDocs(collection(db, "students"));
+  allStudents = [];
+  
+  snapshot.forEach(docSnap => {
+    allStudents.push({
+      id: docSnap.id,
+      ...docSnap.data()
+    });
+  });
+  
+  filteredStudents = [...allStudents];
+  updateTable();
+  updateStats();
+}
+
+// ================= TABLE FUNCTIONS =================
+function updateTable() {
+  const table = document.getElementById("studentTable");
+  
+  // Apply search filter
+  applySearchFilter();
+  
+  // Apply sorting
+  sortData();
+  
+  // Pagination
+  const start = (currentPage - 1) * rowsPerPage;
+  const end = start + rowsPerPage;
+  const paginatedStudents = filteredStudents.slice(start, end);
+  
+  if (filteredStudents.length === 0) {
+    table.innerHTML = '<tr><td colspan="6" class="empty-state">No students found</td></tr>';
+    document.getElementById("pagination").innerHTML = '';
+    return;
+  }
+
+  table.innerHTML = "";
+  paginatedStudents.forEach(student => {
+    const isSelected = selectedStudents.has(student.id);
+    table.innerHTML += `
+      <tr id="row-${student.id}" class="${isSelected ? 'selected-row' : ''}">
+        <td class="checkbox-cell">
+          <input type="checkbox" class="student-checkbox" value="${student.id}" 
+            ${isSelected ? 'checked' : ''} onchange="toggleSelect('${student.id}')">
+        </td>
+        <td><span id="name-${student.id}">${student.fullName || '-'}</span></td>
+        <td><span class="dept-badge" id="admission-${student.id}">${student.admissionNumber || '-'}</span></td>
+        <td><span id="email-${student.id}">${student.email || '-'}</span></td>
+        <td><span class="dept-badge" id="dept-${student.id}">${student.departmentId || '-'}</span></td>
+        <td>
+          <div class="action-buttons">
+            <button class="edit-btn" onclick="editStudent('${student.id}')">
+              <i class="fas fa-edit"></i> Edit
+            </button>
+            <button class="delete-btn" onclick="deleteStudent('${student.id}')">
+              <i class="fas fa-trash"></i> Del
+            </button>
+          </div>
+          <div id="edit-${student.id}" style="display: none;">
+            <input type="text" id="edit-name-${student.id}" class="editable-input" value="${student.fullName || ''}" placeholder="Name">
+            <input type="text" id="edit-admission-${student.id}" class="editable-input" value="${student.admissionNumber || ''}" placeholder="Admission">
+            <input type="email" id="edit-email-${student.id}" class="editable-input" value="${student.email || ''}" placeholder="Email">
+            <select id="edit-dept-${student.id}" class="editable-input">
+              ${Object.keys(departments).map(dept => 
+                `<option value="${dept}" ${student.departmentId === dept ? 'selected' : ''}>${dept}</option>`
+              ).join('')}
+            </select>
+            <div style="display: flex; gap: 0.25rem; margin-top: 0.25rem;">
+              <button class="save-btn" onclick="saveEdit('${student.id}')"><i class="fas fa-save"></i> Save</button>
+              <button class="cancel-btn" onclick="cancelEdit('${student.id}')"><i class="fas fa-times"></i> Cancel</button>
+            </div>
+          </div>
+        </td>
+      </tr>
+    `;
+  });
+
+  updatePagination();
+  updateBulkActionBar();
+  updateSelectAllCheckbox();
+}
+
+function applySearchFilter() {
+  const searchTerm = document.getElementById("searchInput").value.toLowerCase();
+  const departmentFilter = document.getElementById("departmentFilter").value;
+  
+  filteredStudents = allStudents.filter(student => {
+    const matchesSearch = 
+      (student.fullName?.toLowerCase().includes(searchTerm) || false) ||
+      (student.admissionNumber?.toLowerCase().includes(searchTerm) || false) ||
+      (student.email?.toLowerCase().includes(searchTerm) || false);
+    
+    const matchesDepartment = !departmentFilter || student.departmentId === departmentFilter;
+    
+    return matchesSearch && matchesDepartment;
+  });
+}
+
+function sortData() {
+  filteredStudents.sort((a, b) => {
+    let valA = a[sortColumn] || '';
+    let valB = b[sortColumn] || '';
+    
+    if (typeof valA === 'string') valA = valA.toLowerCase();
+    if (typeof valB === 'string') valB = valB.toLowerCase();
+    
+    if (sortDirection === 'asc') {
+      return valA > valB ? 1 : -1;
+    } else {
+      return valA < valB ? 1 : -1;
+    }
+  });
+}
+
+function updatePagination() {
+  const totalPages = Math.ceil(filteredStudents.length / rowsPerPage);
+  const pagination = document.getElementById("pagination");
+  
+  let html = '';
+  for (let i = 1; i <= totalPages; i++) {
+    html += `<button class="page-btn ${i === currentPage ? 'active' : ''}" onclick="goToPage(${i})">${i}</button>`;
+  }
+  
+  pagination.innerHTML = html;
+}
+
+function updateStats() {
+  document.getElementById("totalStudents").textContent = allStudents.length;
+  document.getElementById("showingStudents").textContent = filteredStudents.length;
+}
+
+// ================= SEARCH AND FILTER =================
+window.filterTable = function() {
+  currentPage = 1;
+  filteredStudents = [...allStudents];
+  applySearchFilter();
+  sortData();
+  updateTable();
+};
+
+// ================= SORTING =================
+window.sortTable = function(column) {
+  // Update sort icons
+  document.querySelectorAll('.sortable i').forEach(icon => {
+    icon.className = 'fas fa-sort';
+  });
+  
+  if (sortColumn === column) {
+    sortDirection = sortDirection === 'asc' ? 'desc' : 'asc';
+  } else {
+    sortColumn = column;
+    sortDirection = 'asc';
+  }
+  
+  document.getElementById(`sort-${column}`).className = 
+    `fas fa-sort-${sortDirection === 'asc' ? 'up' : 'down'}`;
+  
+  sortData();
+  updateTable();
+};
+
+// ================= PAGINATION =================
+window.goToPage = function(page) {
+  currentPage = page;
+  updateTable();
+};
+
+// ================= SELECTION FUNCTIONS =================
+window.toggleSelectAll = function() {
+  const selectAll = document.getElementById("selectAll");
+  const checkboxes = document.querySelectorAll('.student-checkbox');
+  
+  if (selectAll.checked) {
+    filteredStudents.forEach(s => selectedStudents.add(s.id));
+  } else {
+    selectedStudents.clear();
+  }
+  
+  updateTable();
+  updateBulkActionBar();
+};
+
+window.toggleSelect = function(studentId) {
+  if (selectedStudents.has(studentId)) {
+    selectedStudents.delete(studentId);
+  } else {
+    selectedStudents.add(studentId);
+  }
+  
+  updateBulkActionBar();
+  updateSelectAllCheckbox();
+};
+
+window.clearSelection = function() {
+  selectedStudents.clear();
+  updateTable();
+  updateBulkActionBar();
+};
+
+function updateBulkActionBar() {
+  const bar = document.getElementById("bulkActionBar");
+  const count = selectedStudents.size;
+  
+  if (count > 0) {
+    bar.style.display = 'flex';
+    document.getElementById("selectedCount").textContent = count;
+  } else {
+    bar.style.display = 'none';
+  }
+}
+
+function updateSelectAllCheckbox() {
+  const selectAll = document.getElementById("selectAll");
+  const checkboxes = document.querySelectorAll('.student-checkbox');
+  const checkedCount = document.querySelectorAll('.student-checkbox:checked').length;
+  
+  if (checkboxes.length > 0) {
+    selectAll.checked = checkedCount === checkboxes.length;
+    selectAll.indeterminate = checkedCount > 0 && checkedCount < checkboxes.length;
+  }
+}
+
+// ================= BULK OPERATIONS =================
+window.bulkDelete = async function() {
+  if (selectedStudents.size === 0) return;
+  
+  if (!confirm(`Are you sure you want to delete ${selectedStudents.size} student(s)?`)) return;
+  
+  let success = 0;
+  let failed = 0;
+  
+  for (const id of selectedStudents) {
+    try {
+      await deleteDoc(doc(db, "students", id));
+      success++;
+    } catch (err) {
+      failed++;
+    }
+  }
+  
+  alert(`✅ ${success} student(s) deleted successfully\n❌ ${failed} failed`);
+  
+  selectedStudents.clear();
+  await loadStudents();
+};
+
+// ================= EDIT FUNCTIONS =================
+window.editStudent = function(id) {
+  // Hide display row
+  document.querySelector(`#row-${id} td:not(:first-child)`).style.display = 'none';
+  
+  // Show edit form
+  document.getElementById(`edit-${id}`).style.display = 'block';
+  
+  // Hide action buttons
+  const row = document.getElementById(`row-${id}`);
+  row.classList.add('editing');
+};
+
+window.cancelEdit = function(id) {
+  // Show display row
+  document.querySelector(`#row-${id} td:not(:first-child)`).style.display = 'table-cell';
+  
+  // Hide edit form
+  document.getElementById(`edit-${id}`).style.display = 'none';
+  
+  // Remove editing class
+  document.getElementById(`row-${id}`).classList.remove('editing');
+};
+
+window.saveEdit = async function(id) {
+  const name = document.getElementById(`edit-name-${id}`).value.trim();
+  const admission = document.getElementById(`edit-admission-${id}`).value.trim();
+  const email = document.getElementById(`edit-email-${id}`).value.trim();
+  const dept = document.getElementById(`edit-dept-${id}`).value;
+  
+  if (!name || !admission || !email || !dept) {
+    alert("Please fill all fields");
+    return;
+  }
+  
+  try {
+    await updateDoc(doc(db, "students", id), {
+      fullName: name,
+      admissionNumber: admission,
+      email: email,
+      departmentId: dept
+    });
+    
+    alert("✅ Student updated successfully!");
+    await loadStudents();
+  } catch (err) {
+    alert("❌ Error updating student: " + err.message);
+  }
+};
+
+// ================= ADD SINGLE STUDENT =================
+window.addStudent = async function(){
+  const fullName = document.getElementById("fullName").value.trim();
+  const admissionNumber = document.getElementById("regNumber").value.trim();
+  const email = document.getElementById("email").value.trim();
+  const departmentId = document.getElementById("department").value;
+
+  if(!fullName || !admissionNumber || !email || !departmentId){
+    alert("Please fill all fields");
+    return;
+  }
+
+  if (!email.includes('@') || !email.includes('.')) {
+    alert("Please enter a valid email address");
+    return;
+  }
+
+  try {
+    await setDoc(doc(db, "students", admissionNumber), {
+      fullName,
+      admissionNumber,
+      email,
+      departmentId,
+      role: "student",
+      hasVotedDepartment: false,
+      hasVotedExecutive: false,
+      createdAt: new Date()
+    });
+
+    alert("✅ Student added successfully!");
+    
+    document.getElementById("fullName").value = "";
+    document.getElementById("regNumber").value = "";
+    document.getElementById("email").value = "";
+    document.getElementById("department").value = "";
+    
+    await loadStudents();
+  } catch(error){
+    alert("❌ Error adding student: " + error.message);
+  }
+};
+
+// ================= UPLOAD SPREADSHEET =================
+window.uploadSpreadsheet = async function(){
+  const file = document.getElementById("excelFile").files[0];
+  
+  if(!file){
+    alert("Please select a file first.");
+    return;
+  }
+
+  const reader = new FileReader();
+
+  reader.onload = async (e) => {
+    try {
+      const data = new Uint8Array(e.target.result);
+      const workbook = XLSX.read(data, {type: "array"});
+      const sheet = workbook.Sheets[workbook.SheetNames[0]];
+      const rows = XLSX.utils.sheet_to_json(sheet);
+
+      let successCount = 0;
+      let errorCount = 0;
+
+      for(const row of rows){
+        if(!row.fullName || !row.admissionNumber || !row.email || !row.department) {
+          errorCount++;
+          continue;
+        }
+
+        try {
+          await setDoc(doc(db, "students", String(row.admissionNumber).trim()), {
+            fullName: String(row.fullName).trim(),
+            admissionNumber: String(row.admissionNumber).trim(),
+            email: String(row.email).trim().toLowerCase(),
+            departmentId: String(row.department).trim(),
+            role: "student",
+            hasVotedDepartment: false,
+            hasVotedExecutive: false,
+            createdAt: new Date()
+          });
+          
+          successCount++;
+        } catch (err) {
+          errorCount++;
+        }
+      }
+
+      alert(`✅ Upload complete!\n📊 ${successCount} students added\n❌ ${errorCount} failed`);
+      
+      document.getElementById("excelFile").value = "";
+      
+      await loadStudents();
+    } catch (err) {
+      alert("❌ Error processing file: " + err.message);
+    }
+  };
+
+  reader.readAsArrayBuffer(file);
+};
+
+// ================= DELETE =================
+window.deleteStudent = async function(id){
+  if (!confirm("Are you sure you want to delete this student?")) return;
+  
+  try {
+    await deleteDoc(doc(db, "students", id));
+    alert("✅ Student deleted successfully!");
+    selectedStudents.delete(id);
+    await loadStudents();
+  } catch (err) {
+    alert("❌ Error deleting student: " + err.message);
+  }
+};
+
+// ================= LOGOUT =================
+window.logout = function(){
+  sessionStorage.removeItem("adminSession");
+  window.location.href = "admin-login.html";
+};
+
+// ================= SETUP FILTERS =================
+function setupFilters() {
+  document.getElementById("searchInput").addEventListener("keyup", filterTable);
+  document.getElementById("departmentFilter").addEventListener("change", filterTable);
+}
+
+// ================= AUTO-CLEAR FILE INPUT ON PAGE LOAD =================
+window.addEventListener('load', () => {
+  document.getElementById("excelFile").value = "";
+});
+</script>
+
+</body>
+</html>

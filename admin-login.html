@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+<meta name="theme-color" content="#0a3d91">
+<title>Admin Login | Zetech E-Voting</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<style>
+:root {
+  --primary: #0a3d91;
+  --primary-light: #1a4da1;
+  --primary-dark: #062a66;
+  --background: linear-gradient(135deg, #fff 0%, #e6f0ff 100%);
+  --white: #ffffff;
+  --muted: #6B7280;
+  --error: #dc2626;
+  --success: #16a34a;
+  --shadow: rgba(0,0,0,0.1);
+  --border-radius: 24px;
+  --card-radius: 20px;
+  --transition: all 0.2s ease;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Poppins', sans-serif;
+}
+
+body {
+  background: var(--background);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  padding: 1rem;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.container {
+  width: 100%;
+  max-width: 420px;
+  background: var(--white);
+  padding: 2rem 1.5rem;
+  border-radius: var(--border-radius);
+  box-shadow: 0 20px 40px rgba(10,61,145,0.15);
+  animation: slideUp 0.4s ease-out;
+  border: 1px solid rgba(255,255,255,0.5);
+}
+
+/* Icon Section */
+.icon {
+  font-size: 3.5rem;
+  color: var(--primary);
+  text-align: center;
+  margin-bottom: 0.5rem;
+  background: rgba(10,61,145,0.1);
+  width: 80px;
+  height: 80px;
+  line-height: 80px;
+  border-radius: 50%;
+  margin: 0 auto 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.container h2 {
+  text-align: center;
+  color: var(--primary);
+  margin-bottom: 0.5rem;
+  font-size: 1.8rem;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+}
+
+/* Info Text */
+.info-text {
+  text-align: center;
+  margin: 0.5rem 0 1.5rem;
+  color: var(--muted);
+  font-size: 0.9rem;
+  line-height: 1.5;
+  padding: 0 0.5rem;
+}
+
+/* Form Groups */
+.form-group {
+  margin-bottom: 1.5rem;
+}
+
+.form-group label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #333;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.form-group label i {
+  color: var(--primary);
+  font-size: 1rem;
+  width: 1.2rem;
+}
+
+/* Field Hint/Explainer */
+.field-hint {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.3rem;
+  font-size: 0.75rem;
+  color: var(--muted);
+  background: #f8f9fa;
+  padding: 0.4rem 0.8rem;
+  border-radius: 30px;
+}
+
+.field-hint i {
+  color: var(--primary);
+  font-size: 0.7rem;
+}
+
+/* Input Fields */
+.form-group input {
+  width: 100%;
+  padding: 1rem;
+  border-radius: 16px;
+  border: 1.5px solid #e5e7eb;
+  font-size: 1rem;
+  transition: var(--transition);
+  background: #f8f9fa;
+}
+
+.form-group input:focus {
+  border-color: var(--primary);
+  outline: none;
+  box-shadow: 0 0 0 4px rgba(10,61,145,0.1);
+  background: var(--white);
+}
+
+.form-group input::placeholder {
+  color: #9ca3af;
+  font-size: 0.9rem;
+}
+
+/* Button */
+.btn {
+  width: 100%;
+  padding: 1rem;
+  background: var(--primary);
+  color: #fff;
+  font-size: 1rem;
+  font-weight: 600;
+  border: none;
+  border-radius: 30px;
+  cursor: pointer;
+  transition: var(--transition);
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  box-shadow: 0 8px 16px rgba(10,61,145,0.2);
+}
+
+.btn:active {
+  transform: scale(0.96);
+  background: var(--primary-light);
+  box-shadow: 0 4px 8px rgba(10,61,145,0.3);
+}
+
+.btn i {
+  font-size: 1rem;
+}
+
+/* Messages */
+.error, .success {
+  text-align: center;
+  margin-bottom: 1rem;
+  padding: 0.75rem;
+  border-radius: 12px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  animation: shake 0.3s ease-out;
+}
+
+.error {
+  color: var(--error);
+  background: #fee2e2;
+  border: 1px solid #fecaca;
+}
+
+.success {
+  color: var(--success);
+  background: #dcfce7;
+  border: 1px solid #bbf7d0;
+}
+
+/* Back Link */
+.back-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  text-align: center;
+  color: var(--primary);
+  margin-top: 1rem;
+  text-decoration: none;
+  font-size: 0.9rem;
+  transition: var(--transition);
+  padding: 0.75rem;
+  border-radius: 30px;
+  background: #f8f9fa;
+}
+
+.back-btn:active {
+  background: #e5e7eb;
+  transform: scale(0.96);
+}
+
+.back-btn i {
+  font-size: 0.8rem;
+}
+
+/* Animations */
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  75% { transform: translateX(5px); }
+}
+
+/* Touch Optimizations */
+@media (hover: none) and (pointer: coarse) {
+  .btn, .back-btn, input {
+    min-height: 48px;
+  }
+  
+  .form-group input {
+    font-size: 16px; /* Prevents zoom on iOS */
+  }
+}
+
+/* Small Phones */
+@media (max-width: 380px) {
+  .container {
+    padding: 1.5rem 1rem;
+  }
+  
+  .container h2 {
+    font-size: 1.5rem;
+  }
+  
+  .icon {
+    width: 60px;
+    height: 60px;
+    line-height: 60px;
+    font-size: 2.5rem;
+  }
+  
+  .form-group label {
+    font-size: 0.9rem;
+  }
+  
+  .form-group input {
+    padding: 0.875rem;
+  }
+  
+  .btn {
+    padding: 0.875rem;
+  }
+  
+  .field-hint {
+    font-size: 0.7rem;
+    padding: 0.3rem 0.6rem;
+  }
+}
+
+/* Remove Tap Highlight */
+.btn, .back-btn, input {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Loading State */
+.btn.loading {
+  opacity: 0.7;
+  pointer-events: none;
+}
+
+.btn.loading i {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Floating Label Effect (optional) */
+.form-group {
+  position: relative;
+}
+
+/* Success/Error Icons */
+.error i, .success i {
+  font-size: 1rem;
+}
+
+/* Custom Placeholder */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus {
+  -webkit-box-shadow: 0 0 0px 1000px #f8f9fa inset;
+  transition: background-color 5000s ease-in-out 0s;
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+  <div class="icon">
+    <i class="fas fa-user-shield"></i>
+  </div>
+  
+  <h2>Admin Login</h2>
+  
+  <p class="info-text">
+    <i class="fas fa-shield-alt" style="color: var(--primary);"></i>
+    Secure access for authorized administrators only
+  </p>
+
+  <div class="error" id="errorMsg">
+    <i class="fas fa-exclamation-circle"></i>
+    <span></span>
+  </div>
+  
+  <div class="success" id="successMsg">
+    <i class="fas fa-check-circle"></i>
+    <span></span>
+  </div>
+
+  <div class="form-group">
+    <label>
+      <i class="fas fa-id-badge"></i>
+      Staff Number
+    </label>
+    <input type="text" id="staffNumber" placeholder="e.g. STAFF001" autocomplete="off">
+    <div class="field-hint">
+      <i class="fas fa-info-circle"></i>
+      <span>Enter your unique staff identification number</span>
+    </div>
+  </div>
+
+  <div class="form-group">
+    <label>
+      <i class="fas fa-envelope"></i>
+      Email Address
+    </label>
+    <input type="email" id="email" placeholder="admin@zetech.ac.ke" autocomplete="off">
+    <div class="field-hint">
+      <i class="fas fa-info-circle"></i>
+      <span>Use your official Zetech email address</span>
+    </div>
+  </div>
+
+  <button class="btn" id="loginBtn">
+    <i class="fas fa-lock-open"></i>
+    <span>Login to Dashboard</span>
+  </button>
+
+  <a href="index.html" class="back-btn">
+    <i class="fas fa-arrow-left"></i>
+    Back to Home
+  </a>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getFirestore, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+// Firebase config
+const firebaseConfig = {
+  apiKey: "AIzaSyA6sugBbX6kvd3RuwznAZkgHzAoEigpnj8",
+  authDomain: "zetech-e-voting.firebaseapp.com",
+  projectId: "zetech-e-voting"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+document.addEventListener("DOMContentLoaded", () => {
+  const loginBtn = document.getElementById("loginBtn");
+  const errorDiv = document.getElementById("errorMsg");
+  const successDiv = document.getElementById("successMsg");
+  const errorSpan = errorDiv.querySelector('span');
+  const successSpan = successDiv.querySelector('span');
+
+  // Clear messages initially
+  errorDiv.style.display = 'none';
+  successDiv.style.display = 'none';
+
+  loginBtn.addEventListener("click", async () => {
+    const staffNumber = document.getElementById("staffNumber").value.trim();
+    const email = document.getElementById("email").value.trim();
+
+    // Hide previous messages
+    errorDiv.style.display = 'none';
+    successDiv.style.display = 'none';
+
+    // Validation with user-friendly messages
+    if (!staffNumber || !email) {
+      errorSpan.textContent = "Please enter both Staff Number and Email";
+      errorDiv.style.display = 'flex';
+      
+      // Shake animation for empty fields
+      if (!staffNumber) document.getElementById("staffNumber").style.borderColor = 'var(--error)';
+      if (!email) document.getElementById("email").style.borderColor = 'var(--error)';
+      
+      setTimeout(() => {
+        document.getElementById("staffNumber").style.borderColor = '#e5e7eb';
+        document.getElementById("email").style.borderColor = '#e5e7eb';
+      }, 1000);
+      
+      return;
+    }
+
+    // Email format validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      errorSpan.textContent = "Please enter a valid email address";
+      errorDiv.style.display = 'flex';
+      document.getElementById("email").style.borderColor = 'var(--error)';
+      
+      setTimeout(() => {
+        document.getElementById("email").style.borderColor = '#e5e7eb';
+      }, 1000);
+      return;
+    }
+
+    // Show loading state
+    loginBtn.classList.add('loading');
+    loginBtn.innerHTML = '<i class="fas fa-spinner"></i> Verifying...';
+
+    try {
+      // Query admin by staffNumber
+      const adminsRef = collection(db, "admins");
+      const q = query(adminsRef, where("staffNumber", "==", staffNumber));
+      const querySnapshot = await getDocs(q);
+
+      if(querySnapshot.empty){
+        errorSpan.textContent = "Admin not found! Please check your staff number.";
+        errorDiv.style.display = 'flex';
+        loginBtn.classList.remove('loading');
+        loginBtn.innerHTML = '<i class="fas fa-lock-open"></i><span>Login to Dashboard</span>';
+        return;
+      }
+
+      const adminDoc = querySnapshot.docs[0];
+      const admin = adminDoc.data();
+
+      // Check email
+      if(admin.email.toLowerCase() !== email.toLowerCase()){
+        errorSpan.textContent = "Email does not match our records!";
+        errorDiv.style.display = 'flex';
+        loginBtn.classList.remove('loading');
+        loginBtn.innerHTML = '<i class="fas fa-lock-open"></i><span>Login to Dashboard</span>';
+        return;
+      }
+
+      // Success message
+      successSpan.textContent = "Login successful! Redirecting...";
+      successDiv.style.display = 'flex';
+
+      // Save session
+      sessionStorage.setItem("adminSession", JSON.stringify({
+        staffNumber: admin.staffNumber,
+        email: admin.email,
+        fullName: admin.fullName || 'Administrator',
+        role: admin.role || 'admin'
+      }));
+
+      // Redirect with animation
+      setTimeout(() => {
+        window.location.href = "admin-dashboard.html";
+      }, 800);
+
+    } catch(err){
+      console.error(err);
+      errorSpan.textContent = "Connection error. Please check your internet and try again.";
+      errorDiv.style.display = 'flex';
+      loginBtn.classList.remove('loading');
+      loginBtn.innerHTML = '<i class="fas fa-lock-open"></i><span>Login to Dashboard</span>';
+    }
+  });
+
+  // Enter key to submit
+  document.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') {
+      loginBtn.click();
+    }
+  });
+
+  // Clear error messages when typing
+  document.getElementById('staffNumber').addEventListener('input', () => {
+    errorDiv.style.display = 'none';
+  });
+  
+  document.getElementById('email').addEventListener('input', () => {
+    errorDiv.style.display = 'none';
+  });
+});
+</script>
+
+</body>
+</html>

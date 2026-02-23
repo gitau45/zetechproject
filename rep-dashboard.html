@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Representative Dashboard | Zetech E-Voting</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+<meta name="theme-color" content="#0f2a44">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --primary: #0f2a44;
+  --primary-light: #163a5f;
+  --primary-dark: #0a1f33;
+  --background: #f5f7fb;
+  --white: #ffffff;
+  --muted: #6B7280;
+  --shadow: rgba(0,0,0,.08);
+  --winner: #16a34a;
+  --danger: #8b0000;
+  --border-radius: 16px;
+  --card-radius: 14px;
+  --transition: all 0.2s ease;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Poppins', sans-serif;
+}
+
+body {
+  margin: 0;
+  background: var(--background);
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Header - Mobile Optimized */
+header {
+  background: var(--primary);
+  color: white;
+  padding: 1rem 1.25rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+header div:first-child {
+  font-size: 1.25rem;
+  font-weight: 600;
+  letter-spacing: -0.5px;
+}
+
+header button {
+  background: rgba(255,255,255,0.15);
+  border: 1px solid rgba(255,255,255,0.3);
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  cursor: pointer;
+  font-weight: 500;
+  font-size: 0.85rem;
+  transition: var(--transition);
+  color: white;
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+}
+
+header button:active {
+  transform: scale(0.95);
+  background: rgba(255,255,255,0.25);
+}
+
+/* Dashboard Container */
+.dashboard {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 1.25rem;
+  padding-bottom: calc(1.25rem + env(safe-area-inset-bottom));
+}
+
+/* Section Cards */
+.section {
+  background: var(--white);
+  padding: 1.5rem;
+  border-radius: var(--border-radius);
+  box-shadow: 0 8px 20px var(--shadow);
+  margin-bottom: 1.5rem;
+  transition: var(--transition);
+  border: 1px solid rgba(255,255,255,0.5);
+}
+
+.section:active {
+  transform: scale(0.99);
+}
+
+/* Section Titles */
+.section h2 {
+  margin: 0 0 1rem 0;
+  color: var(--primary);
+  font-size: 1.3rem;
+  font-weight: 600;
+  letter-spacing: -0.5px;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* Welcome Section */
+.section:first-child h2 {
+  margin-bottom: 0.5rem;
+}
+
+/* Role Badge */
+.badge {
+  background: var(--winner);
+  color: white;
+  padding: 0.4rem 1rem;
+  border-radius: 30px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  display: inline-block;
+  box-shadow: 0 2px 8px rgba(22,163,74,0.3);
+}
+
+/* Candidate/Item List */
+.item {
+  padding: 1rem 0;
+  border-bottom: 1px solid #f0f0f0;
+  font-size: 0.95rem;
+  animation: fadeIn 0.3s ease-out;
+}
+
+.item:last-child {
+  border-bottom: none;
+}
+
+.item strong {
+  color: var(--primary);
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+.item p {
+  color: var(--muted);
+  font-size: 0.85rem;
+  margin: 0.25rem 0;
+}
+
+/* Buttons */
+.vote-btn {
+  background: var(--primary);
+  color: white;
+  border: none;
+  padding: 0.9rem;
+  width: 100%;
+  border-radius: 30px;
+  cursor: pointer;
+  margin-top: 0.75rem;
+  font-weight: 600;
+  font-size: 0.95rem;
+  transition: var(--transition);
+  box-shadow: 0 4px 12px rgba(15,42,68,0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.vote-btn:active {
+  transform: scale(0.96);
+  background: var(--primary-light);
+  box-shadow: 0 2px 6px rgba(15,42,68,0.3);
+}
+
+.vote-btn::before {
+  content: "🗳️";
+  font-size: 1.1rem;
+}
+
+.back-btn {
+  background: var(--danger);
+  color: white;
+  border: none;
+  padding: 0.9rem;
+  width: 100%;
+  border-radius: 30px;
+  margin-top: 1rem;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.95rem;
+  transition: var(--transition);
+  box-shadow: 0 4px 12px rgba(139,0,0,0.2);
+}
+
+.back-btn:active {
+  transform: scale(0.96);
+  background: #a00000;
+  box-shadow: 0 2px 6px rgba(139,0,0,0.3);
+}
+
+/* Select Dropdown */
+select {
+  width: 100%;
+  padding: 1rem;
+  border-radius: 30px;
+  margin-bottom: 1.25rem;
+  border: 1px solid #ddd;
+  font-size: 0.95rem;
+  background-color: white;
+  -webkit-appearance: none;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23333' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 1.2rem center;
+  background-size: 16px;
+  padding-right: 3rem;
+  font-family: 'Poppins', sans-serif;
+}
+
+select:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(15,42,68,0.1);
+}
+
+/* Winner Styles */
+.winner {
+  color: var(--winner);
+  font-weight: 700;
+  background: rgba(22,163,74,0.1);
+  padding: 1rem;
+  border-radius: 12px;
+  margin: 0.5rem 0;
+}
+
+.winner.item {
+  border: 2px solid var(--winner);
+  background: rgba(22,163,74,0.05);
+  border-radius: 12px;
+  padding: 1rem;
+}
+
+/* Results Viewer */
+#resultsViewer {
+  min-height: 100px;
+}
+
+#resultsViewer h4 {
+  color: var(--primary);
+  margin: 1rem 0 0.5rem;
+  font-size: 1.1rem;
+}
+
+#resultsViewer hr {
+  margin: 1rem 0;
+  border: none;
+  border-top: 1px solid #eee;
+}
+
+/* Loading States */
+.loading-spinner {
+  text-align: center;
+  padding: 2rem;
+  color: var(--muted);
+  position: relative;
+}
+
+.loading-spinner::after {
+  content: '';
+  display: block;
+  width: 30px;
+  height: 30px;
+  border: 3px solid #ddd;
+  border-top-color: var(--primary);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  margin: 1rem auto;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Empty States */
+.empty-state {
+  text-align: center;
+  padding: 2rem;
+  color: var(--muted);
+  font-style: italic;
+  background: #f8f9fa;
+  border-radius: 12px;
+}
+
+/* Status Badge for Elections */
+.status-badge {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  background: #e5e7eb;
+  color: #4b5563;
+  margin-top: 0.25rem;
+}
+
+.status-active {
+  background: var(--winner);
+  color: white;
+}
+
+/* Touch Optimizations */
+@media (hover: none) and (pointer: coarse) {
+  .vote-btn, .back-btn, select, header button {
+    min-height: 48px;
+  }
+  
+  .item {
+    padding: 1.2rem 0;
+  }
+}
+
+/* Small Phones */
+@media (max-width: 380px) {
+  header div:first-child {
+    font-size: 1.1rem;
+  }
+  
+  .section {
+    padding: 1.25rem;
+  }
+  
+  .section h2 {
+    font-size: 1.2rem;
+  }
+  
+  .vote-btn, .back-btn {
+    padding: 0.8rem;
+    font-size: 0.9rem;
+  }
+  
+  select {
+    padding: 0.8rem 1rem;
+    font-size: 0.9rem;
+  }
+}
+
+/* Bottom Safe Area for Notches */
+@supports (padding-bottom: env(safe-area-inset-bottom)) {
+  .dashboard {
+    padding-bottom: calc(1.25rem + env(safe-area-inset-bottom));
+  }
+}
+
+/* Remove Tap Highlight */
+.vote-btn, .back-btn, select, header button {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 4px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--primary-light);
+  border-radius: 4px;
+}
+
+/* Welcome Section Specific */
+.section:first-child p {
+  color: var(--muted);
+  font-size: 0.95rem;
+  margin: 0.5rem 0;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+/* Executive Elections Container */
+#executiveElections {
+  margin-top: 0.5rem;
+}
+
+/* Election Item Enhancement */
+.election-item {
+  background: #f8f9fa;
+  border-radius: 12px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  border: 1px solid #f0f0f0;
+}
+
+.election-item:last-child {
+  margin-bottom: 0;
+}
+
+/* Animation for Section Cards */
+.section {
+  animation: slideUp 0.4s ease-out;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div>🗳️ Rep Dashboard</div>
+  <button onclick="logout()">Logout</button>
+</header>
+
+<div class="dashboard">
+  <!-- Welcome Section -->
+  <div class="section">
+    <h2>👋 Welcome, <span id="userName"></span></h2>
+    <p>
+      <span>Role Status:</span>
+      <span class="badge">🏛️ Representative</span>
+    </p>
+  </div>
+
+  <!-- Executive Voting Section -->
+  <div class="section">
+    <h2>🏛️ Executive Elections</h2>
+    <div id="executiveElections">
+      <div class="loading-spinner">Loading elections...</div>
+    </div>
+  </div>
+
+  <!-- Published Results Section -->
+  <div class="section">
+    <h2>📊 Published Results</h2>
+    
+    <select id="resultElectionSelect">
+      <option value="">📋 Select Published Election</option>
+    </select>
+    
+    <div id="resultsViewer">
+      <p class="empty-state">👆 Select an election to view results</p>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import {
+  getFirestore,
+  collection,
+  query,
+  where,
+  getDocs
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyA6sugBbX6kvd3RuwznAZkgEi",
+  authDomain: "zetech-e-voting.firebaseapp.com",
+  projectId: "zetech-e-voting"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+/* SESSION CHECK */
+const session = JSON.parse(sessionStorage.getItem("studentSession") || "{}");
+
+if (!session || session.role !== "rep") {
+  alert("Access denied - Representatives only");
+  location = "student-login.html";
+}
+
+document.getElementById("userName").innerText = session.fullName || "Representative";
+
+/* LOGOUT FUNCTION */
+window.logout = () => {
+  sessionStorage.clear();
+  location = "student-login.html";
+};
+
+/* LOAD EXECUTIVE ELECTIONS */
+async function loadExecutive() {
+  const container = document.getElementById("executiveElections");
+  
+  try {
+    const snap = await getDocs(
+      query(collection(db, "elections"),
+        where("level", "==", "executive"))
+    );
+
+    if (snap.empty) {
+      container.innerHTML = '<div class="empty-state">No executive elections available</div>';
+      return;
+    }
+
+    container.innerHTML = "";
+
+    snap.forEach(doc => {
+      const e = doc.data();
+      const status = e.status || "active";
+      
+      container.innerHTML += `
+        <div class="election-item item">
+          <strong>${e.name}</strong>
+          <p>
+            <span class="status-badge ${status === 'active' ? 'status-active' : ''}">
+              ${status.toUpperCase()}
+            </span>
+          </p>
+          <p style="color: var(--muted); font-size: 0.8rem;">
+            📅 ${e.startDate?.toDate().toLocaleDateString() || "TBD"} - ${e.endDate?.toDate().toLocaleDateString() || "TBD"}
+          </p>
+          <button class="vote-btn" onclick="vote('${doc.id}')">
+            Vote Now
+          </button>
+        </div>
+      `;
+    });
+
+    /* Load published elections for dropdown */
+    const select = document.getElementById("resultElectionSelect");
+    select.innerHTML = '<option value="">📋 Select Published Election</option>';
+
+    const publishedSnap = await getDocs(
+      query(collection(db, "elections"),
+        where("published", "==", true))
+    );
+
+    if (!publishedSnap.empty) {
+      publishedSnap.forEach(doc => {
+        select.innerHTML += `
+          <option value="${doc.id}">
+            ${doc.data().name}
+          </option>`;
+      });
+    } else {
+      select.innerHTML += '<option value="" disabled>No published elections</option>';
+    }
+  } catch (err) {
+    console.error("Error loading elections:", err);
+    container.innerHTML = '<div class="empty-state">Error loading elections</div>';
+  }
+}
+
+/* VOTE FUNCTION */
+window.vote = (id) => {
+  location = `vote.html?electionId=${id}`;
+};
+
+/* RESULTS VIEWER */
+document.getElementById("resultElectionSelect").onchange = async function() {
+  const electionId = this.value;
+  const viewer = document.getElementById("resultsViewer");
+
+  if (!electionId) {
+    viewer.innerHTML = '<p class="empty-state">👆 Select an election to view results</p>';
+    return;
+  }
+
+  viewer.innerHTML = '<div class="loading-spinner">Loading results...</div>';
+
+  try {
+    const snap = await getDocs(
+      query(collection(db, "candidates"),
+        where("electionId", "==", electionId))
+    );
+
+    if (snap.empty) {
+      viewer.innerHTML = '<p class="empty-state">No results available for this election</p>';
+      return;
+    }
+
+    let candidates = [];
+    snap.forEach(doc => {
+      candidates.push(doc.data());
+    });
+
+    candidates.sort((a, b) => (b.votes || 0) - (a.votes || 0));
+    const winner = candidates[0];
+
+    let html = '<h4>🏆 Winner</h4>';
+
+    if (winner) {
+      html += `
+        <div class="winner item">
+          <strong>${winner.fullName}</strong><br>
+          <span style="font-size: 0.9rem;">${winner.votes || 0} votes</span>
+        </div>
+      `;
+    }
+
+    html += '<hr><h4>📋 All Candidates</h4>';
+
+    candidates.forEach(c => {
+      html += `
+        <div class="item" style="display: flex; justify-content: space-between; align-items: center;">
+          <span>${c.fullName}</span>
+          <span style="background: var(--primary); color: white; padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.8rem; font-weight: 600;">
+            ${c.votes || 0} votes
+          </span>
+        </div>
+      `;
+    });
+
+    viewer.innerHTML = html;
+  } catch (err) {
+    console.error("Error loading results:", err);
+    viewer.innerHTML = '<p class="empty-state">Error loading results</p>';
+  }
+};
+
+/* INITIALIZE */
+loadExecutive();
+</script>
+
+</body>
+</html>

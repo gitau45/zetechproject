@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+<title>Election Publishing Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Poppins', sans-serif;
+}
+
+body {
+  margin: 0;
+  background: #f5f7fb;
+  min-height: 100vh;
+}
+
+/* HEADER */
+.header {
+  background: #0a3d91;
+  color: white;
+  padding: 12px 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.header div:first-child {
+  font-weight: 600;
+  font-size: 1.1rem;
+}
+
+.header-buttons {
+  display: flex;
+  gap: 8px;
+}
+
+.btn {
+  padding: 8px 14px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.85rem;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.btn:active {
+  transform: scale(0.96);
+}
+
+.back {
+  background: white;
+  color: #0a3d91;
+}
+
+.logout {
+  background: #ef4444;
+  color: white;
+}
+
+/* DASHBOARD */
+.container {
+  padding: 16px;
+  max-width: 1200px;
+  margin: auto;
+}
+
+.card {
+  background: white;
+  padding: 20px;
+  border-radius: 14px;
+  box-shadow: 0 6px 25px rgba(0,0,0,.08);
+  margin-bottom: 20px;
+}
+
+.card h2 {
+  font-size: 1.3rem;
+  margin-bottom: 15px;
+}
+
+.card h3 {
+  font-size: 1.1rem;
+  margin-bottom: 15px;
+}
+
+/* ANALYTICS */
+.analytics {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 12px;
+  margin-bottom: 15px;
+}
+
+.metric {
+  background: #fff;
+  padding: 16px;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0,0,0,.08);
+  text-align: center;
+}
+
+.metric h3 {
+  font-size: 0.9rem;
+  color: #666;
+  margin-bottom: 8px;
+}
+
+.metric p {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #0a3d91;
+}
+
+/* TABLE */
+.table-wrapper {
+  overflow-x: auto;
+  margin: 0 -5px;
+  -webkit-overflow-scrolling: touch;
+  border-radius: 8px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 650px;
+}
+
+th, td {
+  padding: 12px 8px;
+  border-bottom: 1px solid #eee;
+  font-size: .85rem;
+  text-align: left;
+}
+
+th {
+  background: #f8f9fa;
+  font-weight: 600;
+  color: #333;
+  white-space: nowrap;
+}
+
+td {
+  color: #555;
+}
+
+.winner {
+  color: #16a34a;
+  font-weight: 600;
+}
+
+/* BUTTONS */
+.publish-btn {
+  background: #22c55e;
+  color: white;
+  margin-right: 8px;
+  margin-bottom: 8px;
+}
+
+.unpublish-btn {
+  background: #f59e0b;
+  color: white;
+  margin-bottom: 8px;
+}
+
+.save-btn {
+  background: #0a3d91;
+  color: white;
+  margin-top: 10px;
+  width: 100%;
+}
+
+/* FORM ELEMENTS */
+select {
+  width: 100%;
+  padding: 12px;
+  margin-top: 8px;
+  margin-bottom: 15px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  font-size: 0.95rem;
+  background-color: #fff;
+  -webkit-appearance: none;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23333' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 16px;
+  padding-right: 40px;
+}
+
+select:focus {
+  outline: none;
+  border-color: #0a3d91;
+  box-shadow: 0 0 0 2px rgba(10,61,145,0.1);
+}
+
+hr {
+  margin: 20px 0;
+  border: none;
+  border-top: 1px solid #eee;
+}
+
+/* HEADER INFO */
+#headerInfo {
+  background: #f8f9fa;
+  padding: 15px;
+  border-radius: 8px;
+  margin-bottom: 15px;
+}
+
+#headerInfo h3 {
+  font-size: 1.1rem;
+  margin-bottom: 5px;
+}
+
+#headerInfo p {
+  color: #666;
+}
+
+/* BUTTON GROUP */
+.button-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 15px;
+}
+
+/* Mobile-specific improvements */
+@media (max-width: 480px) {
+  .header {
+    padding: 10px 12px;
+  }
+  
+  .header div:first-child {
+    font-size: 0.95rem;
+  }
+  
+  .btn {
+    padding: 6px 10px;
+    font-size: 0.75rem;
+  }
+  
+  .container {
+    padding: 12px;
+  }
+  
+  .card {
+    padding: 15px;
+  }
+  
+  .card h2 {
+    font-size: 1.2rem;
+  }
+  
+  .card h3 {
+    font-size: 1rem;
+  }
+  
+  .analytics {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+  
+  .metric {
+    padding: 12px;
+  }
+  
+  .metric h3 {
+    font-size: 0.85rem;
+  }
+  
+  .metric p {
+    font-size: 1.3rem;
+  }
+  
+  th, td {
+    padding: 10px 5px;
+    font-size: 0.8rem;
+  }
+  
+  select {
+    padding: 10px;
+    font-size: 0.9rem;
+  }
+  
+  .button-group {
+    flex-direction: column;
+  }
+  
+  .publish-btn, .unpublish-btn {
+    width: 100%;
+    margin-right: 0;
+  }
+}
+
+/* Touch-friendly improvements */
+@media (hover: none) and (pointer: coarse) {
+  select, .btn, .save-btn {
+    min-height: 44px;
+  }
+  
+  .btn {
+    min-height: 40px;
+  }
+}
+
+/* Small phones */
+@media (max-width: 350px) {
+  .header div:first-child {
+    font-size: 0.85rem;
+  }
+  
+  .btn {
+    padding: 5px 8px;
+    font-size: 0.7rem;
+  }
+  
+  .metric p {
+    font-size: 1.2rem;
+  }
+}
+
+/* Winner badge */
+.winner-badge {
+  display: inline-block;
+  background: #16a34a;
+  color: white;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 0.7rem;
+  font-weight: 600;
+}
+
+/* Status badge */
+.status-badge {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.status-published {
+  background: #22c55e;
+  color: white;
+}
+
+.status-draft {
+  background: #f59e0b;
+  color: white;
+}
+
+/* Loading state */
+.loading {
+  opacity: 0.7;
+  pointer-events: none;
+}
+
+/* Alert styling */
+.alert {
+  padding: 12px;
+  border-radius: 8px;
+  margin-bottom: 15px;
+  font-size: 0.9rem;
+}
+
+.alert-success {
+  background: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+}
+
+.alert-error {
+  background: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
+}
+
+/* Info text */
+.info-text {
+  font-size: 0.85rem;
+  color: #666;
+  margin-top: 5px;
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div>Election Publishing Dashboard</div>
+  <div class="header-buttons">
+    <button class="btn back" onclick="history.back()">← Back</button>
+    <button class="btn logout" onclick="logout()">Logout</button>
+  </div>
+</div>
+
+<div class="container">
+
+  <div class="card">
+    <h2>Election Control Panel</h2>
+    
+    <div id="headerInfo"></div>
+    
+    <div id="analytics" class="analytics"></div>
+    
+    <div class="button-group">
+      <button id="publishBtn" class="btn publish-btn" onclick="publishElection()">📢 Publish Results</button>
+      <button id="unpublishBtn" class="btn unpublish-btn" onclick="unpublishElection()">🔒 Unpublish</button>
+    </div>
+
+    <hr>
+
+    <h3>Manual Role Override</h3>
+    
+    <select id="studentRoleSelect"></select>
+    
+    <button class="btn save-btn" onclick="saveRoleOverride()">
+      💾 Save Role Change
+    </button>
+  </div>
+
+  <div class="card">
+    <h3>Vote Summary Table</h3>
+    
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Candidate</th>
+            <th>Position</th>
+            <th>Votes</th>
+            <th>Winner</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody id="resultsTable"></tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import {
+  getFirestore,
+  collection,
+  getDocs,
+  query,
+  where,
+  doc,
+  updateDoc
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyA6sugBbX6kvd3RuwznAZkgHzAoEigpnj8",
+  authDomain: "zetech-e-voting.firebaseapp.com",
+  projectId: "zetech-e-voting"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+/* SESSION */
+const session = JSON.parse(sessionStorage.getItem("adminSession") || "{}");
+
+if (!session || session.role !== "admin") {
+  alert("Admin only");
+  location = "admin-login.html";
+}
+
+/* GLOBAL STATE */
+let currentElectionId = null;
+
+/* LOAD SYSTEM */
+async function loadDashboard() {
+  const table = document.getElementById("resultsTable");
+  const analytics = document.getElementById("analytics");
+  const header = document.getElementById("headerInfo");
+
+  table.innerHTML = "";
+  analytics.innerHTML = "";
+  header.innerHTML = "";
+
+  const electionsSnap = await getDocs(collection(db, "elections"));
+  const electionDoc = electionsSnap.docs[0];
+
+  if (!electionDoc) return;
+
+  const election = electionDoc.data();
+  currentElectionId = electionDoc.id;
+
+  /* HEADER PANEL */
+  header.innerHTML = `
+    <h3>${election.name}</h3>
+    <p>Published: <span class="status-badge ${election.published ? 'status-published' : 'status-draft'}">${election.published ? "YES" : "NO"}</span></p>
+  `;
+
+  /* BUTTON VISIBILITY */
+  document.getElementById("publishBtn").style.display =
+    election.published ? "none" : "inline-block";
+
+  document.getElementById("unpublishBtn").style.display =
+    election.published ? "inline-block" : "none";
+
+  /* LOAD CANDIDATES */
+  const candidatesSnap = await getDocs(
+    query(collection(db, "candidates"),
+      where("electionId", "==", currentElectionId))
+  );
+
+  let groups = {};
+  let totalVotes = 0;
+
+  /* ROLE SELECT POPULATION */
+  const studentSelect = document.getElementById("studentRoleSelect");
+  studentSelect.innerHTML = "<option value=''>Select student to promote</option>";
+
+  const studentsSnap = await getDocs(collection(db, "students"));
+
+  studentsSnap.forEach(s => {
+    const d = s.data();
+    studentSelect.innerHTML += `
+      <option value="${s.id}">
+        ${d.fullName} (${d.role || "student"})
+      </option>
+    `;
+  });
+
+  candidatesSnap.forEach(docSnap => {
+    const d = docSnap.data();
+    const pos = d.position || "Representative";
+    const votes = d.votes || 0;
+
+    totalVotes += votes;
+
+    if (!groups[pos]) groups[pos] = [];
+
+    groups[pos].push({
+      id: docSnap.id,
+      name: d.fullName,
+      votes: votes,
+      admissionNumber: d.admissionNumber || d.studentId,
+      position: pos
+    });
+  });
+
+  /* WINNER ENGINE */
+  let winners = {};
+
+  for (const pos in groups) {
+    groups[pos].sort((a, b) => b.votes - a.votes);
+    if (groups[pos][0])
+      winners[pos] = groups[pos][0];
+  }
+
+  /* ANALYTICS */
+  analytics.innerHTML = `
+    <div class="metric">
+      <h3>Total Votes</h3>
+      <p>${totalVotes}</p>
+    </div>
+    <div class="metric">
+      <h3>Status</h3>
+      <p>${election.published ? "Published" : "Draft"}</p>
+    </div>
+  `;
+
+  /* TABLE RENDER */
+  for (const pos in groups) {
+    groups[pos].forEach(c => {
+      const winner = winners[pos] &&
+        c.admissionNumber === winners[pos].admissionNumber;
+
+      table.innerHTML += `
+        <tr>
+          <td>${c.name}</td>
+          <td>${c.position}</td>
+          <td><strong>${c.votes}</strong></td>
+          <td class="winner">${winner ? '🏆 YES' : 'NO'}</td>
+          <td><span class="status-badge ${election.published ? 'status-published' : 'status-draft'}">${election.published ? "Published" : "Draft"}</span></td>
+        </tr>
+      `;
+    });
+  }
+}
+
+/* PUBLISH ENGINE */
+window.publishElection = async () => {
+  if (!currentElectionId) return;
+  if (!confirm("Publish results? Winners will be promoted to rep role.")) return;
+
+  const electionRef = doc(db, "elections", currentElectionId);
+
+  /* Recalculate winners */
+  const candidatesSnap = await getDocs(
+    query(collection(db, "candidates"),
+      where("electionId", "==", currentElectionId))
+  );
+
+  let groups = {};
+
+  candidatesSnap.forEach(docSnap => {
+    const d = docSnap.data();
+    const pos = d.position || "Representative";
+    const votes = d.votes || 0;
+
+    if (!groups[pos]) groups[pos] = [];
+
+    groups[pos].push({
+      admissionNumber: d.admissionNumber || d.studentId,
+      votes: votes
+    });
+  });
+
+  /* Promote winners */
+  for (const pos in groups) {
+    groups[pos].sort((a, b) => b.votes - a.votes);
+    const winner = groups[pos][0];
+
+    if (winner && winner.admissionNumber) {
+      try {
+        await updateDoc(
+          doc(db, "students", winner.admissionNumber),
+          { role: "rep" }
+        );
+      } catch (err) {
+        console.error("Error promoting winner:", err);
+      }
+    }
+  }
+
+  /* Lock election */
+  await updateDoc(electionRef, { published: true });
+
+  alert("✅ Results published successfully!");
+  loadDashboard();
+};
+
+/* UNPUBLISH */
+window.unpublishElection = async () => {
+  if (!currentElectionId) return;
+  if (!confirm("Unpublish results?")) return;
+
+  await updateDoc(
+    doc(db, "elections", currentElectionId),
+    { published: false }
+  );
+
+  alert("📝 Results unpublished");
+  loadDashboard();
+};
+
+/* ROLE OVERRIDE SAVE */
+window.saveRoleOverride = async () => {
+  const studentSelect = document.getElementById("studentRoleSelect");
+  const studentId = studentSelect.value;
+
+  if (!studentId) {
+    alert("Please select a student");
+    return;
+  }
+
+  try {
+    await updateDoc(doc(db, "students", studentId), {
+      role: "rep"
+    });
+    alert("✅ Role updated successfully!");
+  } catch (err) {
+    console.error("Error updating role:", err);
+    alert("Error updating role");
+  }
+};
+
+/* LOGOUT */
+window.logout = () => {
+  sessionStorage.clear();
+  location = "admin-login.html";
+};
+
+loadDashboard();
+</script>
+
+</body>
+</html>
