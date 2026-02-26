@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
 <meta name="theme-color" content="#0a3d91">
-<title>University Voting System | Home</title>
+<title>University Voting System | Student Portal</title>
 
 <!-- Google Font -->
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -22,7 +22,6 @@
         --muted: #6B7280;
         --shadow: rgba(0,0,0,0.08);
         --border-radius: 24px;
-        --card-radius: 20px;
         --transition: all 0.3s ease;
     }
 
@@ -40,8 +39,6 @@
         align-items: center;
         min-height: 100vh;
         padding: 1rem;
-        -webkit-font-smoothing: antialiased;
-        -moz-osx-font-smoothing: grayscale;
     }
 
     .container {
@@ -51,184 +48,257 @@
         animation: fadeIn 0.6s ease-out;
     }
 
-    /* Header Section */
+    /* Header Section - Cleaner */
     .header {
         margin-bottom: 2.5rem;
     }
 
     .header h1 {
-        font-size: 2rem;
+        font-size: 2.2rem;
         color: var(--primary);
         font-weight: 700;
         letter-spacing: -0.5px;
-        margin-bottom: 0.75rem;
-        line-height: 1.3;
+        margin-bottom: 0.5rem;
     }
 
     .header p {
         color: var(--muted);
         font-size: 1rem;
-        max-width: 600px;
-        margin: 0 auto;
+    }
+
+    /* Loading Skeleton */
+    .skeleton {
+        background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+        background-size: 200% 100%;
+        animation: loading 1.5s infinite;
+        border-radius: 50px;
+        height: 58px;
+        width: 100%;
+    }
+
+    @keyframes loading {
+        0% { background-position: 200% 0; }
+        100% { background-position: -200% 0; }
+    }
+
+    /* Campus Selector */
+    .campus-selector {
+        max-width: 400px;
+        margin: 2rem auto;
         padding: 0 1rem;
     }
 
-    /* Cards Grid */
-    .cards {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-        gap: 1.5rem;
-        margin-bottom: 2rem;
+    .campus-selector select {
+        width: 100%;
+        padding: 1rem 1.5rem;
+        border: 2px solid #e0e7f0;
+        border-radius: 50px;
+        font-size: 1rem;
+        font-family: 'Poppins', sans-serif;
+        color: #333;
+        background: white;
+        cursor: pointer;
+        appearance: none;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%230a3d91' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 1.5rem center;
+        transition: var(--transition);
     }
 
-    /* Card Styles */
-    .card {
+    .campus-selector select:hover {
+        border-color: var(--primary);
+    }
+
+    .campus-selector select:focus {
+        outline: none;
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px rgba(10,61,145,0.1);
+    }
+
+    .campus-selector select:disabled {
+        background-color: #f5f5f5;
+        cursor: not-allowed;
+        opacity: 0.7;
+    }
+
+    /* Campus Stats */
+    .campus-stats {
+        display: flex;
+        justify-content: center;
+        gap: 1rem;
+        flex-wrap: wrap;
+        margin-bottom: 2rem;
+        min-height: 50px;
+    }
+
+    .stat-badge {
+        background: white;
+        padding: 0.5rem 1.2rem;
+        border-radius: 30px;
+        font-size: 0.85rem;
+        color: var(--primary);
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        border: 1px solid #e0e7f0;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .stat-badge i {
+        color: #22c55e;
+    }
+
+    .stat-skeleton {
+        width: 180px;
+        height: 36px;
+        background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+        background-size: 200% 100%;
+        animation: loading 1.5s infinite;
+        border-radius: 30px;
+    }
+
+    /* Student Card */
+    .cards {
+        display: flex;
+        justify-content: center;
+        margin-bottom: 3rem;
+    }
+
+    .student-card {
         background: var(--white);
-        padding: 2.5rem 1.5rem;
+        padding: 3rem 2rem;
         border-radius: var(--border-radius);
         box-shadow: 0 20px 40px rgba(10,61,145,0.1);
         transition: var(--transition);
         cursor: pointer;
+        max-width: 450px;
+        width: 100%;
         border: 2px solid transparent;
         position: relative;
-        overflow: hidden;
         animation: slideUp 0.4s ease-out;
     }
 
-    .card:nth-child(1) {
-        animation-delay: 0.1s;
-    }
-
-    .card:nth-child(2) {
-        animation-delay: 0.2s;
-    }
-
-    .card::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        height: 4px;
-        background: linear-gradient(90deg, var(--primary), var(--primary-light));
-        transform: scaleX(0);
-        transition: transform 0.3s ease;
-    }
-
-    .card:hover::before,
-    .card:active::before {
-        transform: scaleX(1);
-    }
-
-    .card:hover {
-        transform: translateY(-8px);
+    .student-card:hover {
+        transform: translateY(-5px);
         box-shadow: 0 30px 50px rgba(10,61,145,0.15);
+        border-color: var(--primary-light);
     }
 
-    .card:active {
-        transform: translateY(-4px);
+    .student-card:active {
+        transform: translateY(-2px);
     }
 
-    /* Icon Styles */
+    /* Icon */
     .icon {
         font-size: 4rem;
-        margin-bottom: 1.5rem;
         color: var(--primary);
         background: rgba(10,61,145,0.1);
-        width: 100px;
-        height: 100px;
-        line-height: 100px;
+        width: 120px;
+        height: 120px;
+        line-height: 120px;
         border-radius: 50%;
         margin: 0 auto 1.5rem;
         display: flex;
         align-items: center;
         justify-content: center;
-        transition: var(--transition);
     }
 
-    .card:hover .icon {
-        transform: scale(1.1);
-        background: rgba(10,61,145,0.15);
-    }
-
-    .card h2 {
+    .student-card h2 {
         color: var(--primary);
         margin-bottom: 1rem;
-        font-size: 1.6rem;
+        font-size: 2rem;
         font-weight: 600;
     }
 
-    .card p {
+    .student-card p {
         color: var(--muted);
-        font-size: 0.95rem;
+        font-size: 1rem;
         line-height: 1.6;
         margin-bottom: 2rem;
-        padding: 0 0.5rem;
+        padding: 0 1rem;
     }
 
-    /* Button Styles */
+    /* Button */
     .btn {
         display: inline-block;
-        padding: 0.9rem 2rem;
+        padding: 1rem 2.5rem;
         background: var(--primary);
         color: #fff;
         text-decoration: none;
-        border-radius: 40px;
+        border-radius: 50px;
         transition: var(--transition);
-        font-size: 0.95rem;
+        font-size: 1rem;
         font-weight: 500;
-        border: 2px solid transparent;
+        border: none;
+        cursor: pointer;
         box-shadow: 0 8px 16px rgba(10,61,145,0.2);
+        width: auto;
+        min-width: 200px;
     }
 
     .btn:hover {
         background: var(--primary-light);
-        transform: scale(1.05);
+        transform: scale(1.02);
         box-shadow: 0 12px 24px rgba(10,61,145,0.25);
     }
 
     .btn:active {
-        transform: scale(0.95);
+        transform: scale(0.98);
     }
 
     .btn i {
         margin-right: 0.5rem;
-        font-size: 0.9rem;
+    }
+
+    .btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        pointer-events: none;
+    }
+
+    /* Admin Link */
+    .admin-link {
+        margin-top: 2rem;
+        text-align: center;
+    }
+
+    .admin-link a {
+        color: #aaa;
+        font-size: 0.75rem;
+        text-decoration: none;
+        transition: color 0.2s ease;
+        letter-spacing: 0.5px;
+        opacity: 0.5;
+    }
+
+    .admin-link a:hover {
+        color: var(--primary);
+        opacity: 1;
+    }
+
+    .admin-link i {
+        margin-right: 0.3rem;
+        font-size: 0.7rem;
     }
 
     /* Footer */
     footer {
         margin-top: 3rem;
-        font-size: 0.85rem;
+        font-size: 0.8rem;
         color: var(--muted);
-        padding: 1.5rem;
-        background: rgba(255,255,255,0.5);
-        backdrop-filter: blur(10px);
-        -webkit-backdrop-filter: blur(10px);
-        border-radius: 60px;
-        display: inline-block;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-    }
-
-    footer i {
-        color: var(--primary);
-        margin: 0 0.25rem;
+        padding: 1rem;
     }
 
     /* Animations */
     @keyframes fadeIn {
-        from {
-            opacity: 0;
-        }
-        to {
-            opacity: 1;
-        }
+        from { opacity: 0; }
+        to { opacity: 1; }
     }
 
     @keyframes slideUp {
         from {
             opacity: 0;
-            transform: translateY(30px);
+            transform: translateY(20px);
         }
         to {
             opacity: 1;
@@ -236,131 +306,108 @@
         }
     }
 
-    /* Mobile Optimizations */
+    /* Mobile */
     @media (max-width: 600px) {
         .header h1 {
-            font-size: 1.7rem;
+            font-size: 1.8rem;
         }
 
-        .header p {
-            font-size: 0.95rem;
-        }
-
-        .cards {
-            gap: 1.25rem;
-        }
-
-        .card {
-            padding: 2rem 1.25rem;
+        .student-card {
+            padding: 2rem 1rem;
         }
 
         .icon {
-            width: 80px;
-            height: 80px;
-            line-height: 80px;
+            width: 100px;
+            height: 100px;
+            line-height: 100px;
             font-size: 3rem;
         }
 
-        .card h2 {
-            font-size: 1.4rem;
-        }
-
-        .card p {
-            font-size: 0.9rem;
-            margin-bottom: 1.5rem;
+        .student-card h2 {
+            font-size: 1.8rem;
         }
 
         .btn {
-            padding: 0.8rem 1.5rem;
-            font-size: 0.9rem;
+            padding: 0.9rem 2rem;
+            min-width: 180px;
         }
 
-        footer {
-            font-size: 0.8rem;
-            padding: 1rem 1.5rem;
-        }
-    }
-
-    /* Small Phones */
-    @media (max-width: 380px) {
-        .header h1 {
-            font-size: 1.5rem;
+        .campus-stats {
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
         }
 
-        .card {
-            padding: 1.5rem 1rem;
-        }
-
-        .icon {
-            width: 70px;
-            height: 70px;
-            line-height: 70px;
-            font-size: 2.5rem;
-        }
-
-        .card h2 {
-            font-size: 1.3rem;
+        .stat-badge {
+            width: fit-content;
         }
     }
 
-    /* Touch Optimizations */
+    /* Touch optimizations */
     @media (hover: none) and (pointer: coarse) {
-        .card, .btn {
-            min-height: 48px;
+        .student-card, .btn {
+            -webkit-tap-highlight-color: transparent;
         }
-
-        .card:active {
-            transform: scale(0.98);
-            background: #f8f9fa;
-        }
-
-        .btn:active {
-            transform: scale(0.96);
+        
+        .student-card:active {
+            background: #f8fafd;
         }
     }
 
-    /* Remove Tap Highlight */
-    .card, .btn {
-        -webkit-tap-highlight-color: transparent;
-    }
-
-    /* Feature Badges (optional) */
-    .feature-badge {
-        display: inline-block;
-        background: rgba(10,61,145,0.1);
-        color: var(--primary);
-        padding: 0.3rem 1rem;
-        border-radius: 30px;
-        font-size: 0.7rem;
-        font-weight: 600;
-        margin: 0.5rem 0;
-    }
-
-    /* Loading State (optional) */
-    .loading {
+    /* Loading state */
+    .btn.loading {
         opacity: 0.7;
         pointer-events: none;
     }
 
-    /* Custom Scrollbar */
-    ::-webkit-scrollbar {
-        width: 6px;
+    /* Error message */
+    .error-message {
+        color: #dc2626;
+        font-size: 0.85rem;
+        margin-top: 0.5rem;
+        display: none;
     }
 
-    ::-webkit-scrollbar-track {
-        background: #f1f1f1;
+    .error-message.show {
+        display: block;
     }
 
-    ::-webkit-scrollbar-thumb {
-        background: var(--primary-light);
-        border-radius: 6px;
+    /* Connection error */
+    .connection-error {
+        background: #fee2e2;
+        border: 1px solid #ef4444;
+        color: #dc2626;
+        padding: 1rem;
+        border-radius: 12px;
+        margin: 1rem auto;
+        max-width: 400px;
+        font-size: 0.9rem;
+        display: none;
     }
 
-    /* Glass Morphism Effect for Cards */
-    .card {
-        backdrop-filter: blur(10px);
-        -webkit-backdrop-filter: blur(10px);
-        background: rgba(255, 255, 255, 0.95);
+    .connection-error.show {
+        display: block;
+    }
+
+    .connection-error i {
+        margin-right: 0.5rem;
+    }
+
+    /* Retry button */
+    .retry-btn {
+        background: none;
+        border: 1px solid var(--primary);
+        color: var(--primary);
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        margin-top: 0.5rem;
+        cursor: pointer;
+        font-size: 0.8rem;
+    }
+
+    .retry-btn:hover {
+        background: var(--primary);
+        color: white;
     }
 </style>
 </head>
@@ -368,105 +415,297 @@
 <body>
 
 <div class="container">
-    <!-- Header Section -->
+    <!-- Simple Header -->
     <div class="header">
-        <h1>
-            <i class="fas fa-university" style="color: var(--primary); margin-right: 0.5rem;"></i>
-            University Online Voting System
-        </h1>
-        <p>
-            <i class="fas fa-shield-alt" style="color: var(--primary);"></i>
-            Secure, transparent, and accessible voting platform for the university community
-        </p>
+        <h1>University Voting</h1>
+        <p>Student voting portal</p>
     </div>
 
-    <!-- Cards Grid -->
+    <!-- Campus Stats (Dynamically loaded) -->
+    <div class="campus-stats" id="campusStats">
+        <div class="stat-skeleton"></div>
+        <div class="stat-skeleton"></div>
+        <div class="stat-skeleton"></div>
+    </div>
+
+    <!-- Connection Error -->
+    <div id="connectionError" class="connection-error">
+        <i class="fas fa-exclamation-triangle"></i>
+        Failed to load campus data. 
+        <button class="retry-btn" onclick="loadCampusesFromFirebase()">
+            <i class="fas fa-sync-alt"></i> Retry
+        </button>
+    </div>
+
+    <!-- Campus Selector (Required before login) -->
+    <div class="campus-selector">
+        <select id="campusSelect" disabled>
+            <option value="">Loading campuses...</option>
+        </select>
+        <div id="campusError" class="error-message">
+            <i class="fas fa-exclamation-circle"></i> Please select your campus
+        </div>
+    </div>
+
+    <!-- Student Card (Main Focus) -->
     <div class="cards">
-        <!-- Student Card -->
-        <div class="card" onclick="goStudent()" role="button" tabindex="0" aria-label="Student login">
+        <div class="student-card" onclick="goStudent()" role="button" tabindex="0">
             <div class="icon">
                 <i class="fas fa-user-graduate"></i>
             </div>
-            <h2>Student Portal</h2>
-            <div class="feature-badge">
-                <i class="fas fa-check-circle"></i> Vote & View Results
-            </div>
-            <p>
-                Login as a registered student to participate in elections, 
-                vote for your preferred candidates, and track election results in real-time.
-            </p>
-            <a href="student-login.html" class="btn" onclick="event.stopPropagation()">
-                <i class="fas fa-sign-in-alt"></i> Student Login
-            </a>
-        </div>
-
-        <!-- Admin Card -->
-        <div class="card" onclick="goAdmin()" role="button" tabindex="0" aria-label="Admin login">
-            <div class="icon">
-                <i class="fas fa-user-shield"></i>
-            </div>
-            <h2>Admin Portal</h2>
-            <div class="feature-badge">
-                <i class="fas fa-cog"></i> Manage Elections
-            </div>
-            <p>
-                Login as an administrator to manage elections, register candidates, 
-                monitor voting activity, and publish official results securely.
-            </p>
-            <a href="admin-login.html" class="btn" onclick="event.stopPropagation()">
-                <i class="fas fa-lock"></i> Admin Login
-            </a>
+            <h2>Student Login</h2>
+            <p>Cast your vote securely in ongoing elections and view real-time results</p>
+            <button class="btn" id="studentBtn" onclick="event.stopPropagation(); goStudent()" disabled>
+                <i class="fas fa-sign-in-alt"></i> Continue to Vote
+            </button>
         </div>
     </div>
 
-    <!-- Footer -->
+    <!-- Hidden Admin Link (Security through obscurity) -->
+    <div class="admin-link">
+        <a href="admin-login.html">
+            <i class="fas fa-shield-alt"></i> administrator access
+        </a>
+    </div>
+
+    <!-- Simple Footer -->
     <footer>
-        <i class="fas fa-check-circle" style="color: var(--primary);"></i>
-        &copy; 2026 University Voting System 
-        <i class="fas fa-circle" style="font-size: 0.3rem; color: var(--primary); margin: 0 0.5rem;"></i>
-        Secure & Transparent Elections
-        <i class="fas fa-check-circle" style="color: var(--primary);"></i>
+        <i class="fas fa-check-circle" style="color: #22c55e;"></i>
+        secure voting system • 2026
     </footer>
 </div>
 
-<script>
-    // Navigation functions
-    function goStudent() {
-        window.location.href = "student-login.html";
-    }
+<!-- Firebase SDK -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { 
+    getFirestore, 
+    collection, 
+    getDocs,
+    query,
+    orderBy
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-    function goAdmin() {
-        window.location.href = "admin-login.html";
-    }
+// Firebase configuration
+const firebaseConfig = {
+    apiKey: "AIzaSyA6sugBbX6kvd3RuwznAZkgHzAoEigpnj8",
+    authDomain: "zetech-e-voting.firebaseapp.com",
+    projectId: "zetech-e-voting"
+};
 
-    // Keyboard accessibility
-    document.querySelectorAll('.card').forEach(card => {
-        card.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter' || e.key === ' ') {
-                e.preventDefault();
-                card.click();
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+// Global variables
+let campuses = [];
+let studentsCount = {};
+
+// Load campuses from Firebase
+window.loadCampusesFromFirebase = async function() {
+    const campusSelect = document.getElementById('campusSelect');
+    const campusStats = document.getElementById('campusStats');
+    const connectionError = document.getElementById('connectionError');
+    const studentBtn = document.getElementById('studentBtn');
+    
+    try {
+        // Hide any previous errors
+        connectionError.classList.remove('show');
+        
+        // Show loading state
+        campusSelect.disabled = true;
+        campusSelect.innerHTML = '<option value="">Loading campuses...</option>';
+        
+        // Fetch campuses from Firestore
+        const campusesQuery = query(collection(db, "campus"), orderBy("name"));
+        const querySnapshot = await getDocs(campusesQuery);
+        
+        if (querySnapshot.empty) {
+            throw new Error("No campuses found");
+        }
+        
+        // Clear loading skeletons
+        campusStats.innerHTML = '';
+        campuses = [];
+        
+        // Process each campus
+        for (const doc of querySnapshot.docs) {
+            const campusData = doc.data();
+            const campusId = doc.id;
+            const campusName = campusData.name || campusId;
+            
+            campuses.push({
+                id: campusId,
+                name: campusName,
+                ...campusData
+            });
+            
+            // Add to stats (will be updated with real counts)
+            campusStats.innerHTML += `
+                <span class="stat-badge" id="stat-${campusId}">
+                    <i class="fas fa-spinner fa-spin"></i> ${campusName}: loading...
+                </span>
+            `;
+        }
+        
+        // Populate dropdown
+        campusSelect.innerHTML = '<option value="">Select your campus to continue</option>';
+        campuses.forEach(campus => {
+            campusSelect.innerHTML += `<option value="${campus.id}">${campus.name}</option>`;
+        });
+        
+        // Enable dropdown and button
+        campusSelect.disabled = false;
+        studentBtn.disabled = false;
+        
+        // Load student counts for each campus
+        await loadStudentCounts();
+        
+        // Pre-select if previously chosen
+        const savedCampus = sessionStorage.getItem('selectedCampus');
+        if (savedCampus && campuses.some(c => c.id === savedCampus)) {
+            campusSelect.value = savedCampus;
+        }
+        
+    } catch (error) {
+        console.error("Error loading campuses:", error);
+        
+        // Show error message
+        connectionError.classList.add('show');
+        
+        // Show error in dropdown
+        campusSelect.innerHTML = '<option value="">Failed to load campuses</option>';
+        campusSelect.disabled = true;
+        studentBtn.disabled = true;
+        
+        // Show error in stats
+        campusStats.innerHTML = `
+            <span class="stat-badge" style="color: #dc2626;">
+                <i class="fas fa-exclamation-circle"></i> Failed to load campus data
+            </span>
+        `;
+    }
+};
+
+// Load student counts for each campus
+async function loadStudentCounts() {
+    try {
+        // Get all students
+        const studentsSnapshot = await getDocs(collection(db, "students"));
+        
+        // Count students per campus
+        const counts = {};
+        studentsSnapshot.forEach(doc => {
+            const studentData = doc.data();
+            const campusId = studentData.campusId;
+            if (campusId) {
+                counts[campusId] = (counts[campusId] || 0) + 1;
             }
         });
-    });
-
-    // Add loading state on click (optional)
-    document.querySelectorAll('.btn').forEach(btn => {
-        btn.addEventListener('click', function(e) {
-            e.stopPropagation();
-            this.style.opacity = '0.7';
-            setTimeout(() => {
-                this.style.opacity = '1';
-            }, 200);
+        
+        // Update stats display
+        campuses.forEach(campus => {
+            const statElement = document.getElementById(`stat-${campus.id}`);
+            if (statElement) {
+                const count = counts[campus.id] || 0;
+                statElement.innerHTML = `
+                    <i class="fas fa-check-circle"></i> ${campus.name}: ${count} student${count !== 1 ? 's' : ''}
+                `;
+            }
         });
-    });
-
-    // Smooth scroll to top on page load
-    window.onload = () => {
-        window.scrollTo({
-            top: 0,
-            behavior: 'smooth'
+        
+    } catch (error) {
+        console.error("Error loading student counts:", error);
+        
+        // Fallback to showing campus names only
+        campuses.forEach(campus => {
+            const statElement = document.getElementById(`stat-${campus.id}`);
+            if (statElement) {
+                statElement.innerHTML = `
+                    <i class="fas fa-university"></i> ${campus.name}
+                `;
+            }
         });
-    };
+    }
+}
+
+// Store selected campus
+let selectedCampus = sessionStorage.getItem('selectedCampus') || '';
+
+// Student navigation with campus validation
+window.goStudent = function() {
+    const campusSelect = document.getElementById('campusSelect');
+    const campusError = document.getElementById('campusError');
+    const selectedCampus = campusSelect.value;
+
+    if (!selectedCampus) {
+        campusError.classList.add('show');
+        campusSelect.style.borderColor = '#dc2626';
+        
+        // Shake animation for error
+        campusSelect.style.animation = 'shake 0.3s ease';
+        setTimeout(() => {
+            campusSelect.style.animation = '';
+        }, 300);
+        
+        return;
+    }
+
+    // Clear any errors
+    campusError.classList.remove('show');
+    campusSelect.style.borderColor = '#e0e7f0';
+
+    // Save campus to session
+    sessionStorage.setItem('selectedCampus', selectedCampus);
+    
+    // Add loading state
+    const btn = document.getElementById('studentBtn');
+    btn.classList.add('loading');
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Redirecting...';
+
+    // Redirect to student login with campus parameter
+    setTimeout(() => {
+        window.location.href = `student-login.html?campus=${selectedCampus}`;
+    }, 500);
+};
+
+// Initialize on load
+window.addEventListener('load', () => {
+    loadCampusesFromFirebase();
+});
+
+// Keyboard accessibility
+document.querySelector('.student-card')?.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        goStudent();
+    }
+});
+
+// Clear error on selection change
+document.getElementById('campusSelect')?.addEventListener('change', function() {
+    const campusError = document.getElementById('campusError');
+    const campusSelect = this;
+    
+    if (this.value) {
+        campusError.classList.remove('show');
+        campusSelect.style.borderColor = '#e0e7f0';
+    }
+});
+
+// Add shake animation
+const style = document.createElement('style');
+style.textContent = `
+    @keyframes shake {
+        0%, 100% { transform: translateX(0); }
+        25% { transform: translateX(-5px); }
+        75% { transform: translateX(5px); }
+    }
+`;
+document.head.appendChild(style);
+
+// Prevent accidental admin link exposure
+console.log('Student portal loaded with Firebase integration');
 </script>
 
 </body>
