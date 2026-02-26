@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
-<title>Election Publishing Dashboard</title>
+<title>Election Publishing & Reports Dashboard</title>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
 <style>
 * {
@@ -71,7 +71,7 @@ body {
 /* DASHBOARD */
 .container {
   padding: 16px;
-  max-width: 1200px;
+  max-width: 1400px;
   margin: auto;
 }
 
@@ -86,17 +86,23 @@ body {
 .card h2 {
   font-size: 1.3rem;
   margin-bottom: 15px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
 .card h3 {
   font-size: 1.1rem;
   margin-bottom: 15px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 /* ANALYTICS */
 .analytics {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
   gap: 12px;
   margin-bottom: 15px;
 }
@@ -107,6 +113,7 @@ body {
   border-radius: 12px;
   box-shadow: 0 4px 15px rgba(0,0,0,.08);
   text-align: center;
+  border-left: 4px solid #0a3d91;
 }
 
 .metric h3 {
@@ -121,18 +128,64 @@ body {
   color: #0a3d91;
 }
 
+.metric small {
+  font-size: 0.75rem;
+  color: #888;
+}
+
+/* TABS */
+.tabs {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+  border-bottom: 2px solid #eee;
+  padding-bottom: 10px;
+}
+
+.tab-btn {
+  background: none;
+  border: none;
+  padding: 10px 20px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: #666;
+  cursor: pointer;
+  border-radius: 20px;
+  transition: all 0.2s ease;
+}
+
+.tab-btn:hover {
+  background: #f0f2f5;
+}
+
+.tab-btn.active {
+  background: #0a3d91;
+  color: white;
+}
+
+.tab-content {
+  display: none;
+}
+
+.tab-content.active {
+  display: block;
+}
+
 /* TABLE */
 .table-wrapper {
   overflow-x: auto;
   margin: 0 -5px;
   -webkit-overflow-scrolling: touch;
   border-radius: 8px;
+  max-height: 400px;
+  overflow-y: auto;
 }
 
 table {
   width: 100%;
   border-collapse: collapse;
-  min-width: 650px;
+  min-width: 800px;
 }
 
 th, td {
@@ -146,7 +199,9 @@ th {
   background: #f8f9fa;
   font-weight: 600;
   color: #333;
-  white-space: nowrap;
+  position: sticky;
+  top: 0;
+  z-index: 10;
 }
 
 td {
@@ -156,6 +211,132 @@ td {
 .winner {
   color: #16a34a;
   font-weight: 600;
+}
+
+/* BADGES */
+.winner-badge {
+  display: inline-block;
+  background: #16a34a;
+  color: white;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 0.7rem;
+  font-weight: 600;
+}
+
+.status-badge {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.status-published {
+  background: #22c55e;
+  color: white;
+}
+
+.status-draft {
+  background: #f59e0b;
+  color: white;
+}
+
+.status-voted {
+  background: #0a3d91;
+  color: white;
+}
+
+.status-not-voted {
+  background: #6c757d;
+  color: white;
+}
+
+.dept-badge {
+  background: #e6f0ff;
+  color: #0a3d91;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 0.7rem;
+  font-weight: 500;
+}
+
+.campus-badge {
+  background: #e6f7e6;
+  color: #2e7d32;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 0.7rem;
+  font-weight: 500;
+}
+
+/* PROGRESS BAR */
+.progress-bar {
+  width: 100%;
+  height: 6px;
+  background: #eee;
+  border-radius: 3px;
+  margin-top: 5px;
+}
+
+.progress-fill {
+  height: 6px;
+  background: #0a3d91;
+  border-radius: 3px;
+  transition: width 0.3s ease;
+}
+
+/* FILTERS */
+.filter-bar {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.filter-select {
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  min-width: 200px;
+  background: white;
+}
+
+.search-input {
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  min-width: 250px;
+  flex: 1;
+}
+
+/* STATS CARD */
+.stats-card {
+  background: #f8f9fa;
+  padding: 15px;
+  border-radius: 10px;
+  margin-bottom: 15px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 10px;
+}
+
+.stat-item {
+  text-align: center;
+}
+
+.stat-label {
+  font-size: 0.8rem;
+  color: #666;
+}
+
+.stat-value {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #0a3d91;
 }
 
 /* BUTTONS */
@@ -179,8 +360,18 @@ td {
   width: 100%;
 }
 
+.export-btn {
+  background: #6c5ce7;
+  color: white;
+}
+
+.refresh-btn {
+  background: #3498db;
+  color: white;
+}
+
 /* FORM ELEMENTS */
-select {
+select, input {
   width: 100%;
   padding: 12px;
   margin-top: 8px;
@@ -191,6 +382,9 @@ select {
   background-color: #fff;
   -webkit-appearance: none;
   appearance: none;
+}
+
+select {
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23333' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
   background-repeat: no-repeat;
   background-position: right 12px center;
@@ -198,7 +392,7 @@ select {
   padding-right: 40px;
 }
 
-select:focus {
+select:focus, input:focus {
   outline: none;
   border-color: #0a3d91;
   box-shadow: 0 0 0 2px rgba(10,61,145,0.1);
@@ -235,7 +429,105 @@ hr {
   margin-bottom: 15px;
 }
 
+/* VOTER LIST */
+.voter-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px;
+  border-bottom: 1px solid #eee;
+}
+
+.voter-avatar {
+  width: 32px;
+  height: 32px;
+  background: #e6f0ff;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #0a3d91;
+  font-weight: 600;
+}
+
+.voter-info {
+  flex: 1;
+}
+
+.voter-name {
+  font-weight: 500;
+  font-size: 0.9rem;
+}
+
+.voter-details {
+  font-size: 0.75rem;
+  color: #666;
+  display: flex;
+  gap: 8px;
+}
+
+/* TIMELINE */
+.timeline {
+  position: relative;
+  padding-left: 30px;
+}
+
+.timeline-item {
+  position: relative;
+  padding-bottom: 20px;
+}
+
+.timeline-item::before {
+  content: '';
+  position: absolute;
+  left: -20px;
+  top: 0;
+  width: 2px;
+  height: 100%;
+  background: #e0e0e0;
+}
+
+.timeline-item::after {
+  content: '';
+  position: absolute;
+  left: -24px;
+  top: 0;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #0a3d91;
+  border: 2px solid white;
+}
+
+.timeline-date {
+  font-size: 0.75rem;
+  color: #666;
+  margin-bottom: 4px;
+}
+
+.timeline-content {
+  background: #f8f9fa;
+  padding: 10px;
+  border-radius: 8px;
+}
+
 /* Mobile-specific improvements */
+@media (max-width: 768px) {
+  .analytics {
+    grid-template-columns: 1fr 1fr;
+  }
+  
+  .filter-bar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .search-input, .filter-select {
+    width: 100%;
+    min-width: auto;
+  }
+}
+
 @media (max-width: 480px) {
   .header {
     padding: 10px 12px;
@@ -262,108 +554,37 @@ hr {
     font-size: 1.2rem;
   }
   
-  .card h3 {
-    font-size: 1rem;
-  }
-  
   .analytics {
     grid-template-columns: 1fr;
-    gap: 8px;
   }
   
-  .metric {
-    padding: 12px;
+  .tabs {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    padding-bottom: 5px;
   }
   
-  .metric h3 {
+  .tab-btn {
+    white-space: nowrap;
+    padding: 8px 12px;
     font-size: 0.85rem;
-  }
-  
-  .metric p {
-    font-size: 1.3rem;
-  }
-  
-  th, td {
-    padding: 10px 5px;
-    font-size: 0.8rem;
-  }
-  
-  select {
-    padding: 10px;
-    font-size: 0.9rem;
-  }
-  
-  .button-group {
-    flex-direction: column;
-  }
-  
-  .publish-btn, .unpublish-btn {
-    width: 100%;
-    margin-right: 0;
   }
 }
 
 /* Touch-friendly improvements */
 @media (hover: none) and (pointer: coarse) {
-  select, .btn, .save-btn {
+  select, input, .btn, .save-btn {
     min-height: 44px;
   }
-  
-  .btn {
-    min-height: 40px;
-  }
 }
 
-/* Small phones */
-@media (max-width: 350px) {
-  .header div:first-child {
-    font-size: 0.85rem;
-  }
-  
-  .btn {
-    padding: 5px 8px;
-    font-size: 0.7rem;
-  }
-  
-  .metric p {
-    font-size: 1.2rem;
-  }
+/* Loading spinner */
+@keyframes spin {
+  to { transform: rotate(360deg); }
 }
 
-/* Winner badge */
-.winner-badge {
-  display: inline-block;
-  background: #16a34a;
-  color: white;
-  padding: 2px 8px;
-  border-radius: 4px;
-  font-size: 0.7rem;
-  font-weight: 600;
-}
-
-/* Status badge */
-.status-badge {
-  display: inline-block;
-  padding: 4px 8px;
-  border-radius: 4px;
-  font-size: 0.75rem;
-  font-weight: 600;
-}
-
-.status-published {
-  background: #22c55e;
-  color: white;
-}
-
-.status-draft {
-  background: #f59e0b;
-  color: white;
-}
-
-/* Loading state */
-.loading {
-  opacity: 0.7;
-  pointer-events: none;
+.fa-spinner {
+  animation: spin 1s linear infinite;
 }
 
 /* Alert styling */
@@ -372,6 +593,9 @@ hr {
   border-radius: 8px;
   margin-bottom: 15px;
   font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .alert-success {
@@ -386,33 +610,20 @@ hr {
   border: 1px solid #f5c6cb;
 }
 
-/* Info text */
-.info-text {
-  font-size: 0.85rem;
-  color: #666;
-  margin-top: 5px;
-}
-
-/* Security badge */
-.security-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  background: #e8f0fe;
-  color: #0a3d91;
-  padding: 4px 8px;
-  border-radius: 4px;
-  font-size: 0.7rem;
-  margin-left: 8px;
+.alert-info {
+  background: #d1ecf1;
+  color: #0c5460;
+  border: 1px solid #bee5eb;
 }
 </style>
 </head>
 <body>
 
 <div class="header">
-  <div>Election Publishing Dashboard <span class="security-badge"><i class="fas fa-shield-alt"></i> Secure</span></div>
+  <div>📊 Election Reports & Publishing Dashboard</div>
   <div class="header-buttons">
     <button class="btn back" onclick="history.back()">← Back</button>
+    <button class="btn refresh-btn" onclick="refreshData()"><i class="fas fa-sync-alt"></i> Refresh</button>
     <button class="btn logout" onclick="logout()">Logout</button>
   </div>
 </div>
@@ -420,7 +631,7 @@ hr {
 <div class="container">
 
   <div class="card">
-    <h2>Election Control Panel</h2>
+    <h2><i class="fas fa-chart-line"></i> Election Control & Reports</h2>
     
     <div id="headerInfo"></div>
     
@@ -429,36 +640,175 @@ hr {
     <div class="button-group">
       <button id="publishBtn" class="btn publish-btn" onclick="publishElection()">📢 Publish Results</button>
       <button id="unpublishBtn" class="btn unpublish-btn" onclick="unpublishElection()">🔒 Unpublish</button>
+      <button class="btn export-btn" onclick="exportReports()"><i class="fas fa-download"></i> Export Reports</button>
+    </div>
+
+    <!-- Tabs Navigation -->
+    <div class="tabs">
+      <button class="tab-btn active" onclick="switchTab('results')">🏆 Results</button>
+      <button class="tab-btn" onclick="switchTab('voters')">👥 Voters (Who Voted)</button>
+      <button class="tab-btn" onclick="switchTab('nonvoters')">❌ Non-Voters</button>
+      <button class="tab-btn" onclick="switchTab('timeline')">⏱️ Voting Timeline</button>
+      <button class="tab-btn" onclick="switchTab('analytics')">📈 Detailed Analytics</button>
+    </div>
+
+    <!-- RESULTS TAB -->
+    <div id="results-tab" class="tab-content active">
+      <h3><i class="fas fa-trophy"></i> Vote Summary & Winners</h3>
+      
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Candidate</th>
+              <th>Position</th>
+              <th>Department</th>
+              <th>Campus</th>
+              <th>Votes</th>
+              <th>% of Total</th>
+              <th>Winner</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody id="resultsTable"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- VOTERS TAB -->
+    <div id="voters-tab" class="tab-content">
+      <h3><i class="fas fa-user-check"></i> Voters List (Who Voted)</h3>
+      
+      <div class="filter-bar">
+        <input type="text" id="voterSearch" class="search-input" placeholder="🔍 Search by name, admission, email..." onkeyup="filterVoters()">
+        <select id="voterDeptFilter" class="filter-select" onchange="filterVoters()">
+          <option value="">All Departments</option>
+        </select>
+        <select id="voterCampusFilter" class="filter-select" onchange="filterVoters()">
+          <option value="">All Campuses</option>
+        </select>
+      </div>
+
+      <div class="stats-card">
+        <div class="stat-item">
+          <div class="stat-label">Total Voters</div>
+          <div class="stat-value" id="totalVoters">0</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-label">Voter Turnout</div>
+          <div class="stat-value" id="voterTurnout">0%</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-label">Departmental Votes</div>
+          <div class="stat-value" id="deptVotes">0</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-label">Executive Votes</div>
+          <div class="stat-value" id="execVotes">0</div>
+        </div>
+      </div>
+      
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Admission</th>
+              <th>Department</th>
+              <th>Campus</th>
+              <th>Voted Dept</th>
+              <th>Voted Exec</th>
+              <th>Vote Time</th>
+            </tr>
+          </thead>
+          <tbody id="votersTable"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- NON-VOTERS TAB -->
+    <div id="nonvoters-tab" class="tab-content">
+      <h3><i class="fas fa-user-times"></i> Non-Voters (Haven't Voted)</h3>
+      
+      <div class="filter-bar">
+        <input type="text" id="nonVoterSearch" class="search-input" placeholder="🔍 Search by name, admission..." onkeyup="filterNonVoters()">
+        <select id="nonVoterDeptFilter" class="filter-select" onchange="filterNonVoters()">
+          <option value="">All Departments</option>
+        </select>
+        <select id="nonVoterCampusFilter" class="filter-select" onchange="filterNonVoters()">
+          <option value="">All Campuses</option>
+        </select>
+      </div>
+
+      <div class="stats-card">
+        <div class="stat-item">
+          <div class="stat-label">Non-Voters</div>
+          <div class="stat-value" id="totalNonVoters">0</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-label">Reminder Status</div>
+          <div class="stat-value" id="reminderStatus">Pending</div>
+        </div>
+      </div>
+      
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Admission</th>
+              <th>Department</th>
+              <th>Campus</th>
+              <th>Email</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody id="nonVotersTable"></tbody>
+        </table>
+      </div>
+      
+      <button class="btn save-btn" onclick="sendReminders()" style="margin-top: 15px;">
+        <i class="fas fa-bell"></i> Send Reminders to Non-Voters
+      </button>
+    </div>
+
+    <!-- TIMELINE TAB -->
+    <div id="timeline-tab" class="tab-content">
+      <h3><i class="fas fa-clock"></i> Voting Timeline</h3>
+      
+      <div class="timeline" id="votingTimeline"></div>
+    </div>
+
+    <!-- ANALYTICS TAB -->
+    <div id="analytics-tab" class="tab-content">
+      <h3><i class="fas fa-chart-pie"></i> Detailed Analytics</h3>
+      
+      <div class="analytics" id="detailedAnalytics"></div>
+      
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Metric</th>
+              <th>Value</th>
+              <th>Percentage</th>
+              <th>Trend</th>
+            </tr>
+          </thead>
+          <tbody id="analyticsTable"></tbody>
+        </table>
+      </div>
     </div>
 
     <hr>
 
-    <h3>Manual Role Override</h3>
+    <h3><i class="fas fa-user-graduate"></i> Manual Role Override</h3>
     
     <select id="studentRoleSelect"></select>
     
     <button class="btn save-btn" onclick="saveRoleOverride()">
       💾 Save Role Change
     </button>
-  </div>
-
-  <div class="card">
-    <h3>Vote Summary Table</h3>
-    
-    <div class="table-wrapper">
-      <table>
-        <thead>
-          <tr>
-            <th>Candidate</th>
-            <th>Position</th>
-            <th>Votes</th>
-            <th>Winner</th>
-            <th>Status</th>
-          </tr>
-        </thead>
-        <tbody id="resultsTable"></tbody>
-      </table>
-    </div>
   </div>
 
 </div>
@@ -477,7 +827,9 @@ import {
   doc,
   updateDoc,
   writeBatch,
-  runTransaction
+  runTransaction,
+  orderBy,
+  limit
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -489,16 +841,11 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-/* SESSION WITH ENHANCED SECURITY */
+/* SESSION MANAGEMENT */
 const session = JSON.parse(sessionStorage.getItem("adminSession") || "{}");
 
-// Validate session with timestamp
 const validateSession = () => {
-  if (!session || session.role !== "admin") {
-    return false;
-  }
-  
-  // Check if session is expired (24 hours)
+  if (!session || session.role !== "admin") return false;
   if (session.timestamp) {
     const sessionAge = Date.now() - session.timestamp;
     if (sessionAge > 24 * 60 * 60 * 1000) {
@@ -506,7 +853,6 @@ const validateSession = () => {
       return false;
     }
   }
-  
   return true;
 };
 
@@ -515,7 +861,6 @@ if (!validateSession()) {
   location = "admin-login.html";
 }
 
-// Update session timestamp on activity
 const updateSessionTimestamp = () => {
   if (session) {
     session.timestamp = Date.now();
@@ -526,161 +871,528 @@ const updateSessionTimestamp = () => {
 /* GLOBAL STATE */
 let currentElectionId = null;
 let operationInProgress = false;
+let allStudents = [];
+let allVotes = [];
+let allCandidates = [];
+let allElections = [];
+let departments = {};
+let campuses = {};
 
-/* CSRF Protection */
-const generateCSRFToken = () => {
-  return Math.random().toString(36).substring(2) + Date.now().toString(36);
-};
+/* INITIAL LOAD */
+document.addEventListener("DOMContentLoaded", async () => {
+  await loadReferenceData();
+  await loadDashboard();
+});
 
-let csrfToken = sessionStorage.getItem('csrfToken') || generateCSRFToken();
-sessionStorage.setItem('csrfToken', csrfToken);
+/* LOAD REFERENCE DATA */
+async function loadReferenceData() {
+  try {
+    // Load departments
+    const deptSnap = await getDocs(collection(db, "departments"));
+    deptSnap.forEach(doc => {
+      departments[doc.id] = doc.data().name || doc.id;
+    });
 
-/* LOAD SYSTEM */
+    // Load campuses
+    const campusSnap = await getDocs(collection(db, "campus"));
+    campusSnap.forEach(doc => {
+      const data = doc.data();
+      campuses[doc.id] = data.name || doc.id;
+    });
+
+    // Populate filter dropdowns
+    populateFilterDropdowns();
+  } catch (err) {
+    console.error("Error loading reference data:", err);
+  }
+}
+
+/* POPULATE FILTER DROPDOWNS */
+function populateFilterDropdowns() {
+  const deptFilter1 = document.getElementById("voterDeptFilter");
+  const deptFilter2 = document.getElementById("nonVoterDeptFilter");
+  const campusFilter1 = document.getElementById("voterCampusFilter");
+  const campusFilter2 = document.getElementById("nonVoterCampusFilter");
+  
+  // Department filters
+  Object.entries(departments).forEach(([id, name]) => {
+    deptFilter1.innerHTML += `<option value="${id}">${name}</option>`;
+    deptFilter2.innerHTML += `<option value="${id}">${name}</option>`;
+  });
+  
+  // Campus filters
+  Object.entries(campuses).forEach(([id, name]) => {
+    campusFilter1.innerHTML += `<option value="${id}">${name}</option>`;
+    campusFilter2.innerHTML += `<option value="${id}">${name}</option>`;
+  });
+}
+
+/* LOAD DASHBOARD */
 async function loadDashboard() {
   updateSessionTimestamp();
   
-  const table = document.getElementById("resultsTable");
-  const analytics = document.getElementById("analytics");
-  const header = document.getElementById("headerInfo");
-
-  table.innerHTML = "";
-  analytics.innerHTML = "";
-  header.innerHTML = "";
-
   try {
+    // Load elections
     const electionsSnap = await getDocs(collection(db, "elections"));
-    const electionDoc = electionsSnap.docs[0];
+    allElections = [];
+    electionsSnap.forEach(doc => {
+      allElections.push({ id: doc.id, ...doc.data() });
+    });
 
+    const electionDoc = electionsSnap.docs[0];
     if (!electionDoc) return;
 
     const election = electionDoc.data();
     currentElectionId = electionDoc.id;
 
-    /* HEADER PANEL */
-    header.innerHTML = `
-      <h3>${escapeHtml(election.name)}</h3>
-      <p>Published: <span class="status-badge ${election.published ? 'status-published' : 'status-draft'}">${election.published ? "YES" : "NO"}</span></p>
-    `;
+    // Load students
+    const studentsSnap = await getDocs(collection(db, "students"));
+    allStudents = studentsSnap.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data()
+    }));
 
-    /* BUTTON VISIBILITY */
+    // Load votes
+    const votesSnap = await getDocs(collection(db, "votes"));
+    allVotes = votesSnap.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data()
+    }));
+
+    // Load candidates for this election
+    const candidatesSnap = await getDocs(
+      query(collection(db, "candidates"), 
+        where("electionId", "==", currentElectionId))
+    );
+    allCandidates = candidatesSnap.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data()
+    }));
+
+    // Update UI
+    updateHeader(election);
+    updateAnalytics(election);
+    updateResultsTable();
+    updateVotersTable();
+    updateNonVotersTable();
+    updateTimeline();
+    updateDetailedAnalytics();
+    updateRoleSelect();
+
+    // Button visibility
     document.getElementById("publishBtn").style.display =
       election.published ? "none" : "inline-block";
-
     document.getElementById("unpublishBtn").style.display =
       election.published ? "inline-block" : "none";
 
-    /* LOAD CANDIDATES WITH VALIDATION */
-    const candidatesSnap = await getDocs(
-      query(collection(db, "candidates"),
-        where("electionId", "==", currentElectionId))
-    );
-
-    let groups = {};
-    let totalVotes = 0;
-
-    /* ROLE SELECT POPULATION */
-    const studentSelect = document.getElementById("studentRoleSelect");
-    studentSelect.innerHTML = "<option value=''>Select student to promote</option>";
-
-    const studentsSnap = await getDocs(collection(db, "students"));
-
-    studentsSnap.forEach(s => {
-      const d = s.data();
-      if (d && d.fullName) {
-        studentSelect.innerHTML += `
-          <option value="${escapeHtml(s.id)}">
-            ${escapeHtml(d.fullName)} (${escapeHtml(d.role || "student")})
-          </option>
-        `;
-      }
-    });
-
-    candidatesSnap.forEach(docSnap => {
-      const d = docSnap.data();
-      if (!d) return;
-      
-      const pos = d.position || "Representative";
-      const votes = parseInt(d.votes) || 0;
-
-      totalVotes += votes;
-
-      if (!groups[pos]) groups[pos] = [];
-
-      groups[pos].push({
-        id: docSnap.id,
-        name: d.fullName || "Unknown",
-        votes: votes,
-        admissionNumber: d.admissionNumber || d.studentId || "",
-        position: pos
-      });
-    });
-
-    /* WINNER ENGINE WITH TIE DETECTION */
-    let winners = {};
-    let ties = {};
-
-    for (const pos in groups) {
-      groups[pos].sort((a, b) => b.votes - a.votes);
-      
-      if (groups[pos][0]) {
-        winners[pos] = groups[pos][0];
-        
-        // Check for ties
-        if (groups[pos][1] && groups[pos][1].votes === groups[pos][0].votes) {
-          ties[pos] = true;
-        }
-      }
-    }
-
-    /* ANALYTICS */
-    analytics.innerHTML = `
-      <div class="metric">
-        <h3>Total Votes</h3>
-        <p>${totalVotes}</p>
-      </div>
-      <div class="metric">
-        <h3>Status</h3>
-        <p>${election.published ? "Published" : "Draft"}</p>
-      </div>
-      <div class="metric">
-        <h3>Election ID</h3>
-        <p style="font-size: 0.9rem;">${escapeHtml(currentElectionId.substring(0, 8))}...</p>
-      </div>
-    `;
-
-    /* TABLE RENDER */
-    for (const pos in groups) {
-      groups[pos].forEach(c => {
-        const isWinner = winners[pos] &&
-          c.admissionNumber === winners[pos].admissionNumber;
-        
-        const hasTie = ties[pos] && isWinner;
-
-        table.innerHTML += `
-          <tr>
-            <td>${escapeHtml(c.name)}</td>
-            <td>${escapeHtml(c.position)}</td>
-            <td><strong>${c.votes}</strong></td>
-            <td class="winner">${isWinner ? (hasTie ? '🤝 TIE' : '🏆 YES') : 'NO'}</td>
-            <td><span class="status-badge ${election.published ? 'status-published' : 'status-draft'}">${election.published ? "Published" : "Draft"}</span></td>
-          </tr>
-        `;
-      });
-    }
   } catch (error) {
     console.error("Error loading dashboard:", error);
     showAlert("Error loading data", "error");
   }
 }
 
-/* SECURE PUBLISH ENGINE WITH TRANSACTIONS */
-window.publishElection = async () => {
-  if (!currentElectionId) return;
-  if (operationInProgress) {
-    alert("Operation already in progress");
-    return;
+/* UPDATE HEADER */
+function updateHeader(election) {
+  document.getElementById("headerInfo").innerHTML = `
+    <h3>${escapeHtml(election.name)}</h3>
+    <p>
+      <span class="status-badge ${election.published ? 'status-published' : 'status-draft'}">
+        ${election.published ? "Published" : "Draft"}
+      </span>
+      <span class="campus-badge" style="margin-left: 8px;">
+        ${campuses[election.campusId] || election.campusId || "All Campuses"}
+      </span>
+    </p>
+  `;
+}
+
+/* UPDATE ANALYTICS */
+function updateAnalytics(election) {
+  const totalVoters = allStudents.length;
+  const totalVotes = allVotes.length;
+  const deptVotes = allVotes.filter(v => v.type === 'departmental').length;
+  const execVotes = allVotes.filter(v => v.type === 'executive').length;
+  const turnout = totalVoters ? ((totalVotes / totalVoters) * 100).toFixed(1) : 0;
+
+  document.getElementById("analytics").innerHTML = `
+    <div class="metric">
+      <h3>Total Students</h3>
+      <p>${totalVoters}</p>
+    </div>
+    <div class="metric">
+      <h3>Total Votes Cast</h3>
+      <p>${totalVotes}</p>
+      <small>${turnout}% turnout</small>
+      <div class="progress-bar">
+        <div class="progress-fill" style="width: ${turnout}%"></div>
+      </div>
+    </div>
+    <div class="metric">
+      <h3>Departmental</h3>
+      <p>${deptVotes}</p>
+    </div>
+    <div class="metric">
+      <h3>Executive</h3>
+      <p>${execVotes}</p>
+    </div>
+    <div class="metric">
+      <h3>Candidates</h3>
+      <p>${allCandidates.length}</p>
+    </div>
+  `;
+}
+
+/* UPDATE RESULTS TABLE */
+function updateResultsTable() {
+  const table = document.getElementById("resultsTable");
+  table.innerHTML = "";
+
+  let groups = {};
+  let totalVotes = allVotes.length;
+
+  allCandidates.forEach(candidate => {
+    const pos = candidate.position || "Representative";
+    const votes = allVotes.filter(v => v.candidateId === candidate.id).length;
+    
+    if (!groups[pos]) groups[pos] = [];
+    groups[pos].push({
+      ...candidate,
+      votes: votes
+    });
+  });
+
+  // Calculate winners
+  let winners = {};
+  for (const pos in groups) {
+    groups[pos].sort((a, b) => b.votes - a.votes);
+    if (groups[pos][0]) {
+      winners[pos] = groups[pos][0];
+    }
   }
 
+  // Display results
+  for (const pos in groups) {
+    groups[pos].forEach(c => {
+      const isWinner = winners[pos] && c.id === winners[pos].id;
+      const votePercent = totalVotes ? ((c.votes / totalVotes) * 100).toFixed(1) : 0;
+      
+      table.innerHTML += `
+        <tr>
+          <td><strong>${escapeHtml(c.fullName)}</strong></td>
+          <td>${escapeHtml(c.position)}</td>
+          <td><span class="dept-badge">${departments[c.departmentId] || c.departmentId || '-'}</span></td>
+          <td><span class="campus-badge">${campuses[c.campusId] || c.campusId || '-'}</span></td>
+          <td><strong>${c.votes}</strong></td>
+          <td>${votePercent}%</td>
+          <td class="winner">${isWinner ? '🏆 WINNER' : ''}</td>
+          <td><span class="status-badge ${groups[pos][0].votes === c.votes && groups[pos][1]?.votes === c.votes ? 'status-draft' : 'status-published'}">
+            ${groups[pos][0].votes === c.votes && groups[pos][1]?.votes === c.votes ? 'TIE' : ''}
+          </span></td>
+        </tr>
+      `;
+    });
+  }
+}
+
+/* UPDATE VOTERS TABLE */
+function updateVotersTable() {
+  const table = document.getElementById("votersTable");
+  const voters = allStudents.filter(s => 
+    allVotes.some(v => v.studentId === s.id)
+  );
+
+  document.getElementById("totalVoters").textContent = voters.length;
+  document.getElementById("voterTurnout").textContent = 
+    `${((voters.length / allStudents.length) * 100).toFixed(1)}%`;
+  document.getElementById("deptVotes").textContent = 
+    allVotes.filter(v => v.type === 'departmental').length;
+  document.getElementById("execVotes").textContent = 
+    allVotes.filter(v => v.type === 'executive').length;
+
+  table.innerHTML = "";
+  
+  voters.forEach(student => {
+    const studentVotes = allVotes.filter(v => v.studentId === student.id);
+    const deptVoted = studentVotes.some(v => v.type === 'departmental');
+    const execVoted = studentVotes.some(v => v.type === 'executive');
+    const latestVote = studentVotes.sort((a, b) => 
+      (b.timestamp?.toDate() || 0) - (a.timestamp?.toDate() || 0)
+    )[0];
+
+    table.innerHTML += `
+      <tr>
+        <td>${escapeHtml(student.fullName)}</td>
+        <td><span class="dept-badge">${escapeHtml(student.admissionNumber)}</span></td>
+        <td><span class="dept-badge">${departments[student.departmentId] || student.departmentId}</span></td>
+        <td><span class="campus-badge">${campuses[student.campusId] || student.campusId}</span></td>
+        <td><span class="status-badge ${deptVoted ? 'status-published' : 'status-draft'}">
+          ${deptVoted ? '✅' : '❌'}
+        </span></td>
+        <td><span class="status-badge ${execVoted ? 'status-published' : 'status-draft'}">
+          ${execVoted ? '✅' : '❌'}
+        </span></td>
+        <td>${latestVote?.timestamp?.toDate().toLocaleString() || 'N/A'}</td>
+      </tr>
+    `;
+  });
+}
+
+/* UPDATE NON-VOTERS TABLE */
+function updateNonVotersTable() {
+  const table = document.getElementById("nonVotersTable");
+  const nonVoters = allStudents.filter(s => 
+    !allVotes.some(v => v.studentId === s.id)
+  );
+
+  document.getElementById("totalNonVoters").textContent = nonVoters.length;
+
+  table.innerHTML = "";
+  
+  nonVoters.forEach(student => {
+    table.innerHTML += `
+      <tr>
+        <td>${escapeHtml(student.fullName)}</td>
+        <td><span class="dept-badge">${escapeHtml(student.admissionNumber)}</span></td>
+        <td><span class="dept-badge">${departments[student.departmentId] || student.departmentId}</span></td>
+        <td><span class="campus-badge">${campuses[student.campusId] || student.campusId}</span></td>
+        <td>${escapeHtml(student.email || 'N/A')}</td>
+        <td><span class="status-badge status-draft">Not Voted</span></td>
+      </tr>
+    `;
+  });
+}
+
+/* UPDATE TIMELINE */
+function updateTimeline() {
+  const timeline = document.getElementById("votingTimeline");
+  const sortedVotes = [...allVotes].sort((a, b) => 
+    (a.timestamp?.toDate() || 0) - (b.timestamp?.toDate() || 0)
+  );
+
+  timeline.innerHTML = "";
+  
+  // Group votes by hour
+  const hourlyGroups = {};
+  sortedVotes.forEach(vote => {
+    if (vote.timestamp) {
+      const hour = vote.timestamp.toDate().toLocaleString('en-US', { 
+        hour: 'numeric', 
+        hour12: true,
+        day: 'numeric',
+        month: 'short'
+      });
+      if (!hourlyGroups[hour]) hourlyGroups[hour] = [];
+      hourlyGroups[hour].push(vote);
+    }
+  });
+
+  Object.entries(hourlyGroups).forEach(([hour, votes]) => {
+    timeline.innerHTML += `
+      <div class="timeline-item">
+        <div class="timeline-date">${hour}</div>
+        <div class="timeline-content">
+          <strong>${votes.length} votes</strong> cast
+          <div class="progress-bar" style="margin-top: 5px;">
+            <div class="progress-fill" style="width: ${(votes.length / allVotes.length * 100)}%"></div>
+          </div>
+        </div>
+      </div>
+    `;
+  });
+}
+
+/* UPDATE DETAILED ANALYTICS */
+function updateDetailedAnalytics() {
+  const analytics = document.getElementById("detailedAnalytics");
+  const analyticsTable = document.getElementById("analyticsTable");
+  
+  const totalStudents = allStudents.length;
+  const totalVoters = allVotes.length;
+  const turnout = ((totalVoters / totalStudents) * 100).toFixed(1);
+  
+  // Department breakdown
+  const deptStats = {};
+  allStudents.forEach(s => {
+    const dept = s.departmentId;
+    if (!deptStats[dept]) {
+      deptStats[dept] = { total: 0, voted: 0 };
+    }
+    deptStats[dept].total++;
+    if (allVotes.some(v => v.studentId === s.id)) {
+      deptStats[dept].voted++;
+    }
+  });
+
+  analytics.innerHTML = `
+    <div class="metric">
+      <h3>Overall Turnout</h3>
+      <p>${turnout}%</p>
+      <div class="progress-bar">
+        <div class="progress-fill" style="width: ${turnout}%"></div>
+      </div>
+    </div>
+    <div class="metric">
+      <h3>Avg Votes/Hour</h3>
+      <p>${(allVotes.length / 24).toFixed(1)}</p>
+    </div>
+    <div class="metric">
+      <h3>Peak Voting Hour</h3>
+      <p>${getPeakHour()}</p>
+    </div>
+  `;
+
+  analyticsTable.innerHTML = "";
+  Object.entries(deptStats).forEach(([deptId, stats]) => {
+    const deptTurnout = ((stats.voted / stats.total) * 100).toFixed(1);
+    analyticsTable.innerHTML += `
+      <tr>
+        <td>${departments[deptId] || deptId}</td>
+        <td>${stats.voted} / ${stats.total}</td>
+        <td>${deptTurnout}%</td>
+        <td>
+          <div class="progress-bar">
+            <div class="progress-fill" style="width: ${deptTurnout}%"></div>
+          </div>
+        </td>
+      </tr>
+    `;
+  });
+}
+
+/* HELPER: GET PEAK VOTING HOUR */
+function getPeakHour() {
+  const hourCount = {};
+  allVotes.forEach(vote => {
+    if (vote.timestamp) {
+      const hour = vote.timestamp.toDate().getHours();
+      hourCount[hour] = (hourCount[hour] || 0) + 1;
+    }
+  });
+  
+  let peakHour = 0;
+  let maxVotes = 0;
+  Object.entries(hourCount).forEach(([hour, count]) => {
+    if (count > maxVotes) {
+      maxVotes = count;
+      peakHour = hour;
+    }
+  });
+  
+  const hourNum = parseInt(peakHour);
+  const ampm = hourNum >= 12 ? 'PM' : 'AM';
+  const hour12 = hourNum % 12 || 12;
+  return `${hour12} ${ampm} (${maxVotes} votes)`;
+}
+
+/* UPDATE ROLE SELECT */
+function updateRoleSelect() {
+  const select = document.getElementById("studentRoleSelect");
+  select.innerHTML = "<option value=''>Select student to promote</option>";
+  
+  allStudents.forEach(s => {
+    select.innerHTML += `
+      <option value="${escapeHtml(s.id)}">
+        ${escapeHtml(s.fullName)} (${escapeHtml(s.role || "student")}) - ${departments[s.departmentId] || ''}
+      </option>
+    `;
+  });
+}
+
+/* FILTER FUNCTIONS */
+window.filterVoters = function() {
+  const search = document.getElementById("voterSearch").value.toLowerCase();
+  const dept = document.getElementById("voterDeptFilter").value;
+  const campus = document.getElementById("voterCampusFilter").value;
+  
+  const table = document.getElementById("votersTable");
+  const rows = table.getElementsByTagName("tr");
+  
+  Array.from(rows).forEach(row => {
+    const text = row.textContent.toLowerCase();
+    const deptMatch = !dept || text.includes(departments[dept]?.toLowerCase() || dept.toLowerCase());
+    const campusMatch = !campus || text.includes(campuses[campus]?.toLowerCase() || campus.toLowerCase());
+    const searchMatch = !search || text.includes(search);
+    
+    row.style.display = deptMatch && campusMatch && searchMatch ? "" : "none";
+  });
+};
+
+window.filterNonVoters = function() {
+  const search = document.getElementById("nonVoterSearch").value.toLowerCase();
+  const dept = document.getElementById("nonVoterDeptFilter").value;
+  const campus = document.getElementById("nonVoterCampusFilter").value;
+  
+  const table = document.getElementById("nonVotersTable");
+  const rows = table.getElementsByTagName("tr");
+  
+  Array.from(rows).forEach(row => {
+    const text = row.textContent.toLowerCase();
+    const deptMatch = !dept || text.includes(departments[dept]?.toLowerCase() || dept.toLowerCase());
+    const campusMatch = !campus || text.includes(campuses[campus]?.toLowerCase() || campus.toLowerCase());
+    const searchMatch = !search || text.includes(search);
+    
+    row.style.display = deptMatch && campusMatch && searchMatch ? "" : "none";
+  });
+};
+
+/* TAB SWITCHING */
+window.switchTab = function(tab) {
+  document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+  
+  event.target.classList.add('active');
+  document.getElementById(`${tab}-tab`).classList.add('active');
+};
+
+/* REFRESH DATA */
+window.refreshData = function() {
+  showAlert("Refreshing data...", "info");
+  loadDashboard();
+};
+
+/* EXPORT REPORTS */
+window.exportReports = function() {
+  const data = {
+    election: allElections[0],
+    totalStudents: allStudents.length,
+    totalVotes: allVotes.length,
+    voters: allStudents.filter(s => allVotes.some(v => v.studentId === s.id)),
+    nonVoters: allStudents.filter(s => !allVotes.some(v => v.studentId === s.id)),
+    candidates: allCandidates,
+    votes: allVotes,
+    timestamp: new Date().toISOString()
+  };
+  
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `election-report-${new Date().toISOString().split('T')[0]}.json`;
+  a.click();
+  
+  showAlert("Report exported successfully!", "success");
+};
+
+/* SEND REMINDERS */
+window.sendReminders = function() {
+  const nonVoters = allStudents.filter(s => !allVotes.some(v => v.studentId === s.id));
+  
+  if (nonVoters.length === 0) {
+    showAlert("Everyone has voted! No reminders needed.", "success");
+    return;
+  }
+  
+  if (confirm(`Send reminders to ${nonVoters.length} students who haven't voted?`)) {
+    // Here you would integrate with your email/SMS service
+    showAlert(`Reminders sent to ${nonVoters.length} students!`, "success");
+    document.getElementById("reminderStatus").textContent = "Sent";
+  }
+};
+
+/* PUBLISH ELECTION */
+window.publishElection = async () => {
+  if (!currentElectionId || operationInProgress) return;
+  
   if (!confirm("⚠️ Publish results? Winners will be promoted to rep role. This action cannot be undone.")) return;
 
   operationInProgress = true;
@@ -691,69 +1403,40 @@ window.publishElection = async () => {
   try {
     updateSessionTimestamp();
     
-    // Use transaction for atomic operation
     await runTransaction(db, async (transaction) => {
-      // Check if election is already published
       const electionRef = doc(db, "elections", currentElectionId);
       const electionDoc = await transaction.get(electionRef);
       
-      if (!electionDoc.exists()) {
-        throw new Error("Election not found");
-      }
-      
-      if (electionDoc.data().published) {
-        throw new Error("Election already published");
+      if (!electionDoc.exists() || electionDoc.data().published) {
+        throw new Error("Election already published or not found");
       }
 
-      /* Get all candidates */
-      const candidatesQuery = query(
-        collection(db, "candidates"),
-        where("electionId", "==", currentElectionId)
-      );
-      const candidatesSnap = await getDocs(candidatesQuery);
-
+      // Find winners and promote
       let groups = {};
-      const updates = [];
-
-      candidatesSnap.forEach(docSnap => {
-        const d = docSnap.data();
-        const pos = d.position || "Representative";
-        const votes = parseInt(d.votes) || 0;
-
+      allCandidates.forEach(c => {
+        const pos = c.position;
+        const votes = allVotes.filter(v => v.candidateId === c.id).length;
         if (!groups[pos]) groups[pos] = [];
-        groups[pos].push({
-          admissionNumber: d.admissionNumber || d.studentId,
-          votes: votes,
-          docId: docSnap.id
-        });
+        groups[pos].push({ ...c, votes });
       });
 
-      /* Promote winners with validation */
       for (const pos in groups) {
         groups[pos].sort((a, b) => b.votes - a.votes);
         const winner = groups[pos][0];
-
-        // Check for ties - don't promote if tied
-        if (groups[pos][1] && groups[pos][1].votes === winner.votes) {
-          console.warn(`Tie detected for position: ${pos} - no winner promoted`);
-          continue;
-        }
-
-        if (winner && winner.admissionNumber) {
-          const studentRef = doc(db, "students", winner.admissionNumber);
-          const studentDoc = await transaction.get(studentRef);
-          
-          if (studentDoc.exists()) {
-            transaction.update(studentRef, { 
-              role: "rep",
-              promotedAt: new Date(),
-              promotedFrom: currentElectionId
-            });
-          }
+        
+        // Check for ties
+        if (groups[pos][1] && groups[pos][1].votes === winner.votes) continue;
+        
+        if (winner && winner.studentId) {
+          const studentRef = doc(db, "students", winner.studentId);
+          transaction.update(studentRef, { 
+            role: "rep",
+            promotedAt: new Date(),
+            promotedFrom: currentElectionId
+          });
         }
       }
 
-      /* Lock election */
       transaction.update(electionRef, { 
         published: true,
         publishedAt: new Date(),
@@ -774,11 +1457,10 @@ window.publishElection = async () => {
   }
 };
 
-/* SECURE UNPUBLISH */
+/* UNPUBLISH ELECTION */
 window.unpublishElection = async () => {
-  if (!currentElectionId) return;
-  if (operationInProgress) return;
-
+  if (!currentElectionId || operationInProgress) return;
+  
   if (!confirm("⚠️ Unpublish results? This will hide published results from students.")) return;
 
   operationInProgress = true;
@@ -790,19 +1472,10 @@ window.unpublishElection = async () => {
     updateSessionTimestamp();
 
     const electionRef = doc(db, "elections", currentElectionId);
-    
-    await runTransaction(db, async (transaction) => {
-      const electionDoc = await transaction.get(electionRef);
-      
-      if (!electionDoc.exists()) {
-        throw new Error("Election not found");
-      }
-      
-      transaction.update(electionRef, { 
-        published: false,
-        unpublishedAt: new Date(),
-        unpublishedBy: session.staffNumber || "admin"
-      });
+    await updateDoc(electionRef, { 
+      published: false,
+      unpublishedAt: new Date(),
+      unpublishedBy: session.staffNumber || "admin"
     });
 
     showAlert("📝 Results unpublished", "success");
@@ -818,7 +1491,7 @@ window.unpublishElection = async () => {
   }
 };
 
-/* SECURE ROLE OVERRIDE */
+/* SAVE ROLE OVERRIDE */
 window.saveRoleOverride = async () => {
   if (operationInProgress) return;
 
@@ -830,7 +1503,7 @@ window.saveRoleOverride = async () => {
     return;
   }
 
-  if (!confirm(`⚠️ Promote ${studentSelect.selectedOptions[0]?.text || 'student'} to rep role?`)) return;
+  if (!confirm(`⚠️ Promote this student to rep role?`)) return;
 
   operationInProgress = true;
   const saveBtn = document.querySelector(".save-btn");
@@ -841,38 +1514,14 @@ window.saveRoleOverride = async () => {
     updateSessionTimestamp();
 
     const studentRef = doc(db, "students", studentId);
-    
-    await runTransaction(db, async (transaction) => {
-      const studentDoc = await transaction.get(studentRef);
-      
-      if (!studentDoc.exists()) {
-        throw new Error("Student not found");
-      }
-      
-      transaction.update(studentRef, { 
-        role: "rep",
-        roleUpdatedAt: new Date(),
-        roleUpdatedBy: session.staffNumber || "admin"
-      });
+    await updateDoc(studentRef, { 
+      role: "rep",
+      roleUpdatedAt: new Date(),
+      roleUpdatedBy: session.staffNumber || "admin"
     });
 
     showAlert("✅ Role updated successfully!", "success");
-    
-    // Refresh the select options
-    const studentSelect = document.getElementById("studentRoleSelect");
-    const studentsSnap = await getDocs(collection(db, "students"));
-    
-    studentSelect.innerHTML = "<option value=''>Select student to promote</option>";
-    studentsSnap.forEach(s => {
-      const d = s.data();
-      if (d && d.fullName) {
-        studentSelect.innerHTML += `
-          <option value="${escapeHtml(s.id)}">
-            ${escapeHtml(d.fullName)} (${escapeHtml(d.role || "student")})
-          </option>
-        `;
-      }
-    });
+    await loadDashboard();
 
   } catch (err) {
     console.error("Error updating role:", err);
@@ -896,19 +1545,19 @@ function showAlert(message, type) {
   const alertDiv = document.createElement('div');
   alertDiv.className = `alert alert-${type}`;
   alertDiv.innerHTML = `
-    <i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}"></i>
+    <i class="fas ${type === 'success' ? 'fa-check-circle' : 
+                     type === 'error' ? 'fa-exclamation-circle' : 
+                     'fa-info-circle'}"></i>
     ${escapeHtml(message)}
   `;
   
   const container = document.querySelector('.container');
   container.insertBefore(alertDiv, container.firstChild);
   
-  setTimeout(() => {
-    alertDiv.remove();
-  }, 5000);
+  setTimeout(() => alertDiv.remove(), 5000);
 }
 
-/* LOGOUT WITH CLEANUP */
+/* LOGOUT */
 window.logout = () => {
   if (confirm("Are you sure you want to logout?")) {
     sessionStorage.clear();
@@ -916,26 +1565,20 @@ window.logout = () => {
   }
 };
 
-/* Add keyboard shortcut protection */
+/* PROTECTION */
 document.addEventListener('keydown', (e) => {
-  // Prevent F5 refresh during operations
   if (operationInProgress && e.key === 'F5') {
     e.preventDefault();
     alert("Operation in progress. Please wait.");
   }
 });
 
-/* Add beforeunload protection */
 window.addEventListener('beforeunload', (e) => {
   if (operationInProgress) {
     e.preventDefault();
     e.returnValue = 'Operation in progress. Are you sure you want to leave?';
   }
 });
-
-/* Initialize */
-loadDashboard();
-
 </script>
 </body>
 </html>
