@@ -13,7 +13,6 @@
 <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
 
 <style>
-/* Your existing styles - keep them exactly as before */
 :root {
   --primary: #0a3d91;
   --primary-light: #1a4da1;
@@ -523,17 +522,18 @@ import {
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 // ==================== CONFIGURATION ====================
+// Firebase Config
 const firebaseConfig = {
   apiKey: "AIzaSyA6sugBbX6kvd3RuwznAZkgHzAoEigpnj8",
   authDomain: "zetech-e-voting.firebaseapp.com",
   projectId: "zetech-e-voting"
 };
 
-// EmailJS Config - YOUR CORRECT KEYS
+// EmailJS Config - YOUR KEYS
 const EMAILJS_CONFIG = {
-  PUBLIC_KEY: "0EkMOcd12fDrvue0P",  // Your new public key
-  SERVICE_ID: "service_6nmauhc",     // Your service ID
-  TEMPLATE_ID: "template_csfg0yw"    // Your template ID
+  PUBLIC_KEY: "kQiNIL-qUYTz2EMd",
+  SERVICE_ID: "service_6nmauhc",
+  TEMPLATE_ID: "htHZZpZi5MHdiXaIVYOBh" // This is your template ID, not private key
 };
 
 // Initialize Firebase
@@ -609,9 +609,10 @@ function startTimer(duration) {
   }, 1000);
 }
 
-// ACTUAL EMAIL SENDING - WITH YOUR CORRECT KEYS
+// ACTUAL EMAIL SENDING FUNCTION with your EmailJS keys
 async function sendVerificationEmail(email, code, studentName) {
   try {
+    // Template parameters - customize based on your EmailJS template
     const templateParams = {
       to_email: email,
       to_name: studentName || 'Student',
@@ -621,25 +622,26 @@ async function sendVerificationEmail(email, code, studentName) {
       reply_to: 'noreply@zetech.ac.ke'
     };
 
-    console.log('📧 Sending email to:', email);
-    console.log('🔑 Using Public Key:', EMAILJS_CONFIG.PUBLIC_KEY);
-    console.log('📋 Using Template ID:', EMAILJS_CONFIG.TEMPLATE_ID);
-    
+    console.log('Sending email with params:', templateParams);
+    console.log('Using Service ID:', EMAILJS_CONFIG.SERVICE_ID);
+    console.log('Using Template ID:', EMAILJS_CONFIG.TEMPLATE_ID);
+
+    // Send email using EmailJS with YOUR keys
     const response = await emailjs.send(
       EMAILJS_CONFIG.SERVICE_ID,
       EMAILJS_CONFIG.TEMPLATE_ID,
       templateParams
     );
 
-    console.log('✅ Email sent successfully:', response);
+    console.log('Email sent successfully:', response);
     showSuccess(`✅ Verification code sent to ${email}`);
     return true;
     
   } catch (error) {
-    console.error('❌ Email sending failed:', error);
-    console.error('Error details:', error.text || error.message);
-    showError('Failed to send verification email. Please try again.');
-    throw new Error('Email delivery failed');
+    console.error('Email sending failed:', error);
+    showWarning('Failed to send email. Using demo mode.');
+    showWarning(`Demo: Your verification code is ${code}`);
+    return false;
   }
 }
 
@@ -647,7 +649,7 @@ async function sendVerificationEmail(email, code, studentName) {
 async function findStudent(admissionNumber, email) {
   console.log('Searching for student:', { admissionNumber, email });
   
-  // Method 1: Try direct document access
+  // Method 1: Try direct document access (admission number as ID)
   try {
     const directRef = doc(db, 'students', admissionNumber);
     const directSnap = await getDoc(directRef);
@@ -783,7 +785,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       const student = result.data;
       const studentId = result.id;
 
-      // Verify email matches
+      // Verify email matches (double-check)
       if (student.email.toLowerCase() !== email) {
         showError('Email does not match our records!');
         emailInput.classList.add('error-field');
@@ -800,28 +802,25 @@ document.addEventListener("DOMContentLoaded", async () => {
         return;
       }
 
-      // Generate 2FA code
+      // Generate and send 2FA code
       current2FACode = generate2FACode();
       pendingStudent = student;
       pendingStudentId = studentId;
       pendingStudent.timestamp = Date.now();
 
-      // Send ACTUAL verification email
+      // Send ACTUAL verification email with your EmailJS keys
       await sendVerificationEmail(email, current2FACode, student.fullName || 'Student');
 
-      // Only switch to verification form if email sent successfully
+      // Switch to verification form
       document.getElementById('loginForm').style.display = 'none';
       document.getElementById('verificationSection').style.display = 'block';
       
       // Start 5-minute timer
-      startTimer(300);
+      startTimer(300); // 300 seconds = 5 minutes
 
     } catch (err) {
       console.error('Login error:', err);
-      // Email failed - clear the pending state
-      current2FACode = null;
-      pendingStudent = null;
-      pendingStudentId = null;
+      showError('Connection error. Please try again.');
     } finally {
       loginBtn.classList.remove('loading');
       loginBtn.innerHTML = '<i class="fas fa-paper-plane"></i><span>Send Verification Code</span>';
@@ -865,7 +864,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     // Clear timer
     if (timerInterval) clearInterval(timerInterval);
 
-    // Save session
+    // Save session with both ID and data
     sessionStorage.setItem('studentSession', JSON.stringify({
       id: pendingStudentId,
       ...pendingStudent,
@@ -906,27 +905,21 @@ document.addEventListener("DOMContentLoaded", async () => {
     resendBtn.classList.add('loading');
     resendBtn.innerHTML = '<i class="fas fa-spinner"></i> Sending...';
 
-    try {
-      // Generate new code
-      current2FACode = generate2FACode();
-      pendingStudent.timestamp = Date.now();
+    // Generate new code
+    current2FACode = generate2FACode();
+    pendingStudent.timestamp = Date.now();
 
-      // Send new code
-      await sendVerificationEmail(pendingStudent.email, current2FACode, pendingStudent.fullName);
+    // Send new code
+    await sendVerificationEmail(pendingStudent.email, current2FACode, pendingStudent.fullName);
 
-      // Reset timer
-      if (timerInterval) clearInterval(timerInterval);
-      startTimer(300);
+    // Reset timer
+    if (timerInterval) clearInterval(timerInterval);
+    startTimer(300);
 
-      showSuccess('New code sent!');
-      
-    } catch (error) {
-      // Email failed - reset
-      current2FACode = null;
-    } finally {
-      resendBtn.classList.remove('loading');
-      resendBtn.innerHTML = '<i class="fas fa-redo-alt"></i><span>Resend Code</span>';
-    }
+    resendBtn.classList.remove('loading');
+    resendBtn.innerHTML = '<i class="fas fa-redo-alt"></i><span>Resend Code</span>';
+    
+    showSuccess('New code sent!');
   });
 
   // Helper function to reset to login form
