@@ -156,7 +156,7 @@ button:active {
 table {
   width: 100%;
   border-collapse: collapse;
-  min-width: 650px;
+  min-width: 750px;
 }
 
 th, td {
@@ -186,6 +186,52 @@ td:last-child {
   padding: 20px;
   color: #777;
   font-style: italic;
+}
+
+/* Campus Badge */
+.campus-badge {
+  background: #e6f7e6;
+  color: #2e7d32;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  display: inline-block;
+}
+
+/* Department Badge */
+.dept-badge {
+  background: #e6f0ff;
+  color: #0a3d91;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  display: inline-block;
+}
+
+/* Status Badges */
+.status-badge {
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  display: inline-block;
+}
+
+.status-upcoming {
+  background: #fff3cd;
+  color: #856404;
+}
+
+.status-active {
+  background: #d4edda;
+  color: #155724;
+}
+
+.status-ended {
+  background: #f8d7da;
+  color: #721c24;
 }
 
 /* Mobile-specific improvements */
@@ -347,7 +393,7 @@ tbody tr:hover {
 <body>
 
 <div class="header">
-  <h2>Manage Elections</h2>
+  <h2>🏛️ Manage Elections</h2>
   <div class="header-buttons">
     <button class="back-btn" onclick="goBack()">← Back</button>
     <button class="logout-btn" onclick="logout()">Logout</button>
@@ -358,11 +404,18 @@ tbody tr:hover {
 
   <!-- CREATE ELECTION -->
   <div class="form-card">
-    <h3>Create New Election</h3>
+    <h3>➕ Create New Election</h3>
 
     <div class="form-group">
       <label for="electionName">Election Name *</label>
-      <input type="text" id="electionName" placeholder="Enter election name">
+      <input type="text" id="electionName" placeholder="Enter election name (e.g., IT Department Elections 2026)">
+    </div>
+
+    <div class="form-group">
+      <label for="campus">Campus *</label>
+      <select id="campus" onchange="loadDepartmentsByCampus()">
+        <option value="">Select Campus</option>
+      </select>
     </div>
 
     <div class="form-group">
@@ -396,17 +449,26 @@ tbody tr:hover {
 
   <!-- ELECTIONS TABLE -->
   <div class="table-card">
-    <h3>Existing Elections</h3>
+    <h3>📋 Existing Elections</h3>
+    
+    <!-- Campus Filter -->
+    <div style="margin-bottom: 15px;">
+      <select id="campusFilter" onchange="filterElectionsByCampus()" style="max-width: 250px;">
+        <option value="">All Campuses</option>
+      </select>
+    </div>
 
     <div class="table-wrapper">
       <table>
         <thead>
           <tr>
             <th>Name</th>
+            <th>Campus</th>
             <th>Level</th>
             <th>Department</th>
             <th>Start</th>
             <th>End</th>
+            <th>Status</th>
             <th>Published</th>
             <th>Actions</th>
           </tr>
@@ -420,7 +482,7 @@ tbody tr:hover {
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getFirestore, collection, getDocs, addDoc, doc, updateDoc, deleteDoc, Timestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { getFirestore, collection, getDocs, addDoc, doc, updateDoc, deleteDoc, Timestamp, query, where } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 // Firebase config
 const firebaseConfig = {
@@ -430,6 +492,12 @@ const firebaseConfig = {
 };
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
+
+// Global variables
+let allElections = [];
+let filteredElections = [];
+let campuses = {};
+let departmentsByCampus = {};
 
 // ============================
 // SESSION CHECK
@@ -442,7 +510,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     return;
   }
 
-  await loadDepartments();
+  await loadCampuses();
+  await loadDepartmentsByCampus();
   await loadElections();
 });
 
@@ -463,18 +532,61 @@ window.goBack = function(){
 }
 
 // ============================
-// LOAD DEPARTMENTS
+// LOAD CAMPUSES
 // ============================
-async function loadDepartments(){
-  const deptSelect = document.getElementById("department");
-  deptSelect.innerHTML = "<option value=''>Select Department</option>";
+async function loadCampuses(){
+  const campusSelect = document.getElementById("campus");
+  const campusFilter = document.getElementById("campusFilter");
+  campusSelect.innerHTML = "<option value=''>Select Campus</option>";
+  campusFilter.innerHTML = "<option value=''>All Campuses</option>";
+  
   try{
-    const deptSnap = await getDocs(collection(db,"departments"));
-    deptSnap.forEach(docu=>{
-      const d = docu.data();
-      deptSelect.innerHTML += `<option value="${docu.id}">${d.name}</option>`;
+    const campusSnap = await getDocs(collection(db,"campus"));
+    campusSnap.forEach(docu=>{
+      const campusData = docu.data();
+      const campusName = campusData.name || docu.id;
+      campuses[docu.id] = campusName;
+      campusSelect.innerHTML += `<option value="${docu.id}">${campusName}</option>`;
+      campusFilter.innerHTML += `<option value="${docu.id}">${campusName}</option>`;
     });
-  }catch(err){ console.error("Error loading departments:",err); }
+  }catch(err){ 
+    console.error("Error loading campuses:",err); 
+  }
+}
+
+// ============================
+// LOAD DEPARTMENTS BY CAMPUS
+// ============================
+async function loadDepartmentsByCampus(){
+  const campusId = document.getElementById("campus").value;
+  const deptSelect = document.getElementById("department");
+  
+  if(!campusId){
+    deptSelect.innerHTML = "<option value=''>Select Campus First</option>";
+    deptSelect.disabled = true;
+    return;
+  }
+  
+  deptSelect.disabled = false;
+  deptSelect.innerHTML = "<option value=''>Select Department</option>";
+  
+  try{
+    // Query departments that belong to this campus
+    // Note: You may need to adjust this based on your departments collection structure
+    const deptSnap = await getDocs(collection(db,"departments"));
+    
+    deptSnap.forEach(docu=>{
+      const deptData = docu.data();
+      // If departments have campusId field, filter by it
+      if(!deptData.campusId || deptData.campusId === campusId){
+        deptSelect.innerHTML += `<option value="${docu.id}">${deptData.name || docu.id}</option>`;
+      }
+    });
+    
+  }catch(err){ 
+    console.error("Error loading departments:",err);
+    deptSelect.innerHTML = "<option value=''>Error loading departments</option>";
+  }
 }
 
 // ============================
@@ -483,11 +595,19 @@ async function loadDepartments(){
 window.toggleDepartment = function(){
   const level = document.getElementById("level").value;
   const deptSelect = document.getElementById("department");
+  const campusSelect = document.getElementById("campus");
+  
   if(level === "executive"){ 
-      deptSelect.disabled=true; 
-      deptSelect.value=""; 
+      deptSelect.disabled = true; 
+      deptSelect.value = ""; 
   } else { 
-      deptSelect.disabled=false; 
+      if(campusSelect.value){
+        deptSelect.disabled = false;
+        loadDepartmentsByCampus();
+      } else {
+        deptSelect.disabled = true;
+        deptSelect.innerHTML = "<option value=''>Select Campus First</option>";
+      }
   }
 }
 
@@ -496,38 +616,62 @@ window.toggleDepartment = function(){
 // ============================
 document.getElementById("createBtn").addEventListener("click", async ()=>{
   const name = document.getElementById("electionName").value.trim();
+  const campusId = document.getElementById("campus").value;
   const level = document.getElementById("level").value;
   const departmentId = document.getElementById("department").value;
   const start = document.getElementById("startDate").value;
   const end = document.getElementById("endDate").value;
 
-  if(!name || !level || !start || !end || (level==="departmental" && !departmentId)){
+  if(!name || !campusId || !level || !start || !end || (level==="departmental" && !departmentId)){
     alert("Please fill all required fields!");
+    return;
+  }
+
+  // Validate dates
+  const startDate = new Date(start);
+  const endDate = new Date(end);
+  const now = new Date();
+  
+  if(startDate < now){
+    alert("Start date cannot be in the past!");
+    return;
+  }
+  
+  if(endDate <= startDate){
+    alert("End date must be after start date!");
     return;
   }
 
   try{
     await addDoc(collection(db,"elections"),{
       name,
+      campusId,
       level,
       departmentId: level==="executive"?"":departmentId,
-      startDate: Timestamp.fromDate(new Date(start)),
-      endDate: Timestamp.fromDate(new Date(end)),
-      createdBy:"Admin",
-      published:false,
-      status:"upcoming"
+      startDate: Timestamp.fromDate(startDate),
+      endDate: Timestamp.fromDate(endDate),
+      createdBy: "Admin",
+      published: false,
+      status: "upcoming",
+      createdAt: Timestamp.fromDate(now)
     });
 
-    alert("Election created successfully!");
-    document.getElementById("electionName").value="";
-    document.getElementById("level").value="";
-    document.getElementById("department").value="";
-    document.getElementById("department").disabled=false;
-    document.getElementById("startDate").value="";
-    document.getElementById("endDate").value="";
+    alert("✅ Election created successfully!");
+    
+    // Clear form
+    document.getElementById("electionName").value = "";
+    document.getElementById("campus").value = "";
+    document.getElementById("level").value = "";
+    document.getElementById("department").innerHTML = "<option value=''>Select Campus First</option>";
+    document.getElementById("department").disabled = true;
+    document.getElementById("startDate").value = "";
+    document.getElementById("endDate").value = "";
 
-    loadElections();
-  }catch(err){ console.error("Error creating election:",err); alert("Error creating election!"); }
+    await loadElections();
+  }catch(err){ 
+    console.error("Error creating election:",err); 
+    alert("❌ Error creating election: " + err.message); 
+  }
 });
 
 // ============================
@@ -535,65 +679,154 @@ document.getElementById("createBtn").addEventListener("click", async ()=>{
 // ============================
 async function loadElections(){
   const table = document.getElementById("electionsTable");
-  table.innerHTML="";
+  table.innerHTML = "";
 
   try{
     const snap = await getDocs(collection(db,"elections"));
-    if(snap.empty){ 
-      table.innerHTML="<tr><td colspan='7' class='no-data'>No elections found.</td></tr>"; 
-      return; 
-    }
-
-    snap.forEach(docu=>{
-      const e = docu.data();
-      const start = e.startDate?.toDate().toLocaleDateString() || "";
-      const end = e.endDate?.toDate().toLocaleDateString() || "";
-      const deptName = e.departmentId || "";
-      const published = e.published ? "Yes" : "No";
-
-      table.innerHTML += `<tr>
-        <td>${e.name}</td>
-        <td>${e.level}</td>
-        <td>${deptName}</td>
-        <td>${start}</td>
-        <td>${end}</td>
-        <td>${published}</td>
-        <td>
-          <div class="action-buttons">
-            ${!e.published? `<button class="publish-btn" onclick="publishElection('${docu.id}')">Publish</button>`:""}
-            <button class="delete-btn" onclick="deleteElection('${docu.id}')">Delete</button>
-          </div>
-        </td>
-      </tr>`;
+    allElections = [];
+    
+    snap.forEach(docu => {
+      allElections.push({
+        id: docu.id,
+        ...docu.data()
+      });
     });
+    
+    // Sort by creation date (newest first)
+    allElections.sort((a, b) => {
+      if(a.createdAt && b.createdAt){
+        return b.createdAt.toDate() - a.createdAt.toDate();
+      }
+      return 0;
+    });
+    
+    filteredElections = [...allElections];
+    displayElections();
+    
+  }catch(err){ 
+    console.error("Error loading elections:",err);
+    table.innerHTML = `<tr><td colspan="9" class="no-data">Error loading elections</td></tr>`;
+  }
+}
 
-  }catch(err){ console.error("Error loading elections:",err); }
+// ============================
+// DISPLAY ELECTIONS
+// ============================
+function displayElections(){
+  const table = document.getElementById("electionsTable");
+  
+  if(filteredElections.length === 0){ 
+    table.innerHTML = `<tr><td colspan="9" class="no-data">No elections found.</td></tr>`; 
+    return; 
+  }
+
+  table.innerHTML = "";
+  
+  filteredElections.forEach(election => {
+    const start = election.startDate?.toDate() || null;
+    const end = election.endDate?.toDate() || null;
+    const now = new Date();
+    
+    // Determine status
+    let status = "upcoming";
+    let statusClass = "status-upcoming";
+    
+    if(start && end){
+      if(now > end){
+        status = "ended";
+        statusClass = "status-ended";
+      } else if(now >= start && now <= end){
+        status = "active";
+        statusClass = "status-active";
+      }
+    }
+    
+    const startStr = start ? start.toLocaleDateString() : "N/A";
+    const endStr = end ? end.toLocaleDateString() : "N/A";
+    const campusName = campuses[election.campusId] || election.campusId || "N/A";
+    const deptName = election.departmentId || "N/A";
+    const published = election.published ? "Yes" : "No";
+
+    table.innerHTML += `<tr>
+      <td>${election.name}</td>
+      <td><span class="campus-badge">${campusName}</span></td>
+      <td>${election.level}</td>
+      <td><span class="dept-badge">${deptName}</span></td>
+      <td>${startStr}</td>
+      <td>${endStr}</td>
+      <td><span class="status-badge ${statusClass}">${status}</span></td>
+      <td>${published}</td>
+      <td>
+        <div class="action-buttons">
+          ${!election.published ? `<button class="publish-btn" onclick="publishElection('${election.id}')">Publish</button>` : ""}
+          <button class="delete-btn" onclick="deleteElection('${election.id}')">Delete</button>
+        </div>
+      </td>
+    </tr>`;
+  });
+}
+
+// ============================
+// FILTER ELECTIONS BY CAMPUS
+// ============================
+window.filterElectionsByCampus = function(){
+  const campusFilter = document.getElementById("campusFilter").value;
+  
+  if(campusFilter){
+    filteredElections = allElections.filter(e => e.campusId === campusFilter);
+  } else {
+    filteredElections = [...allElections];
+  }
+  
+  displayElections();
 }
 
 // ============================
 // PUBLISH ELECTION
 // ============================
 window.publishElection = async function(id){
+  if(!confirm("Are you sure you want to publish this election? Students will be able to vote.")) return;
+  
   try{
     const docRef = doc(db,"elections",id);
-    await updateDoc(docRef,{published:true});
-    alert("Election published!");
-    loadElections();
-  }catch(err){ console.error(err); alert("Error publishing!"); }
+    await updateDoc(docRef, {
+      published: true,
+      status: "active"
+    });
+    alert("✅ Election published successfully!");
+    await loadElections();
+  }catch(err){ 
+    console.error(err); 
+    alert("❌ Error publishing election!"); 
+  }
 }
 
 // ============================
 // DELETE ELECTION
 // ============================
 window.deleteElection = async function(id){
-  if(!confirm("Are you sure you want to delete this election?")) return;
+  if(!confirm("⚠️ Are you sure you want to delete this election? This action cannot be undone.")) return;
+  
   try{
     const docRef = doc(db,"elections",id);
     await deleteDoc(docRef);
-    alert("Election deleted!");
-    loadElections();
-  }catch(err){ console.error(err); alert("Error deleting!"); }
+    alert("✅ Election deleted successfully!");
+    await loadElections();
+  }catch(err){ 
+    console.error(err); 
+    alert("❌ Error deleting election!"); 
+  }
 }
+
+// ============================
+// AUTO-REFRESH STATUS (optional)
+// ============================
+// Check every minute if any elections status needs updating
+setInterval(() => {
+  if(allElections.length > 0){
+    displayElections();
+  }
+}, 60000); // 60 seconds
 </script>
 
 </body>
