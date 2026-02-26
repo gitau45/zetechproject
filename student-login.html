@@ -529,11 +529,11 @@ const firebaseConfig = {
   projectId: "zetech-e-voting"
 };
 
-// EmailJS Config - YOUR KEYS
+// EmailJS Config - YOUR CORRECT KEYS
 const EMAILJS_CONFIG = {
-  PUBLIC_KEY: "kQiNIL-qUYTz2EMd",
-  SERVICE_ID: "service_6nmauhc",
-  TEMPLATE_ID: "htHZZpZi5MHdiXaIVYOBh"
+  PUBLIC_KEY: "0EkMOcd12fDrvue0P",  // Your new public key
+  SERVICE_ID: "service_6nmauhc",     // Your service ID
+  TEMPLATE_ID: "template_csfg0yw"    // Your template ID
 };
 
 // Initialize Firebase
@@ -609,7 +609,7 @@ function startTimer(duration) {
   }, 1000);
 }
 
-// ACTUAL EMAIL SENDING - NO DEMO FALLBACK
+// ACTUAL EMAIL SENDING - WITH YOUR CORRECT KEYS
 async function sendVerificationEmail(email, code, studentName) {
   try {
     const templateParams = {
@@ -621,7 +621,9 @@ async function sendVerificationEmail(email, code, studentName) {
       reply_to: 'noreply@zetech.ac.ke'
     };
 
-    console.log('Sending email to:', email);
+    console.log('📧 Sending email to:', email);
+    console.log('🔑 Using Public Key:', EMAILJS_CONFIG.PUBLIC_KEY);
+    console.log('📋 Using Template ID:', EMAILJS_CONFIG.TEMPLATE_ID);
     
     const response = await emailjs.send(
       EMAILJS_CONFIG.SERVICE_ID,
@@ -629,12 +631,13 @@ async function sendVerificationEmail(email, code, studentName) {
       templateParams
     );
 
-    console.log('Email sent successfully:', response);
+    console.log('✅ Email sent successfully:', response);
     showSuccess(`✅ Verification code sent to ${email}`);
     return true;
     
   } catch (error) {
-    console.error('Email sending failed:', error);
+    console.error('❌ Email sending failed:', error);
+    console.error('Error details:', error.text || error.message);
     showError('Failed to send verification email. Please try again.');
     throw new Error('Email delivery failed');
   }
@@ -803,7 +806,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       pendingStudentId = studentId;
       pendingStudent.timestamp = Date.now();
 
-      // Send ACTUAL verification email - this will throw error if fails
+      // Send ACTUAL verification email
       await sendVerificationEmail(email, current2FACode, student.fullName || 'Student');
 
       // Only switch to verification form if email sent successfully
@@ -819,7 +822,6 @@ document.addEventListener("DOMContentLoaded", async () => {
       current2FACode = null;
       pendingStudent = null;
       pendingStudentId = null;
-      // Error already shown in sendVerificationEmail
     } finally {
       loginBtn.classList.remove('loading');
       loginBtn.innerHTML = '<i class="fas fa-paper-plane"></i><span>Send Verification Code</span>';
