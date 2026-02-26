@@ -325,7 +325,7 @@ button:active {
 table {
   width: 100%;
   border-collapse: collapse;
-  min-width: 700px;
+  min-width: 800px;
 }
 
 th, td {
@@ -393,6 +393,7 @@ tr.editing {
   border: 1px solid var(--primary);
   border-radius: 6px;
   font-size: 0.85rem;
+  margin-bottom: 0.25rem;
 }
 
 /* Loading States */
@@ -539,6 +540,17 @@ button, input, select {
   display: inline-block;
 }
 
+/* Campus Badge */
+.campus-badge {
+  background: #e6f7e6;
+  color: #2e7d32;
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  display: inline-block;
+}
+
 /* Action Buttons Container */
 .action-buttons {
   display: flex;
@@ -611,7 +623,7 @@ button, input, select {
 
     <div class="form-group">
       <label>Admission Number</label>
-      <input type="text" id="regNumber" placeholder="e.g. CIT-2023-001">
+      <input type="text" id="regNumber" placeholder="e.g. DCS001">
     </div>
 
     <div class="form-group">
@@ -620,9 +632,16 @@ button, input, select {
     </div>
 
     <div class="form-group">
+      <label>Campus</label>
+      <select id="campus">
+        <option value="">Loading Campuses...</option>
+      </select>
+    </div>
+
+    <div class="form-group">
       <label>Department</label>
       <select id="department">
-        <option value="">Loading Departments...</option>
+        <option value="">Select Department</option>
       </select>
     </div>
 
@@ -631,7 +650,7 @@ button, input, select {
     <!-- UPLOAD SECTION -->
     <div class="upload-box">
       <h4>📤 Bulk Upload Students</h4>
-      <p class="helper-text">Supported formats: .xlsx, .xls, .csv</p>
+      <p class="helper-text">Supported formats: .xlsx, .xls, .csv (Required columns: fullName, admissionNumber, email, campus, department)</p>
       <input type="file" id="excelFile" accept=".xlsx,.xls,.csv">
       <button class="add-btn" onclick="uploadSpreadsheet()">📎 Upload Spreadsheet</button>
     </div>
@@ -644,6 +663,9 @@ button, input, select {
     <!-- Search and Filter Bar -->
     <div class="search-bar">
       <input type="text" id="searchInput" class="search-input" placeholder="🔍 Search by name, admission, email..." onkeyup="filterTable()">
+      <select id="campusFilter" class="filter-select" onchange="filterTable()">
+        <option value="">All Campuses</option>
+      </select>
       <select id="departmentFilter" class="filter-select" onchange="filterTable()">
         <option value="">All Departments</option>
       </select>
@@ -680,6 +702,9 @@ button, input, select {
             <th class="sortable" onclick="sortTable('email')">
               Email <i class="fas fa-sort" id="sort-email"></i>
             </th>
+            <th class="sortable" onclick="sortTable('campusId')">
+              Campus <i class="fas fa-sort" id="sort-campusId"></i>
+            </th>
             <th class="sortable" onclick="sortTable('departmentId')">
               Department <i class="fas fa-sort" id="sort-departmentId"></i>
             </th>
@@ -704,7 +729,9 @@ import {
   setDoc,
   deleteDoc, 
   doc,
-  updateDoc
+  updateDoc,
+  query,
+  where
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -725,6 +752,7 @@ let sortColumn = 'fullName';
 let sortDirection = 'asc';
 let selectedStudents = new Set();
 let departments = {};
+let campuses = {};
 
 // ================= PROTECTION =================
 document.addEventListener("DOMContentLoaded", async () => {
@@ -735,10 +763,28 @@ document.addEventListener("DOMContentLoaded", async () => {
     return;
   }
 
+  await loadCampuses();
   await loadDepartments();
   await loadStudents();
   setupFilters();
 });
+
+// ================= LOAD CAMPUSES =================
+async function loadCampuses() {
+  const select = document.getElementById("campus");
+  const filterSelect = document.getElementById("campusFilter");
+  const snapshot = await getDocs(collection(db, "campus"));
+
+  select.innerHTML = `<option value="">🏛️ Select Campus</option>`;
+  filterSelect.innerHTML = `<option value="">All Campuses</option>`;
+  
+  snapshot.forEach(docSnap => {
+    const campusData = docSnap.data();
+    campuses[docSnap.id] = campusData.name || docSnap.id;
+    select.innerHTML += `<option value="${docSnap.id}">${campusData.name || docSnap.id}</option>`;
+    filterSelect.innerHTML += `<option value="${docSnap.id}">${campusData.name || docSnap.id}</option>`;
+  });
+}
 
 // ================= LOAD DEPARTMENTS =================
 async function loadDepartments(){
@@ -789,7 +835,7 @@ function updateTable() {
   const paginatedStudents = filteredStudents.slice(start, end);
   
   if (filteredStudents.length === 0) {
-    table.innerHTML = '<tr><td colspan="6" class="empty-state">No students found</td></tr>';
+    table.innerHTML = '<tr><td colspan="7" class="empty-state">No students found</td></tr>';
     document.getElementById("pagination").innerHTML = '';
     return;
   }
@@ -797,6 +843,8 @@ function updateTable() {
   table.innerHTML = "";
   paginatedStudents.forEach(student => {
     const isSelected = selectedStudents.has(student.id);
+    const campusName = campuses[student.campusId] || student.campusId || 'Not Assigned';
+    
     table.innerHTML += `
       <tr id="row-${student.id}" class="${isSelected ? 'selected-row' : ''}">
         <td class="checkbox-cell">
@@ -806,6 +854,7 @@ function updateTable() {
         <td><span id="name-${student.id}">${student.fullName || '-'}</span></td>
         <td><span class="dept-badge" id="admission-${student.id}">${student.admissionNumber || '-'}</span></td>
         <td><span id="email-${student.id}">${student.email || '-'}</span></td>
+        <td><span class="campus-badge" id="campus-${student.id}">${campusName}</span></td>
         <td><span class="dept-badge" id="dept-${student.id}">${student.departmentId || '-'}</span></td>
         <td>
           <div class="action-buttons">
@@ -820,6 +869,11 @@ function updateTable() {
             <input type="text" id="edit-name-${student.id}" class="editable-input" value="${student.fullName || ''}" placeholder="Name">
             <input type="text" id="edit-admission-${student.id}" class="editable-input" value="${student.admissionNumber || ''}" placeholder="Admission">
             <input type="email" id="edit-email-${student.id}" class="editable-input" value="${student.email || ''}" placeholder="Email">
+            <select id="edit-campus-${student.id}" class="editable-input">
+              ${Object.entries(campuses).map(([campusId, campusName]) => 
+                `<option value="${campusId}" ${student.campusId === campusId ? 'selected' : ''}>${campusName}</option>`
+              ).join('')}
+            </select>
             <select id="edit-dept-${student.id}" class="editable-input">
               ${Object.keys(departments).map(dept => 
                 `<option value="${dept}" ${student.departmentId === dept ? 'selected' : ''}>${dept}</option>`
@@ -842,6 +896,7 @@ function updateTable() {
 
 function applySearchFilter() {
   const searchTerm = document.getElementById("searchInput").value.toLowerCase();
+  const campusFilter = document.getElementById("campusFilter").value;
   const departmentFilter = document.getElementById("departmentFilter").value;
   
   filteredStudents = allStudents.filter(student => {
@@ -850,9 +905,10 @@ function applySearchFilter() {
       (student.admissionNumber?.toLowerCase().includes(searchTerm) || false) ||
       (student.email?.toLowerCase().includes(searchTerm) || false);
     
+    const matchesCampus = !campusFilter || student.campusId === campusFilter;
     const matchesDepartment = !departmentFilter || student.departmentId === departmentFilter;
     
-    return matchesSearch && matchesDepartment;
+    return matchesSearch && matchesCampus && matchesDepartment;
   });
 }
 
@@ -860,6 +916,11 @@ function sortData() {
   filteredStudents.sort((a, b) => {
     let valA = a[sortColumn] || '';
     let valB = b[sortColumn] || '';
+    
+    if (sortColumn === 'campusId') {
+      valA = campuses[valA] || valA;
+      valB = campuses[valB] || valB;
+    }
     
     if (typeof valA === 'string') valA = valA.toLowerCase();
     if (typeof valB === 'string') valB = valB.toLowerCase();
@@ -971,12 +1032,11 @@ function updateBulkActionBar() {
 
 function updateSelectAllCheckbox() {
   const selectAll = document.getElementById("selectAll");
-  const checkboxes = document.querySelectorAll('.student-checkbox');
-  const checkedCount = document.querySelectorAll('.student-checkbox:checked').length;
+  const checkboxes = document.querySelectorAll('.student-checkbox:checked');
   
-  if (checkboxes.length > 0) {
-    selectAll.checked = checkedCount === checkboxes.length;
-    selectAll.indeterminate = checkedCount > 0 && checkedCount < checkboxes.length;
+  if (document.querySelectorAll('.student-checkbox').length > 0) {
+    selectAll.checked = checkboxes.length === document.querySelectorAll('.student-checkbox').length;
+    selectAll.indeterminate = checkboxes.length > 0 && checkboxes.length < document.querySelectorAll('.student-checkbox').length;
   }
 }
 
@@ -1007,35 +1067,44 @@ window.bulkDelete = async function() {
 // ================= EDIT FUNCTIONS =================
 window.editStudent = function(id) {
   // Hide display row
-  document.querySelector(`#row-${id} td:not(:first-child)`).style.display = 'none';
+  const row = document.getElementById(`row-${id}`);
+  const cells = row.querySelectorAll('td:not(:first-child):not(:last-child)');
+  cells.forEach(cell => cell.style.display = 'none');
   
   // Show edit form
   document.getElementById(`edit-${id}`).style.display = 'block';
   
   // Hide action buttons
-  const row = document.getElementById(`row-${id}`);
   row.classList.add('editing');
 };
 
 window.cancelEdit = function(id) {
   // Show display row
-  document.querySelector(`#row-${id} td:not(:first-child)`).style.display = 'table-cell';
+  const row = document.getElementById(`row-${id}`);
+  const cells = row.querySelectorAll('td:not(:first-child):not(:last-child)');
+  cells.forEach(cell => cell.style.display = 'table-cell');
   
   // Hide edit form
   document.getElementById(`edit-${id}`).style.display = 'none';
   
   // Remove editing class
-  document.getElementById(`row-${id}`).classList.remove('editing');
+  row.classList.remove('editing');
 };
 
 window.saveEdit = async function(id) {
   const name = document.getElementById(`edit-name-${id}`).value.trim();
   const admission = document.getElementById(`edit-admission-${id}`).value.trim();
   const email = document.getElementById(`edit-email-${id}`).value.trim();
+  const campusId = document.getElementById(`edit-campus-${id}`).value;
   const dept = document.getElementById(`edit-dept-${id}`).value;
   
-  if (!name || !admission || !email || !dept) {
+  if (!name || !admission || !email || !campusId || !dept) {
     alert("Please fill all fields");
+    return;
+  }
+  
+  if (!email.includes('@') || !email.includes('.')) {
+    alert("Please enter a valid email address");
     return;
   }
   
@@ -1044,6 +1113,7 @@ window.saveEdit = async function(id) {
       fullName: name,
       admissionNumber: admission,
       email: email,
+      campusId: campusId,
       departmentId: dept
     });
     
@@ -1059,9 +1129,10 @@ window.addStudent = async function(){
   const fullName = document.getElementById("fullName").value.trim();
   const admissionNumber = document.getElementById("regNumber").value.trim();
   const email = document.getElementById("email").value.trim();
+  const campusId = document.getElementById("campus").value;
   const departmentId = document.getElementById("department").value;
 
-  if(!fullName || !admissionNumber || !email || !departmentId){
+  if(!fullName || !admissionNumber || !email || !campusId || !departmentId){
     alert("Please fill all fields");
     return;
   }
@@ -1072,10 +1143,14 @@ window.addStudent = async function(){
   }
 
   try {
-    await setDoc(doc(db, "students", admissionNumber), {
+    // Check if student already exists
+    const studentRef = doc(db, "students", admissionNumber);
+    
+    await setDoc(studentRef, {
       fullName,
       admissionNumber,
       email,
+      campusId,
       departmentId,
       role: "student",
       hasVotedDepartment: false,
@@ -1085,9 +1160,11 @@ window.addStudent = async function(){
 
     alert("✅ Student added successfully!");
     
+    // Clear form
     document.getElementById("fullName").value = "";
     document.getElementById("regNumber").value = "";
     document.getElementById("email").value = "";
+    document.getElementById("campus").value = "";
     document.getElementById("department").value = "";
     
     await loadStudents();
@@ -1116,10 +1193,20 @@ window.uploadSpreadsheet = async function(){
 
       let successCount = 0;
       let errorCount = 0;
+      const errors = [];
 
       for(const row of rows){
-        if(!row.fullName || !row.admissionNumber || !row.email || !row.department) {
+        // Check required fields
+        if(!row.fullName || !row.admissionNumber || !row.email || !row.campus || !row.department) {
           errorCount++;
+          errors.push(`Row ${successCount + errorCount}: Missing required fields`);
+          continue;
+        }
+
+        // Validate email
+        if (!row.email.includes('@') || !row.email.includes('.')) {
+          errorCount++;
+          errors.push(`Admission ${row.admissionNumber}: Invalid email format`);
           continue;
         }
 
@@ -1128,6 +1215,7 @@ window.uploadSpreadsheet = async function(){
             fullName: String(row.fullName).trim(),
             admissionNumber: String(row.admissionNumber).trim(),
             email: String(row.email).trim().toLowerCase(),
+            campusId: String(row.campus).trim(),
             departmentId: String(row.department).trim(),
             role: "student",
             hasVotedDepartment: false,
@@ -1138,10 +1226,17 @@ window.uploadSpreadsheet = async function(){
           successCount++;
         } catch (err) {
           errorCount++;
+          errors.push(`Admission ${row.admissionNumber}: ${err.message}`);
         }
       }
 
-      alert(`✅ Upload complete!\n📊 ${successCount} students added\n❌ ${errorCount} failed`);
+      let message = `✅ Upload complete!\n📊 ${successCount} students added\n❌ ${errorCount} failed`;
+      if (errors.length > 0) {
+        message += `\n\nErrors:\n${errors.slice(0, 5).join('\n')}`;
+        if (errors.length > 5) message += `\n...and ${errors.length - 5} more errors`;
+      }
+      
+      alert(message);
       
       document.getElementById("excelFile").value = "";
       
@@ -1177,6 +1272,7 @@ window.logout = function(){
 // ================= SETUP FILTERS =================
 function setupFilters() {
   document.getElementById("searchInput").addEventListener("keyup", filterTable);
+  document.getElementById("campusFilter").addEventListener("change", filterTable);
   document.getElementById("departmentFilter").addEventListener("change", filterTable);
 }
 
