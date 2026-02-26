@@ -144,7 +144,7 @@ button:active {
 table {
   width: 100%;
   border-collapse: collapse;
-  min-width: 500px;
+  min-width: 700px;
 }
 
 th, td {
@@ -170,6 +170,53 @@ td {
   padding: 20px;
   color: #777;
   font-style: italic;
+}
+
+/* Badge Styles */
+.campus-badge {
+  background: #e6f7e6;
+  color: #2e7d32;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  display: inline-block;
+}
+
+.dept-badge {
+  background: #e6f0ff;
+  color: #0a3d91;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  display: inline-block;
+}
+
+.election-badge {
+  background: #fff3cd;
+  color: #856404;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  display: inline-block;
+}
+
+/* Filter Bar */
+.filter-bar {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 15px;
+  flex-wrap: wrap;
+}
+
+.filter-select {
+  min-width: 200px;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 0.9rem;
 }
 
 /* Mobile-specific improvements */
@@ -217,6 +264,16 @@ td {
     padding: 5px 8px;
     font-size: 0.75rem;
   }
+
+  .filter-bar {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .filter-select {
+    width: 100%;
+    min-width: auto;
+  }
 }
 
 /* Touch-friendly improvements */
@@ -245,10 +302,11 @@ select {
 }
 
 /* Disabled input styling */
-input:disabled {
+input:disabled, select:disabled {
   background-color: #f5f5f5;
   color: #666;
   border-color: #ddd;
+  opacity: 0.7;
 }
 
 /* Card hover effect (optional) */
@@ -289,7 +347,7 @@ label {
 <body>
 
 <div class="header">
-  <h2>Manage Candidates</h2>
+  <h2>👥 Manage Candidates</h2>
   <div class="header-buttons">
     <button class="back-btn" onclick="goBack()">← Back</button>
     <button class="logout-btn" onclick="logout()">Logout</button>
@@ -300,19 +358,19 @@ label {
 
   <!-- CREATE CANDIDATE -->
   <div class="form-card">
-    <h3>Add New Candidate</h3>
+    <h3>➕ Add New Candidate</h3>
 
     <div class="form-group">
-      <label for="election">Election *</label>
-      <select id="election" onchange="updatePosition()">
-        <option value="">Select Election</option>
+      <label for="campus">Campus *</label>
+      <select id="campus" onchange="filterElectionsByCampus()">
+        <option value="">Select Campus</option>
       </select>
     </div>
 
     <div class="form-group">
-      <label for="department">Department</label>
-      <select id="department">
-        <option value="">Select Department</option>
+      <label for="election">Election *</label>
+      <select id="election" onchange="updatePositionAndFilter()">
+        <option value="">Select Election</option>
       </select>
     </div>
 
@@ -325,7 +383,14 @@ label {
 
     <div class="form-group">
       <label for="position">Position *</label>
-      <input type="text" id="position" placeholder="Position">
+      <input type="text" id="position" placeholder="Position (e.g., President, Treasurer)">
+    </div>
+
+    <div class="form-group" id="departmentGroup" style="display: none;">
+      <label for="department">Department</label>
+      <select id="department" disabled>
+        <option value="">Auto-filled from student</option>
+      </select>
     </div>
 
     <button class="add-btn" id="createBtn">Add Candidate</button>
@@ -333,8 +398,18 @@ label {
 
   <!-- CANDIDATES TABLE -->
   <div class="table-card">
-    <h3>Existing Candidates</h3>
+    <h3>📋 Existing Candidates</h3>
     
+    <!-- Filter Bar -->
+    <div class="filter-bar">
+      <select id="campusFilter" class="filter-select" onchange="filterCandidates()">
+        <option value="">All Campuses</option>
+      </select>
+      <select id="electionFilter" class="filter-select" onchange="filterCandidates()">
+        <option value="">All Elections</option>
+      </select>
+    </div>
+
     <div class="table-wrapper">
       <table>
         <thead>
@@ -342,6 +417,7 @@ label {
             <th>Name</th>
             <th>Position</th>
             <th>Election</th>
+            <th>Campus</th>
             <th>Department</th>
             <th>Actions</th>
           </tr>
@@ -355,7 +431,7 @@ label {
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getFirestore, collection, getDocs, addDoc, doc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { getFirestore, collection, getDocs, addDoc, doc, deleteDoc, query, where } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 // Firebase config
 const firebaseConfig = {
@@ -366,9 +442,12 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
+// Global variables
+let campuses = {};
 let departments = {};
 let elections = {};
 let students = [];
+let allCandidates = [];
 
 // ============================
 // SESSION CHECK
@@ -381,6 +460,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     return;
   }
 
+  await loadCampuses();
   await loadDepartments();
   await loadStudents();
   await loadElections();
@@ -401,19 +481,39 @@ window.goBack = function(){
 }
 
 // ============================
+// LOAD CAMPUSES
+// ============================
+async function loadCampuses(){
+  const campusSelect = document.getElementById("campus");
+  const campusFilter = document.getElementById("campusFilter");
+  campusSelect.innerHTML = "<option value=''>Select Campus</option>";
+  campusFilter.innerHTML = "<option value=''>All Campuses</option>";
+  
+  try{
+    const snap = await getDocs(collection(db, "campus"));
+    snap.forEach(docu => {
+      const campusData = docu.data();
+      const campusName = campusData.name || docu.id;
+      campuses[docu.id] = campusName;
+      campusSelect.innerHTML += `<option value="${docu.id}">${campusName}</option>`;
+      campusFilter.innerHTML += `<option value="${docu.id}">${campusName}</option>`;
+    });
+  }catch(err){ 
+    console.error("Error loading campuses:", err); 
+  }
+}
+
+// ============================
 // LOAD DEPARTMENTS
 // ============================
 async function loadDepartments(){
-  const deptSelect = document.getElementById("department");
-  deptSelect.innerHTML = "<option value=''>Select Department</option>";
   try{
-    const snap = await getDocs(collection(db,"departments"));
-    snap.forEach(docu=>{
-      const d = docu.data();
-      departments[docu.id] = d.name;
-      deptSelect.innerHTML += `<option value="${docu.id}">${d.name}</option>`;
+    const snap = await getDocs(collection(db, "departments"));
+    snap.forEach(docu => {
+      const deptData = docu.data();
+      departments[docu.id] = deptData.name || docu.id;
     });
-  }catch(err){ console.error("Error loading departments:",err); }
+  }catch(err){ console.error("Error loading departments:", err); }
 }
 
 // ============================
@@ -421,29 +521,47 @@ async function loadDepartments(){
 // ============================
 async function loadStudents(){
   try{
-    const snap = await getDocs(collection(db,"students"));
-    students = snap.docs.map(d=>{
+    const snap = await getDocs(collection(db, "students"));
+    students = snap.docs.map(d => {
       const data = d.data();
       return {
         id: d.id,
         fullName: data.fullName || "Unnamed Student",
-        departmentId: data.departmentId || ""
+        departmentId: data.departmentId || "",
+        campusId: data.campusId || "",
+        admissionNumber: data.admissionNumber || ""
       };
     });
     populateStudentDropdown();
-  }catch(err){ console.error("Error loading students:",err); }
+  }catch(err){ console.error("Error loading students:", err); }
 }
 
 // ============================
-// POPULATE STUDENT DROPDOWN
+// POPULATE STUDENT DROPDOWN (filtered by campus)
 // ============================
-function populateStudentDropdown(){
+function populateStudentDropdown(campusId = null){
   const studentSelect = document.getElementById("student");
   studentSelect.innerHTML = "<option value=''>Select Student</option>";
-  students.forEach(s=>{
+  
+  let filteredStudents = students;
+  if(campusId) {
+    filteredStudents = students.filter(s => s.campusId === campusId);
+  }
+  
+  filteredStudents.forEach(s => {
     const deptName = departments[s.departmentId] || "N/A";
-    studentSelect.innerHTML += `<option value="${s.id}" data-fullname="${s.fullName}" data-department="${s.departmentId}">${s.fullName} (${deptName})</option>`;
+    const campusName = campuses[s.campusId] || "N/A";
+    studentSelect.innerHTML += `<option value="${s.id}" 
+      data-fullname="${s.fullName}" 
+      data-department="${s.departmentId}"
+      data-campus="${s.campusId}">
+      ${s.fullName} (${s.admissionNumber}) - ${deptName} - ${campusName}
+    </option>`;
   });
+  
+  if(filteredStudents.length === 0) {
+    studentSelect.innerHTML = "<option value=''>No students in this campus</option>";
+  }
 }
 
 // ============================
@@ -451,34 +569,85 @@ function populateStudentDropdown(){
 // ============================
 async function loadElections(){
   const electionSelect = document.getElementById("election");
+  const electionFilter = document.getElementById("electionFilter");
   electionSelect.innerHTML = "<option value=''>Select Election</option>";
+  electionFilter.innerHTML = "<option value=''>All Elections</option>";
+  
   try{
-    const snap = await getDocs(collection(db,"elections"));
-    snap.forEach(docu=>{
+    const snap = await getDocs(collection(db, "elections"));
+    snap.forEach(docu => {
       const e = docu.data();
       elections[docu.id] = e;
-      electionSelect.innerHTML += `<option value="${docu.id}" data-level="${e.level}" data-department="${e.departmentId || ''}">${e.name} (${e.level})</option>`;
+      
+      // Only show unpublished elections for adding candidates
+      if(!e.published) {
+        electionSelect.innerHTML += `<option value="${docu.id}" 
+          data-level="${e.level}" 
+          data-department="${e.departmentId || ''}"
+          data-campus="${e.campusId || ''}">
+          ${e.name} (${e.level})
+        </option>`;
+      }
+      
+      // Show all elections in filter
+      electionFilter.innerHTML += `<option value="${docu.id}" 
+        data-campus="${e.campusId || ''}">
+        ${e.name} (${e.level})
+      </option>`;
     });
-  }catch(err){ console.error("Error loading elections:",err); }
+  }catch(err){ console.error("Error loading elections:", err); }
 }
 
 // ============================
-// UPDATE POSITION FIELD
+// FILTER ELECTIONS BY CAMPUS
 // ============================
-window.updatePosition = function(){
+window.filterElectionsByCampus = function(){
+  const campusId = document.getElementById("campus").value;
+  const electionSelect = document.getElementById("election");
+  
+  // Reset student dropdown based on campus
+  populateStudentDropdown(campusId);
+  
+  // Filter elections by campus
+  const options = electionSelect.options;
+  for(let i = 1; i < options.length; i++) { // Start from 1 to skip placeholder
+    const option = options[i];
+    const electionCampus = option.dataset.campus;
+    if(campusId && electionCampus !== campusId) {
+      option.style.display = "none";
+    } else {
+      option.style.display = "block";
+    }
+  }
+  
+  // Reset selection
+  electionSelect.value = "";
+  document.getElementById("position").value = "";
+}
+
+// ============================
+// UPDATE POSITION FIELD AND FILTER STUDENTS
+// ============================
+window.updatePositionAndFilter = function(){
   const electionSelect = document.getElementById("election");
   const positionInput = document.getElementById("position");
   const selectedElection = electionSelect.selectedOptions[0];
+  
   if(!selectedElection) return;
 
   const level = selectedElection.dataset.level;
+  const campusId = selectedElection.dataset.campus;
+  
+  // Filter students by the election's campus
+  populateStudentDropdown(campusId);
+  
   if(level === "executive"){
     positionInput.disabled = false;
     positionInput.value = "";
-    positionInput.placeholder = "Position (e.g., President)";
+    positionInput.placeholder = "Position (e.g., President, Secretary)";
   } else {
     positionInput.disabled = true;
-    positionInput.value = "Rep";
+    positionInput.value = "Departmental Representative";
   }
 }
 
@@ -488,9 +657,17 @@ window.updatePosition = function(){
 document.getElementById("createBtn").addEventListener("click", async ()=>{
   const studentSelect = document.getElementById("student");
   const studentId = studentSelect.value;
-  const fullName = studentSelect.selectedOptions[0]?.dataset.fullname;
+  const studentOption = studentSelect.selectedOptions[0];
+  
+  if(!studentOption) {
+    alert("Please select a student");
+    return;
+  }
+  
+  const fullName = studentOption.dataset.fullname;
+  const departmentId = studentOption.dataset.department;
+  const campusId = studentOption.dataset.campus;
   const electionId = document.getElementById("election").value;
-  const departmentId = studentSelect.selectedOptions[0]?.dataset.department;
   const position = document.getElementById("position").value.trim();
 
   if(!studentId || !fullName || !electionId || !position){
@@ -498,25 +675,46 @@ document.getElementById("createBtn").addEventListener("click", async ()=>{
     return;
   }
 
+  // Check if candidate already exists for this election
+  const candidateExists = allCandidates.some(c => 
+    c.studentId === studentId && c.electionId === electionId
+  );
+  
+  if(candidateExists) {
+    alert("This student is already a candidate in this election!");
+    return;
+  }
+
   try{
-    await addDoc(collection(db,"candidates"),{
+    await addDoc(collection(db, "candidates"), {
       studentId,
       fullName,
       electionId,
+      campusId,
       departmentId,
       position,
       votes: 0,
       createdAt: new Date()
     });
 
-    alert("Candidate added successfully!");
+    alert("✅ Candidate added successfully!");
+    
+    // Clear form
     studentSelect.value = "";
     document.getElementById("position").value = "";
     document.getElementById("election").value = "";
+    document.getElementById("campus").value = "";
     
     // Refresh candidates list
     await loadCandidates();
-  }catch(err){ console.error(err); alert("Error adding candidate!"); }
+    
+    // Reset student dropdown
+    populateStudentDropdown();
+    
+  }catch(err){ 
+    console.error(err); 
+    alert("❌ Error adding candidate: " + err.message); 
+  }
 });
 
 // ============================
@@ -527,41 +725,101 @@ async function loadCandidates(){
   table.innerHTML = "";
 
   try{
-    const snap = await getDocs(collection(db,"candidates"));
+    const snap = await getDocs(collection(db, "candidates"));
+    allCandidates = [];
+    
     if(snap.empty){
-      table.innerHTML = "<tr><td colspan='5' class='no-data'>No candidates found.</td></tr>";
+      table.innerHTML = "<tr><td colspan='6' class='no-data'>No candidates found.</td></tr>";
       return;
     }
 
-    snap.forEach(docu=>{
-      const c = docu.data();
-      const deptName = c.departmentId ? (departments[c.departmentId] || c.departmentId) : "-";
-      const electionName = c.electionId ? (elections[c.electionId]?.name || c.electionId) : "-";
-
-      table.innerHTML += `<tr>
-        <td>${c.fullName || "-"}</td>
-        <td>${c.position || "-"}</td>
-        <td>${electionName}</td>
-        <td>${deptName}</td>
-        <td><button class="delete-btn" onclick="deleteCandidate('${docu.id}')">Delete</button></td>
-      </tr>`;
+    snap.forEach(docu => {
+      allCandidates.push({
+        id: docu.id,
+        ...docu.data()
+      });
     });
+    
+    displayCandidates();
+    
+  }catch(err){ 
+    console.error("Error loading candidates:", err);
+    table.innerHTML = `<tr><td colspan="6" class="no-data">Error loading candidates</td></tr>`;
+  }
+}
 
-  }catch(err){ console.error("Error loading candidates:",err); }
+// ============================
+// DISPLAY CANDIDATES (with filters)
+// ============================
+function displayCandidates() {
+  const table = document.getElementById("candidatesTable");
+  const campusFilter = document.getElementById("campusFilter").value;
+  const electionFilter = document.getElementById("electionFilter").value;
+  
+  let filtered = [...allCandidates];
+  
+  if(campusFilter) {
+    filtered = filtered.filter(c => c.campusId === campusFilter);
+  }
+  
+  if(electionFilter) {
+    filtered = filtered.filter(c => c.electionId === electionFilter);
+  }
+  
+  if(filtered.length === 0) {
+    table.innerHTML = "<tr><td colspan='6' class='no-data'>No candidates match filters</td></tr>";
+    return;
+  }
+  
+  table.innerHTML = "";
+  
+  filtered.forEach(c => {
+    const deptName = departments[c.departmentId] || c.departmentId || "-";
+    const campusName = campuses[c.campusId] || c.campusId || "N/A";
+    const electionName = elections[c.electionId]?.name || c.electionId || "-";
+    const electionLevel = elections[c.electionId]?.level || "";
+    
+    table.innerHTML += `<tr>
+      <td><strong>${c.fullName || "-"}</strong></td>
+      <td><span class="election-badge">${c.position || "-"}</span></td>
+      <td>${electionName} <span style="color:#666; font-size:0.7rem;">(${electionLevel})</span></td>
+      <td><span class="campus-badge">${campusName}</span></td>
+      <td><span class="dept-badge">${deptName}</span></td>
+      <td>
+        <button class="delete-btn" onclick="deleteCandidate('${c.id}')">
+          <i class="fas fa-trash"></i> Delete
+        </button>
+      </td>
+    </tr>`;
+  });
+}
+
+// ============================
+// FILTER CANDIDATES
+// ============================
+window.filterCandidates = function() {
+  displayCandidates();
 }
 
 // ============================
 // DELETE CANDIDATE
 // ============================
 window.deleteCandidate = async function(id){
-  if(!confirm("Are you sure you want to delete this candidate?")) return;
+  if(!confirm("⚠️ Are you sure you want to delete this candidate?")) return;
+  
   try{
-    const docRef = doc(db,"candidates",id);
+    const docRef = doc(db, "candidates", id);
     await deleteDoc(docRef);
-    alert("Candidate deleted!");
-    loadCandidates();
-  }catch(err){ console.error(err); alert("Error deleting candidate!"); }
+    alert("✅ Candidate deleted successfully!");
+    await loadCandidates();
+  }catch(err){ 
+    console.error(err); 
+    alert("❌ Error deleting candidate!"); 
+  }
 }
 </script>
+
+<!-- Add Font Awesome for icons (optional but nice) -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
 </body>
 </html>
