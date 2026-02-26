@@ -55,6 +55,24 @@ body {
   border: 1px solid rgba(255,255,255,0.5);
 }
 
+/* Security Badge */
+.security-badge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  background: #f0f4fe;
+  padding: 0.5rem;
+  border-radius: 30px;
+  margin: 0.5rem 0 1.5rem;
+  font-size: 0.8rem;
+  color: var(--primary);
+}
+
+.security-badge i {
+  font-size: 0.9rem;
+}
+
 /* Icon Section */
 .icon {
   font-size: 3.5rem;
@@ -103,6 +121,18 @@ body {
   font-size: 1rem;
 }
 
+/* Campus Indicator */
+.campus-indicator {
+  text-align: center;
+  color: var(--muted);
+  font-size: 0.9rem;
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
 /* Form Groups */
 .form-group {
   margin-bottom: 1.5rem;
@@ -124,7 +154,7 @@ body {
   width: 1.2rem;
 }
 
-/* Field Hint/Explainer */
+/* Field Hint */
 .field-hint {
   display: flex;
   align-items: center;
@@ -140,15 +170,6 @@ body {
 .field-hint i {
   color: var(--primary);
   font-size: 0.7rem;
-}
-
-.field-hint .example {
-  color: var(--primary);
-  font-weight: 500;
-  background: rgba(10,61,145,0.1);
-  padding: 0.1rem 0.4rem;
-  border-radius: 4px;
-  margin-left: 0.3rem;
 }
 
 /* Input Fields */
@@ -204,8 +225,18 @@ body {
   font-size: 1rem;
 }
 
+.btn.secondary {
+  background: #f3f4f6;
+  color: #333;
+  box-shadow: none;
+}
+
+.btn.secondary:hover {
+  background: #e5e7eb;
+}
+
 /* Messages */
-.error, .success {
+.error, .success, .warning {
   text-align: center;
   margin-bottom: 1rem;
   padding: 0.75rem;
@@ -229,6 +260,12 @@ body {
   color: var(--success);
   background: #dcfce7;
   border: 1px solid #bbf7d0;
+}
+
+.warning {
+  color: var(--warning);
+  background: #fef3c7;
+  border: 1px solid #fde68a;
 }
 
 /* Back Link */
@@ -257,16 +294,9 @@ body {
   font-size: 0.8rem;
 }
 
-/* Role Badge (for demo/display) */
-.role-badge {
-  display: inline-block;
-  background: var(--warning);
-  color: white;
-  padding: 0.2rem 0.8rem;
-  border-radius: 30px;
-  font-size: 0.7rem;
-  font-weight: 600;
-  margin-left: 0.5rem;
+/* Verification Section */
+#verificationSection {
+  animation: slideUp 0.3s ease-out;
 }
 
 /* Animations */
@@ -294,7 +324,7 @@ body {
   }
   
   .form-group input {
-    font-size: 16px; /* Prevents zoom on iOS */
+    font-size: 16px;
   }
 }
 
@@ -338,11 +368,6 @@ body {
   }
 }
 
-/* Remove Tap Highlight */
-.btn, .back-btn, input {
-  -webkit-tap-highlight-color: transparent;
-}
-
 /* Loading State */
 .btn.loading {
   opacity: 0.7;
@@ -357,7 +382,7 @@ body {
   to { transform: rotate(360deg); }
 }
 
-/* Input Validation Styles */
+/* Input Validation */
 input.error-field {
   border-color: var(--error);
   background: #fff5f5;
@@ -368,27 +393,11 @@ input.success-field {
   background: #f0fdf4;
 }
 
-/* Auto-fill style override */
-input:-webkit-autofill,
-input:-webkit-autofill:hover,
-input:-webkit-autofill:focus {
-  -webkit-box-shadow: 0 0 0px 1000px #f8f9fa inset;
-  transition: background-color 5000s ease-in-out 0s;
-}
-
-/* Password strength indicator (optional) */
-.strength-meter {
-  height: 4px;
-  background: #e5e7eb;
-  border-radius: 2px;
-  margin-top: 0.5rem;
-  overflow: hidden;
-}
-
-.strength-meter-fill {
-  height: 100%;
-  width: 0;
-  transition: width 0.3s ease;
+/* Timer */
+.timer {
+  color: var(--primary);
+  font-weight: 600;
+  margin-left: 0.3rem;
 }
 </style>
 </head>
@@ -401,9 +410,15 @@ input:-webkit-autofill:focus {
   
   <h2>Student Login</h2>
   
-  <div class="info-text">
-    <i class="fas fa-graduation-cap"></i>
-    <span>Enter your credentials to access the voting portal</span>
+  <div class="campus-indicator" id="campusIndicator">
+    <i class="fas fa-map-marker-alt"></i>
+    <span>Loading campus...</span>
+  </div>
+
+  <div class="security-badge">
+    <i class="fas fa-shield-alt"></i>
+    <span>Email Verification Required</span>
+    <i class="fas fa-check-circle" style="color: #22c55e;"></i>
   </div>
 
   <div class="error" id="errorMsg" style="display: none;">
@@ -416,36 +431,72 @@ input:-webkit-autofill:focus {
     <span></span>
   </div>
 
-  <div class="form-group">
-    <label>
-      <i class="fas fa-id-card"></i>
-      Admission Number
-    </label>
-    <input type="text" id="admissionNumber" placeholder="e.g. CIT-2023-001" autocomplete="off">
-    <div class="field-hint">
-      <i class="fas fa-info-circle"></i>
-      <span>Enter your admission number as shown on your ID</span>
-      <span class="example">e.g., CIT-2023-001</span>
-    </div>
+  <div class="warning" id="warningMsg" style="display: none;">
+    <i class="fas fa-clock"></i>
+    <span></span>
   </div>
 
-  <div class="form-group">
-    <label>
-      <i class="fas fa-envelope"></i>
-      Email Address
-    </label>
-    <input type="email" id="email" placeholder="student@zetech.ac.ke" autocomplete="off">
-    <div class="field-hint">
-      <i class="fas fa-info-circle"></i>
-      <span>Use your official Zetech student email</span>
-      <span class="example">@zetech.ac.ke</span>
+  <!-- Step 1: Login Form -->
+  <div id="loginForm">
+    <div class="form-group">
+      <label>
+        <i class="fas fa-id-card"></i>
+        Admission Number
+      </label>
+      <input type="text" id="admissionNumber" placeholder="e.g. DCS001" autocomplete="off">
+      <div class="field-hint">
+        <i class="fas fa-info-circle"></i>
+        <span>Enter your admission number</span>
+      </div>
     </div>
+
+    <div class="form-group">
+      <label>
+        <i class="fas fa-envelope"></i>
+        Email Address
+      </label>
+      <input type="email" id="email" placeholder="student@zetech.ac.ke" autocomplete="off">
+      <div class="field-hint">
+        <i class="fas fa-info-circle"></i>
+        <span>Your official Zetech email</span>
+      </div>
+    </div>
+
+    <button class="btn" id="loginBtn">
+      <i class="fas fa-paper-plane"></i>
+      <span>Send Verification Code</span>
+    </button>
   </div>
 
-  <button class="btn" id="loginBtn">
-    <i class="fas fa-sign-in-alt"></i>
-    <span>Login to Dashboard</span>
-  </button>
+  <!-- Step 2: Verification Form -->
+  <div id="verificationSection" style="display: none;">
+    <div class="info-text" style="margin-bottom: 1.5rem;">
+      <i class="fas fa-envelope-open-text"></i>
+      <span>Enter the 6-digit code sent to your email</span>
+    </div>
+
+    <div class="form-group">
+      <label>
+        <i class="fas fa-lock"></i>
+        Verification Code
+      </label>
+      <input type="text" id="verificationCode" placeholder="000000" maxlength="6" inputmode="numeric">
+      <div class="field-hint">
+        <i class="fas fa-clock"></i>
+        <span>Code expires in <span id="timer">05:00</span></span>
+      </div>
+    </div>
+
+    <button class="btn" id="verifyBtn" style="background: #22c55e;">
+      <i class="fas fa-check-circle"></i>
+      <span>Verify & Login</span>
+    </button>
+
+    <button class="btn secondary" id="resendBtn">
+      <i class="fas fa-redo-alt"></i>
+      <span>Resend Code</span>
+    </button>
+  </div>
 
   <a href="index.html" class="back-btn">
     <i class="fas fa-arrow-left"></i>
@@ -455,7 +506,7 @@ input:-webkit-autofill:focus {
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { getFirestore, doc, getDoc, updateDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 // Firebase config
 const firebaseConfig = {
@@ -466,131 +517,325 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-document.addEventListener("DOMContentLoaded", () => {
-  const loginBtn = document.getElementById("loginBtn");
-  const errorDiv = document.getElementById("errorMsg");
-  const successDiv = document.getElementById("successMsg");
+// ==================== EMAIL 2FA IMPLEMENTATION ====================
+
+// Generate random 6-digit code
+function generate2FACode() {
+  return Math.floor(100000 + Math.random() * 900000).toString();
+}
+
+// Store 2FA state
+let current2FACode = null;
+let pendingStudent = null;
+let timerInterval = null;
+
+// Show/hide functions
+function showError(message) {
+  const errorDiv = document.getElementById('errorMsg');
   const errorSpan = errorDiv.querySelector('span');
-  const successSpan = successDiv.querySelector('span');
+  errorSpan.textContent = message;
+  errorDiv.style.display = 'flex';
   
-  const admissionInput = document.getElementById("admissionNumber");
-  const emailInput = document.getElementById("email");
-
-  // Clear messages initially
-  errorDiv.style.display = 'none';
-  successDiv.style.display = 'none';
-
-  // Real-time validation styling
-  admissionInput.addEventListener('input', () => {
+  setTimeout(() => {
     errorDiv.style.display = 'none';
-    admissionInput.classList.remove('error-field', 'success-field');
+  }, 5000);
+}
+
+function showSuccess(message) {
+  const successDiv = document.getElementById('successMsg');
+  const successSpan = successDiv.querySelector('span');
+  successSpan.textContent = message;
+  successDiv.style.display = 'flex';
+  
+  setTimeout(() => {
+    successDiv.style.display = 'none';
+  }, 3000);
+}
+
+function showWarning(message) {
+  const warningDiv = document.getElementById('warningMsg');
+  const warningSpan = warningDiv.querySelector('span');
+  warningSpan.textContent = message;
+  warningDiv.style.display = 'flex';
+  
+  setTimeout(() => {
+    warningDiv.style.display = 'none';
+  }, 5000);
+}
+
+// Timer function
+function startTimer(duration) {
+  const timerDisplay = document.getElementById('timer');
+  let timeLeft = duration;
+  
+  timerInterval = setInterval(() => {
+    const minutes = Math.floor(timeLeft / 60);
+    const seconds = timeLeft % 60;
+    timerDisplay.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+    
+    if (timeLeft <= 0) {
+      clearInterval(timerInterval);
+      timerDisplay.textContent = '00:00';
+      showWarning('Code expired. Please request a new one.');
+    }
+    timeLeft--;
+  }, 1000);
+}
+
+// Simulate sending email (you'll replace this with actual email service)
+async function sendVerificationEmail(email, code) {
+  console.log(`[EMAIL] Verification code for ${email}: ${code}`);
+  
+  // For demo purposes - show the code
+  showWarning(`Demo: Your verification code is ${code}`);
+  
+  // In production, you would integrate with:
+  // - EmailJS (free: 200 emails/month)
+  // - SendGrid (free: 100 emails/day)
+  // - Your own backend API
+  
+  return true;
+}
+
+document.addEventListener("DOMContentLoaded", async () => {
+  // Get campus from URL
+  const urlParams = new URLSearchParams(window.location.search);
+  const campus = urlParams.get('campus');
+  
+  const campusIndicator = document.getElementById('campusIndicator');
+  if (campus) {
+    campusIndicator.innerHTML = `<i class="fas fa-map-marker-alt"></i><span>${campus} Campus</span>`;
+    sessionStorage.setItem('selectedCampus', campus);
+  } else {
+    const savedCampus = sessionStorage.getItem('selectedCampus');
+    if (savedCampus) {
+      campusIndicator.innerHTML = `<i class="fas fa-map-marker-alt"></i><span>${savedCampus} Campus</span>`;
+    }
+  }
+
+  const loginBtn = document.getElementById('loginBtn');
+  const verifyBtn = document.getElementById('verifyBtn');
+  const resendBtn = document.getElementById('resendBtn');
+  
+  const admissionInput = document.getElementById('admissionNumber');
+  const emailInput = document.getElementById('email');
+  const codeInput = document.getElementById('verificationCode');
+
+  // Clear messages on input
+  admissionInput.addEventListener('input', () => {
+    document.getElementById('errorMsg').style.display = 'none';
+    admissionInput.classList.remove('error-field');
   });
   
   emailInput.addEventListener('input', () => {
-    errorDiv.style.display = 'none';
-    emailInput.classList.remove('error-field', 'success-field');
+    document.getElementById('errorMsg').style.display = 'none';
+    emailInput.classList.remove('error-field');
   });
 
-  loginBtn.addEventListener("click", async () => {
-    const admissionNumber = admissionInput.value.trim();
-    const email = emailInput.value.trim();
+  codeInput.addEventListener('input', () => {
+    document.getElementById('errorMsg').style.display = 'none';
+    codeInput.classList.remove('error-field');
+  });
 
-    // Hide previous messages
-    errorDiv.style.display = 'none';
-    successDiv.style.display = 'none';
-    
-    // Remove previous validation styles
-    admissionInput.classList.remove('error-field');
-    emailInput.classList.remove('error-field');
+  // Step 1: Send verification code
+  loginBtn.addEventListener('click', async () => {
+    const admissionNumber = admissionInput.value.trim().toUpperCase();
+    const email = emailInput.value.trim().toLowerCase();
 
-    // Validation with user-friendly messages
+    // Validation
     if (!admissionNumber || !email) {
-      errorSpan.textContent = "Please enter both Admission Number and Email";
-      errorDiv.style.display = 'flex';
-      
+      showError('Please enter both Admission Number and Email');
       if (!admissionNumber) admissionInput.classList.add('error-field');
       if (!email) emailInput.classList.add('error-field');
-      
       return;
     }
 
-    // Email format validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
-      errorSpan.textContent = "Please enter a valid email address (e.g., name@zetech.ac.ke)";
-      errorDiv.style.display = 'flex';
+      showError('Please enter a valid email address');
       emailInput.classList.add('error-field');
       return;
     }
 
-    // Show loading state
+    // Show loading
     loginBtn.classList.add('loading');
     loginBtn.innerHTML = '<i class="fas fa-spinner"></i> Verifying...';
 
     try {
-      const studentRef = doc(db, "students", admissionNumber);
+      // Check if student exists
+      const studentRef = doc(db, 'students', admissionNumber);
       const studentSnap = await getDoc(studentRef);
 
       if (!studentSnap.exists()) {
-        errorSpan.textContent = "Student not found! Please check your admission number.";
-        errorDiv.style.display = 'flex';
+        showError('Student not found!');
         admissionInput.classList.add('error-field');
         loginBtn.classList.remove('loading');
-        loginBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i><span>Login to Dashboard</span>';
+        loginBtn.innerHTML = '<i class="fas fa-paper-plane"></i><span>Send Verification Code</span>';
         return;
       }
 
       const student = studentSnap.data();
 
-      if (student.email.toLowerCase() !== email.toLowerCase()) {
-        errorSpan.textContent = "Email does not match our records!";
-        errorDiv.style.display = 'flex';
+      // Verify email matches
+      if (student.email.toLowerCase() !== email) {
+        showError('Email does not match our records!');
         emailInput.classList.add('error-field');
         loginBtn.classList.remove('loading');
-        loginBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i><span>Login to Dashboard</span>';
+        loginBtn.innerHTML = '<i class="fas fa-paper-plane"></i><span>Send Verification Code</span>';
         return;
       }
 
-      // Success message
-      successSpan.textContent = "Login successful! Redirecting...";
-      successDiv.style.display = 'flex';
-      
-      // Add success styling
-      admissionInput.classList.add('success-field');
-      emailInput.classList.add('success-field');
+      // Verify campus matches
+      if (campus && student.campusId && student.campusId.toLowerCase() !== campus.toLowerCase()) {
+        showError(`You are registered at ${student.campusId} campus. Please select the correct campus.`);
+        loginBtn.classList.remove('loading');
+        loginBtn.innerHTML = '<i class="fas fa-paper-plane"></i><span>Send Verification Code</span>';
+        return;
+      }
 
-      // Save session
-      sessionStorage.setItem("studentSession", JSON.stringify({
+      // Generate and send 2FA code
+      current2FACode = generate2FACode();
+      pendingStudent = {
         ...student,
-        admissionNumber: admissionNumber // Ensure admission number is saved
-      }));
+        admissionNumber,
+        timestamp: Date.now()
+      };
 
-      // Redirect based on role
-      setTimeout(() => {
-        if (student.role === "rep") {
-          window.location.href = "rep-dashboard.html";
-        } else {
-          window.location.href = "student-dashboard.html";
-        }
-      }, 800);
+      // Send verification email
+      await sendVerificationEmail(email, current2FACode);
 
-    } catch(err) {
+      // Switch to verification form
+      document.getElementById('loginForm').style.display = 'none';
+      document.getElementById('verificationSection').style.display = 'block';
+      
+      // Start 5-minute timer
+      startTimer(300); // 300 seconds = 5 minutes
+
+      showSuccess(`Verification code sent to ${email}`);
+
+    } catch (err) {
       console.error(err);
-      errorSpan.textContent = "Connection error. Please check your internet and try again.";
-      errorDiv.style.display = 'flex';
+      showError('Connection error. Please try again.');
+    } finally {
       loginBtn.classList.remove('loading');
-      loginBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i><span>Login to Dashboard</span>';
+      loginBtn.innerHTML = '<i class="fas fa-paper-plane"></i><span>Send Verification Code</span>';
     }
   });
 
-  // Enter key to submit
+  // Step 2: Verify code
+  verifyBtn.addEventListener('click', async () => {
+    const code = codeInput.value.trim();
+
+    if (!code || code.length !== 6 || !/^\d+$/.test(code)) {
+      showError('Please enter a valid 6-digit code');
+      codeInput.classList.add('error-field');
+      return;
+    }
+
+    if (!pendingStudent) {
+      showError('Session expired. Please login again.');
+      resetToLogin();
+      return;
+    }
+
+    // Check if code expired (5 minutes)
+    if (Date.now() - pendingStudent.timestamp > 5 * 60 * 1000) {
+      showError('Code expired. Please request a new one.');
+      resetToLogin();
+      return;
+    }
+
+    // Verify code
+    if (code !== current2FACode) {
+      showError('Invalid verification code');
+      codeInput.classList.add('error-field');
+      return;
+    }
+
+    // Success!
+    verifyBtn.classList.add('loading');
+    verifyBtn.innerHTML = '<i class="fas fa-spinner"></i> Verifying...';
+
+    // Clear timer
+    if (timerInterval) clearInterval(timerInterval);
+
+    // Save session
+    sessionStorage.setItem('studentSession', JSON.stringify({
+      ...pendingStudent,
+      loginTime: new Date().toISOString(),
+      verified: true
+    }));
+
+    // Log login in Firestore
+    try {
+      await updateDoc(doc(db, 'students', pendingStudent.admissionNumber), {
+        lastLogin: serverTimestamp(),
+        lastLoginEmail: pendingStudent.email
+      });
+    } catch (err) {
+      console.error('Failed to log login:', err);
+    }
+
+    showSuccess('Login successful! Redirecting...');
+
+    // Redirect based on role
+    setTimeout(() => {
+      if (pendingStudent.role === 'rep') {
+        window.location.href = 'rep-dashboard.html';
+      } else {
+        window.location.href = 'student-dashboard.html';
+      }
+    }, 800);
+  });
+
+  // Resend code
+  resendBtn.addEventListener('click', async () => {
+    if (!pendingStudent) {
+      showError('Session expired. Please login again.');
+      resetToLogin();
+      return;
+    }
+
+    resendBtn.classList.add('loading');
+    resendBtn.innerHTML = '<i class="fas fa-spinner"></i> Sending...';
+
+    // Generate new code
+    current2FACode = generate2FACode();
+    pendingStudent.timestamp = Date.now();
+
+    // Send new code
+    await sendVerificationEmail(pendingStudent.email, current2FACode);
+
+    // Reset timer
+    if (timerInterval) clearInterval(timerInterval);
+    startTimer(300);
+
+    resendBtn.classList.remove('loading');
+    resendBtn.innerHTML = '<i class="fas fa-redo-alt"></i><span>Resend Code</span>';
+    
+    showSuccess('New code sent!');
+  });
+
+  // Helper function to reset to login form
+  function resetToLogin() {
+    document.getElementById('loginForm').style.display = 'block';
+    document.getElementById('verificationSection').style.display = 'none';
+    if (timerInterval) clearInterval(timerInterval);
+    current2FACode = null;
+    pendingStudent = null;
+  }
+
+  // Enter key support
   document.addEventListener('keypress', (e) => {
     if (e.key === 'Enter') {
-      loginBtn.click();
+      if (document.getElementById('verificationSection').style.display === 'block') {
+        verifyBtn.click();
+      } else {
+        loginBtn.click();
+      }
     }
   });
 });
 </script>
-
 </body>
 </html>
