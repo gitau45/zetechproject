@@ -4,7 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
 <title>Manage Candidates | Admin</title>
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <style>
 * {
   margin: 0;
@@ -13,344 +14,830 @@
   font-family: 'Poppins', sans-serif;
 }
 
+:root {
+  --primary: #0a3d91;
+  --primary-dark: #082c6b;
+  --primary-light: #e6f0ff;
+  --accent: #ffd700;
+  --success: #4CAF50;
+  --danger: #d9534f;
+  --warning: #ff9800;
+  --text-dark: #333;
+  --text-light: #666;
+  --white: #fff;
+  --gray-light: #f5f5f5;
+  --gray: #ddd;
+  --shadow-sm: 0 2px 4px rgba(0,0,0,0.1);
+  --shadow-md: 0 4px 8px rgba(0,0,0,0.1);
+  --shadow-lg: 0 10px 20px rgba(0,0,0,0.1);
+  --transition: all 0.3s ease;
+}
+
 body {
-  background: linear-gradient(to bottom right, #fff, #e6f0ff);
+  background: linear-gradient(135deg, #f5f7fa 0%, #e6f0ff 100%);
   min-height: 100vh;
 }
 
+/* Enhanced Header */
 .header {
-  background: #0a3d91;
-  color: #fff;
-  padding: 12px 16px;
+  background: linear-gradient(135deg, var(--primary), #1a4ca3);
+  color: var(--white);
+  padding: 15px 24px;
   display: flex;
   justify-content: space-between;
   align-items: center;
   position: sticky;
   top: 0;
-  z-index: 100;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  z-index: 1000;
+  box-shadow: var(--shadow-md);
 }
 
 .header h2 {
-  font-weight: 500;
-  font-size: 1.2rem;
+  font-weight: 600;
+  font-size: 1.3rem;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.header h2 i {
+  color: var(--accent);
 }
 
 .header-buttons {
   display: flex;
-  gap: 8px;
+  gap: 12px;
 }
 
 .logout-btn, .back-btn {
-  background: #fff;
-  color: #0a3d91;
-  padding: 6px 12px;
-  border: none;
-  border-radius: 6px;
+  background: rgba(255,255,255,0.15);
+  backdrop-filter: blur(5px);
+  color: var(--white);
+  padding: 8px 16px;
+  border: 1px solid rgba(255,255,255,0.2);
+  border-radius: 8px;
   cursor: pointer;
   font-weight: 500;
-  font-size: 0.85rem;
-  white-space: nowrap;
+  font-size: 0.9rem;
+  transition: var(--transition);
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
 
 .logout-btn:hover, .back-btn:hover {
-  background: #f2f2f2;
+  background: rgba(255,255,255,0.25);
+  transform: translateY(-2px);
+  border-color: var(--accent);
 }
 
 .container {
-  padding: 16px;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 24px;
 }
 
-.form-card, .table-card {
-  background: #fff;
-  padding: 20px;
-  border-radius: 12px;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+/* Enhanced Form Card */
+.form-card {
+  background: var(--white);
+  border-radius: 20px;
+  box-shadow: var(--shadow-lg);
+  margin-bottom: 30px;
+  overflow: hidden;
+  animation: slideDown 0.5s ease;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.card-header {
+  background: linear-gradient(135deg, var(--primary-light), #d4e3ff);
+  padding: 20px 24px;
+  border-bottom: 2px solid var(--primary);
+}
+
+.card-header h3 {
+  color: var(--primary);
+  font-size: 1.2rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.card-header h3 i {
+  color: var(--primary);
+  font-size: 1.4rem;
+}
+
+.card-body {
+  padding: 24px;
+}
+
+/* Enhanced Form Groups */
+.form-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 20px;
   margin-bottom: 20px;
 }
 
-.form-card h3, .table-card h3 {
-  margin-bottom: 15px;
-  color: #333;
-  font-size: 1.1rem;
-  font-weight: 600;
-}
-
 .form-group {
-  margin-bottom: 15px;
+  margin-bottom: 0;
 }
 
-label {
+.form-group label {
   display: block;
-  margin-bottom: 5px;
-  color: #555;
+  margin-bottom: 8px;
+  color: var(--text-dark);
   font-size: 0.9rem;
   font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
 
-input, select {
+.form-group label i {
+  color: var(--primary);
+  width: 20px;
+}
+
+.form-group label .required {
+  color: var(--danger);
+  font-size: 0.8rem;
+  margin-left: 4px;
+}
+
+/* Enhanced Inputs */
+.input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.input-wrapper i {
+  position: absolute;
+  left: 12px;
+  color: var(--text-light);
+  font-size: 1rem;
+}
+
+.input-wrapper input,
+.input-wrapper select {
   width: 100%;
-  padding: 12px;
-  border: 1px solid #ddd;
-  border-radius: 8px;
+  padding: 12px 12px 12px 40px;
+  border: 2px solid var(--gray);
+  border-radius: 12px;
   font-size: 0.95rem;
-  background-color: #fff;
+  background: var(--white);
+  transition: var(--transition);
+}
+
+.input-wrapper input:focus,
+.input-wrapper select:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 4px rgba(10,61,145,0.1);
+}
+
+.input-wrapper input:disabled,
+.input-wrapper select:disabled {
+  background: var(--gray-light);
+  cursor: not-allowed;
+}
+
+/* Search Input Styling */
+.search-wrapper {
+  position: relative;
+  margin-bottom: 15px;
+}
+
+.search-wrapper i {
+  position: absolute;
+  left: 15px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-light);
+  font-size: 1rem;
+}
+
+.search-wrapper input {
+  width: 100%;
+  padding: 15px 15px 15px 45px;
+  border: 2px solid var(--gray);
+  border-radius: 50px;
+  font-size: 0.95rem;
+  background: var(--white);
+  transition: var(--transition);
+}
+
+.search-wrapper input:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 4px rgba(10,61,145,0.1);
+}
+
+.search-wrapper .clear-search {
+  position: absolute;
+  right: 15px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: var(--text-light);
+  cursor: pointer;
+  font-size: 1rem;
+  padding: 5px;
+  display: none;
+}
+
+.search-wrapper .clear-search:hover {
+  color: var(--danger);
+}
+
+/* Student Results */
+.student-results {
+  margin-top: 10px;
+  border: 2px solid var(--gray);
+  border-radius: 12px;
+  max-height: 300px;
+  overflow-y: auto;
+  display: none;
+  background: var(--white);
+  box-shadow: var(--shadow-md);
+}
+
+.student-result-item {
+  padding: 12px 15px;
+  border-bottom: 1px solid var(--gray-light);
+  cursor: pointer;
+  transition: var(--transition);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.student-result-item:hover {
+  background: var(--primary-light);
+}
+
+.student-result-item.selected {
+  background: linear-gradient(135deg, var(--primary-light), #c4d6ff);
+  border-left: 4px solid var(--primary);
+}
+
+.student-avatar {
+  width: 40px;
+  height: 40px;
+  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--white);
+  font-weight: 600;
+  font-size: 1.1rem;
+}
+
+.student-info {
+  flex: 1;
+}
+
+.student-info h4 {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-dark);
+  margin-bottom: 4px;
+}
+
+.student-info p {
+  font-size: 0.8rem;
+  color: var(--text-light);
+  display: flex;
+  gap: 10px;
+}
+
+.student-info p span {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.student-badge {
+  background: var(--primary);
+  color: var(--white);
+  padding: 4px 8px;
+  border-radius: 20px;
+  font-size: 0.7rem;
+  font-weight: 500;
+}
+
+/* Enhanced Table Card */
+.table-card {
+  background: var(--white);
+  border-radius: 20px;
+  box-shadow: var(--shadow-lg);
+  overflow: hidden;
+  animation: slideUp 0.5s ease;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.table-header {
+  padding: 20px 24px;
+  background: linear-gradient(135deg, var(--primary-light), #d4e3ff);
+  border-bottom: 2px solid var(--primary);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 15px;
+}
+
+.table-header h3 {
+  color: var(--primary);
+  font-size: 1.2rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.table-header h3 i {
+  color: var(--primary);
+}
+
+/* Enhanced Filter Bar */
+.filter-bar {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  background: rgba(255,255,255,0.5);
+  padding: 10px;
+  border-radius: 12px;
+}
+
+.filter-wrapper {
+  position: relative;
+  min-width: 200px;
+}
+
+.filter-wrapper i {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-light);
+  font-size: 0.9rem;
+}
+
+.filter-select {
+  width: 100%;
+  padding: 10px 10px 10px 35px;
+  border: 2px solid var(--gray);
+  border-radius: 10px;
+  font-size: 0.9rem;
+  background: var(--white);
+  cursor: pointer;
+  transition: var(--transition);
   -webkit-appearance: none;
   appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23333' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  background-size: 16px;
 }
 
-input:focus, select:focus {
+.filter-select:focus {
   outline: none;
-  border-color: #0a3d91;
-  box-shadow: 0 0 0 2px rgba(10,61,145,0.1);
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(10,61,145,0.1);
 }
 
-button {
-  padding: 12px 15px;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  font-weight: 500;
-  font-size: 0.95rem;
-  transition: all 0.2s ease;
-}
-
-button:active {
-  transform: scale(0.98);
-}
-
-.add-btn {
-  background: #0a3d91;
-  color: #fff;
-  width: 100%;
-  margin-top: 5px;
-}
-
-.delete-btn {
-  background: #d9534f;
-  color: #fff;
-  padding: 6px 12px;
-  font-size: 0.8rem;
-  border-radius: 6px;
-}
-
-/* Table Styles - Mobile Optimized */
+/* Table Styles */
 .table-wrapper {
   overflow-x: auto;
-  margin: 0 -5px;
+  margin: 0;
   -webkit-overflow-scrolling: touch;
 }
 
 table {
   width: 100%;
   border-collapse: collapse;
-  min-width: 700px;
-}
-
-th, td {
-  padding: 12px 8px;
-  border-bottom: 1px solid #eee;
-  text-align: left;
-  font-size: 0.85rem;
+  min-width: 900px;
 }
 
 th {
-  background: #f8f9fa;
+  background: var(--primary-light);
+  padding: 16px 12px;
   font-weight: 600;
-  color: #333;
+  color: var(--primary);
+  font-size: 0.9rem;
+  text-align: left;
   white-space: nowrap;
 }
 
+th i {
+  margin-right: 6px;
+  color: var(--primary);
+}
+
 td {
-  color: #555;
-}
-
-.no-data {
-  text-align: center;
-  padding: 20px;
-  color: #777;
-  font-style: italic;
-}
-
-/* Badge Styles */
-.campus-badge {
-  background: #e6f7e6;
-  color: #2e7d32;
-  padding: 4px 8px;
-  border-radius: 4px;
-  font-size: 0.75rem;
-  font-weight: 500;
-  display: inline-block;
-}
-
-.dept-badge {
-  background: #e6f0ff;
-  color: #0a3d91;
-  padding: 4px 8px;
-  border-radius: 4px;
-  font-size: 0.75rem;
-  font-weight: 500;
-  display: inline-block;
-}
-
-.election-badge {
-  background: #fff3cd;
-  color: #856404;
-  padding: 4px 8px;
-  border-radius: 4px;
-  font-size: 0.75rem;
-  font-weight: 500;
-  display: inline-block;
-}
-
-/* Filter Bar */
-.filter-bar {
-  display: flex;
-  gap: 10px;
-  margin-bottom: 15px;
-  flex-wrap: wrap;
-}
-
-.filter-select {
-  min-width: 200px;
-  padding: 10px;
-  border: 1px solid #ddd;
-  border-radius: 8px;
+  padding: 16px 12px;
+  border-bottom: 1px solid var(--gray-light);
+  color: var(--text-dark);
   font-size: 0.9rem;
 }
 
-/* Mobile-specific improvements */
-@media (max-width: 480px) {
-  .header {
-    padding: 10px 12px;
+tr:hover td {
+  background: rgba(10,61,145,0.02);
+}
+
+/* Enhanced Badges */
+.campus-badge {
+  background: linear-gradient(135deg, #e6f7e6, #d4edda);
+  color: #155724;
+  padding: 5px 10px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.dept-badge {
+  background: linear-gradient(135deg, var(--primary-light), #d4e3ff);
+  color: var(--primary);
+  padding: 5px 10px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.election-badge {
+  background: linear-gradient(135deg, #fff3cd, #ffe69c);
+  color: #856404;
+  padding: 5px 10px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* Enhanced Delete Button */
+.delete-btn {
+  background: linear-gradient(135deg, var(--danger), #c9302c);
+  color: var(--white);
+  padding: 8px 16px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 500;
+  font-size: 0.8rem;
+  transition: var(--transition);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.delete-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(217,83,79,0.3);
+}
+
+.delete-btn:active {
+  transform: translateY(0);
+}
+
+.delete-btn i {
+  font-size: 0.9rem;
+}
+
+/* Enhanced Add Button */
+.add-btn {
+  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+  color: var(--white);
+  padding: 14px 28px;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 1rem;
+  transition: var(--transition);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  margin-top: 10px;
+  position: relative;
+  overflow: hidden;
+}
+
+.add-btn::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.2);
+  transform: translate(-50%, -50%);
+  transition: width 0.3s, height 0.3s;
+}
+
+.add-btn:hover::after {
+  width: 300px;
+  height: 300px;
+}
+
+.add-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(10,61,145,0.3);
+}
+
+.add-btn:active {
+  transform: translateY(0);
+}
+
+.add-btn i {
+  font-size: 1.1rem;
+}
+
+/* Loading State */
+.loading {
+  position: relative;
+  pointer-events: none;
+  opacity: 0.7;
+}
+
+.loading::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 20px;
+  height: 20px;
+  margin: -10px 0 0 -10px;
+  border: 2px solid transparent;
+  border-top-color: var(--primary);
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* No Results */
+.no-data {
+  text-align: center;
+  padding: 40px !important;
+  color: var(--text-light);
+  font-style: italic;
+}
+
+.no-results {
+  text-align: center;
+  padding: 30px;
+  color: var(--text-light);
+}
+
+.no-results i {
+  font-size: 3rem;
+  color: var(--gray);
+  margin-bottom: 15px;
+}
+
+.no-results p {
+  font-size: 1rem;
+}
+
+/* Results Count */
+.results-count {
+  padding: 10px 20px;
+  background: var(--primary-light);
+  color: var(--primary);
+  font-size: 0.9rem;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border-radius: 30px;
+}
+
+.results-count i {
+  color: var(--primary);
+}
+
+/* Alert Messages */
+.alert {
+  padding: 15px 20px;
+  border-radius: 12px;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  animation: slideIn 0.3s ease;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
   }
-  
-  .header h2 {
-    font-size: 1rem;
+  to {
+    opacity: 1;
+    transform: translateX(0);
   }
-  
-  .logout-btn, .back-btn {
-    padding: 5px 8px;
-    font-size: 0.75rem;
-  }
-  
+}
+
+.alert i {
+  font-size: 1.2rem;
+}
+
+.alert-success {
+  background: linear-gradient(135deg, #d4edda, #c3e6cb);
+  color: #155724;
+  border-left: 4px solid #28a745;
+}
+
+.alert-error {
+  background: linear-gradient(135deg, #f8d7da, #f5c6cb);
+  color: #721c24;
+  border-left: 4px solid var(--danger);
+}
+
+.alert-warning {
+  background: linear-gradient(135deg, #fff3cd, #ffeeba);
+  color: #856404;
+  border-left: 4px solid #ffc107;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
   .container {
-    padding: 12px;
+    padding: 16px;
   }
-  
-  .form-card, .table-card {
-    padding: 15px;
+
+  .header {
+    padding: 12px 16px;
   }
-  
-  input, select {
-    padding: 10px;
-    font-size: 0.9rem;
+
+  .header h2 {
+    font-size: 1.1rem;
   }
-  
-  button {
-    padding: 10px;
-  }
-  
-  .add-btn {
-    font-size: 0.9rem;
-  }
-  
-  th, td {
-    padding: 10px 5px;
+
+  .logout-btn, .back-btn {
+    padding: 6px 12px;
     font-size: 0.8rem;
   }
-  
-  .delete-btn {
-    padding: 5px 8px;
-    font-size: 0.75rem;
+
+  .card-body {
+    padding: 16px;
+  }
+
+  .form-row {
+    grid-template-columns: 1fr;
+    gap: 15px;
   }
 
   .filter-bar {
     flex-direction: column;
-    gap: 8px;
   }
 
-  .filter-select {
+  .filter-wrapper {
     width: 100%;
-    min-width: auto;
+  }
+
+  .table-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .results-count {
+    width: 100%;
+    justify-content: center;
+  }
+
+  td {
+    padding: 12px 8px;
+  }
+
+  .delete-btn {
+    padding: 6px 12px;
+    font-size: 0.75rem;
+  }
+
+  .student-info p {
+    flex-direction: column;
+    gap: 4px;
   }
 }
 
 /* Touch-friendly improvements */
 @media (hover: none) and (pointer: coarse) {
   input, select, button {
-    min-height: 44px;
+    min-height: 48px;
   }
-  
-  .logout-btn, .back-btn {
-    min-height: 36px;
+
+  .student-result-item {
+    min-height: 60px;
   }
-  
+
   .delete-btn {
-    min-height: 36px;
-    padding: 8px 12px;
+    min-height: 40px;
   }
 }
 
-/* Custom select arrow */
-select {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23333' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 12px center;
-  background-size: 16px;
-  padding-right: 40px;
+/* Print styles */
+@media print {
+  .header, .form-card, .filter-bar, .delete-btn, .add-btn {
+    display: none !important;
+  }
+
+  .table-card {
+    box-shadow: none;
+    border: 1px solid #ddd;
+  }
+
+  table {
+    min-width: auto;
+  }
 }
 
-/* Disabled input styling */
-input:disabled, select:disabled {
-  background-color: #f5f5f5;
-  color: #666;
-  border-color: #ddd;
-  opacity: 0.7;
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
 }
 
-/* Card hover effect (optional) */
-.form-card, .table-card {
-  transition: transform 0.2s ease;
+::-webkit-scrollbar-track {
+  background: var(--gray-light);
+  border-radius: 4px;
 }
 
-.form-card:active, .table-card:active {
-  transform: scale(0.99);
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+  border-radius: 4px;
 }
 
-/* Better spacing for labels and inputs */
-label {
-  margin-bottom: 4px;
+::-webkit-scrollbar-thumb:hover {
+  background: var(--primary-dark);
 }
 
-/* Success/Error message styling (if needed) */
-.alert {
-  padding: 12px;
-  border-radius: 8px;
-  margin-bottom: 15px;
-  font-size: 0.9rem;
+/* Tooltip */
+.tooltip {
+  position: relative;
 }
 
-.alert-success {
-  background: #d4edda;
-  color: #155724;
-  border: 1px solid #c3e6cb;
-}
-
-.alert-error {
-  background: #f8d7da;
-  color: #721c24;
-  border: 1px solid #f5c6cb;
+.tooltip:hover::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--text-dark);
+  color: var(--white);
+  padding: 5px 10px;
+  border-radius: 5px;
+  font-size: 0.75rem;
+  white-space: nowrap;
+  z-index: 1000;
 }
 </style>
 </head>
 <body>
 
 <div class="header">
-  <h2>👥 Manage Candidates</h2>
+  <h2><i class="fas fa-users-cog"></i> Manage Candidates</h2>
   <div class="header-buttons">
-    <button class="back-btn" onclick="goBack()">← Back</button>
-    <button class="logout-btn" onclick="logout()">Logout</button>
+    <button class="back-btn" onclick="goBack()"><i class="fas fa-arrow-left"></i> Back</button>
+    <button class="logout-btn" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</button>
   </div>
 </div>
 
@@ -358,75 +845,130 @@ label {
 
   <!-- CREATE CANDIDATE -->
   <div class="form-card">
-    <h3>➕ Add New Candidate</h3>
-
-    <div class="form-group">
-      <label for="campus">Campus *</label>
-      <select id="campus" onchange="filterElectionsByCampus()">
-        <option value="">Select Campus</option>
-      </select>
+    <div class="card-header">
+      <h3><i class="fas fa-plus-circle"></i> Add New Candidate</h3>
     </div>
+    <div class="card-body">
+      <div class="form-row">
+        <div class="form-group">
+          <label><i class="fas fa-building"></i> Campus <span class="required">*</span></label>
+          <div class="input-wrapper">
+            <i class="fas fa-map-marker-alt"></i>
+            <select id="campus" onchange="filterElectionsByCampus()">
+              <option value="">Select Campus</option>
+            </select>
+          </div>
+        </div>
 
-    <div class="form-group">
-      <label for="election">Election *</label>
-      <select id="election" onchange="updatePositionAndFilter()">
-        <option value="">Select Election</option>
-      </select>
+        <div class="form-group">
+          <label><i class="fas fa-vote-yea"></i> Election <span class="required">*</span></label>
+          <div class="input-wrapper">
+            <i class="fas fa-calendar-alt"></i>
+            <select id="election" onchange="updatePositionAndFilter()">
+              <option value="">Select Election</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label><i class="fas fa-user-graduate"></i> Select Student <span class="required">*</span></label>
+        <div class="search-wrapper">
+          <i class="fas fa-search"></i>
+          <input type="text" id="studentSearch" placeholder="Type to search by name, admission number, or department...">
+          <button class="clear-search" onclick="clearSearch()" id="clearSearchBtn">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+        
+        <!-- Student Search Results -->
+        <div id="studentResults" class="student-results"></div>
+        
+        <!-- Selected Student Info -->
+        <input type="hidden" id="selectedStudentId">
+        <input type="hidden" id="selectedStudentFullName">
+        <input type="hidden" id="selectedStudentDepartment">
+        <input type="hidden" id="selectedStudentCampus">
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label><i class="fas fa-briefcase"></i> Position <span class="required">*</span></label>
+          <div class="input-wrapper">
+            <i class="fas fa-tag"></i>
+            <input type="text" id="position" placeholder="e.g., President, Treasurer, Secretary">
+          </div>
+        </div>
+
+        <div class="form-group" id="departmentGroup" style="display: none;">
+          <label><i class="fas fa-building"></i> Department</label>
+          <div class="input-wrapper">
+            <i class="fas fa-university"></i>
+            <select id="department" disabled>
+              <option value="">Auto-filled from student</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <button class="add-btn" id="createBtn">
+        <i class="fas fa-user-plus"></i> Add Candidate
+      </button>
     </div>
-
-    <div class="form-group">
-      <label for="student">Select Student *</label>
-      <select id="student">
-        <option value="">Select Student</option>
-      </select>
-    </div>
-
-    <div class="form-group">
-      <label for="position">Position *</label>
-      <input type="text" id="position" placeholder="Position (e.g., President, Treasurer)">
-    </div>
-
-    <div class="form-group" id="departmentGroup" style="display: none;">
-      <label for="department">Department</label>
-      <select id="department" disabled>
-        <option value="">Auto-filled from student</option>
-      </select>
-    </div>
-
-    <button class="add-btn" id="createBtn">Add Candidate</button>
   </div>
 
   <!-- CANDIDATES TABLE -->
   <div class="table-card">
-    <h3>📋 Existing Candidates</h3>
-    
-    <!-- Filter Bar -->
-    <div class="filter-bar">
-      <select id="campusFilter" class="filter-select" onchange="filterCandidates()">
-        <option value="">All Campuses</option>
-      </select>
-      <select id="electionFilter" class="filter-select" onchange="filterCandidates()">
-        <option value="">All Elections</option>
-      </select>
+    <div class="table-header">
+      <h3><i class="fas fa-list"></i> Existing Candidates</h3>
+      
+      <div class="filter-bar">
+        <div class="filter-wrapper">
+          <i class="fas fa-filter"></i>
+          <select id="campusFilter" class="filter-select" onchange="filterCandidates()">
+            <option value="">All Campuses</option>
+          </select>
+        </div>
+        
+        <div class="filter-wrapper">
+          <i class="fas fa-filter"></i>
+          <select id="electionFilter" class="filter-select" onchange="filterCandidates()">
+            <option value="">All Elections</option>
+          </select>
+        </div>
+        
+        <div class="results-count" id="resultsCount">
+          <i class="fas fa-users"></i>
+          <span id="candidateCount">0</span> candidates found
+        </div>
+      </div>
     </div>
 
     <div class="table-wrapper">
       <table>
         <thead>
           <tr>
-            <th>Name</th>
-            <th>Position</th>
-            <th>Election</th>
-            <th>Campus</th>
-            <th>Department</th>
-            <th>Actions</th>
+            <th><i class="fas fa-user"></i> Student Name</th>
+            <th><i class="fas fa-briefcase"></i> Position</th>
+            <th><i class="fas fa-vote-yea"></i> Election</th>
+            <th><i class="fas fa-building"></i> Campus</th>
+            <th><i class="fas fa-university"></i> Department</th>
+            <th><i class="fas fa-cog"></i> Actions</th>
           </tr>
         </thead>
-        <tbody id="candidatesTable"></tbody>
+        <tbody id="candidatesTable">
+          <tr>
+            <td colspan="6" class="no-data">
+              <i class="fas fa-spinner fa-spin"></i> Loading candidates...
+            </td>
+          </tr>
+        </tbody>
       </table>
     </div>
   </div>
 
+  <!-- Alert Container -->
+  <div id="alertContainer"></div>
 </div>
 
 <script type="module">
@@ -448,6 +990,8 @@ let departments = {};
 let elections = {};
 let students = [];
 let allCandidates = [];
+let filteredStudents = [];
+let searchTimeout;
 
 // ============================
 // SESSION CHECK
@@ -455,8 +999,10 @@ let allCandidates = [];
 document.addEventListener("DOMContentLoaded", async () => {
   const adminSession = JSON.parse(sessionStorage.getItem("adminSession"));
   if(!adminSession || adminSession.role !== "admin"){
-    alert("Access denied! Admins only.");
-    window.location.href = "admin-login.html";
+    showAlert("Access denied! Admins only.", "error");
+    setTimeout(() => {
+      window.location.href = "admin-login.html";
+    }, 2000);
     return;
   }
 
@@ -465,19 +1011,186 @@ document.addEventListener("DOMContentLoaded", async () => {
   await loadStudents();
   await loadElections();
   await loadCandidates();
+  
+  // Setup search listener
+  setupSearchListener();
 });
+
+// ============================
+// SETUP SEARCH LISTENER
+// ============================
+function setupSearchListener() {
+  const searchInput = document.getElementById('studentSearch');
+  const clearBtn = document.getElementById('clearSearchBtn');
+  
+  searchInput.addEventListener('input', function(e) {
+    clearTimeout(searchTimeout);
+    const query = e.target.value.trim();
+    
+    if (query.length > 0) {
+      clearBtn.style.display = 'block';
+      searchTimeout = setTimeout(() => searchStudents(query), 300);
+    } else {
+      clearBtn.style.display = 'none';
+      document.getElementById('studentResults').style.display = 'none';
+    }
+  });
+  
+  searchInput.addEventListener('focus', function() {
+    if (this.value.trim().length > 0) {
+      document.getElementById('studentResults').style.display = 'block';
+    }
+  });
+}
+
+// ============================
+// SEARCH STUDENTS
+// ============================
+function searchStudents(query) {
+  const resultsDiv = document.getElementById('studentResults');
+  const campusId = document.getElementById('campus').value;
+  
+  if (!campusId) {
+    showAlert("Please select a campus first", "warning");
+    resultsDiv.style.display = 'none';
+    return;
+  }
+  
+  // Filter students by campus and search query
+  filteredStudents = students.filter(s => {
+    if (s.campusId !== campusId) return false;
+    
+    const searchStr = query.toLowerCase();
+    const fullName = (s.fullName || '').toLowerCase();
+    const admission = (s.admissionNumber || '').toLowerCase();
+    const deptName = (departments[s.departmentId] || '').toLowerCase();
+    
+    return fullName.includes(searchStr) || 
+           admission.includes(searchStr) || 
+           deptName.includes(searchStr);
+  });
+  
+  displayStudentResults(filteredStudents);
+}
+
+// ============================
+// DISPLAY STUDENT RESULTS
+// ============================
+function displayStudentResults(students) {
+  const resultsDiv = document.getElementById('studentResults');
+  
+  if (students.length === 0) {
+    resultsDiv.innerHTML = `
+      <div class="no-results">
+        <i class="fas fa-user-slash"></i>
+        <p>No students found matching your search</p>
+      </div>
+    `;
+    resultsDiv.style.display = 'block';
+    return;
+  }
+  
+  resultsDiv.innerHTML = students.map(s => {
+    const deptName = departments[s.departmentId] || "N/A";
+    const campusName = campuses[s.campusId] || "N/A";
+    const initials = (s.fullName || '').split(' ').map(n => n[0]).join('').toUpperCase().substring(0,2);
+    
+    return `
+      <div class="student-result-item" onclick="selectStudent('${s.id}')">
+        <div class="student-avatar">${initials}</div>
+        <div class="student-info">
+          <h4>${s.fullName || "Unnamed Student"}</h4>
+          <p>
+            <span><i class="fas fa-id-card"></i> ${s.admissionNumber || "N/A"}</span>
+            <span><i class="fas fa-university"></i> ${deptName}</span>
+          </p>
+        </div>
+        <span class="student-badge">${campusName}</span>
+      </div>
+    `;
+  }).join('');
+  
+  resultsDiv.style.display = 'block';
+}
+
+// ============================
+// SELECT STUDENT
+// ============================
+window.selectStudent = function(studentId) {
+  const student = students.find(s => s.id === studentId);
+  if (!student) return;
+  
+  // Update hidden inputs
+  document.getElementById('selectedStudentId').value = student.id;
+  document.getElementById('selectedStudentFullName').value = student.fullName || '';
+  document.getElementById('selectedStudentDepartment').value = student.departmentId || '';
+  document.getElementById('selectedStudentCampus').value = student.campusId || '';
+  
+  // Update search input
+  const searchInput = document.getElementById('studentSearch');
+  searchInput.value = student.fullName || '';
+  
+  // Hide results
+  document.getElementById('studentResults').style.display = 'none';
+  
+  // Show success feedback
+  showAlert(`Student selected: ${student.fullName}`, "success");
+}
+
+// ============================
+// CLEAR SEARCH
+// ============================
+window.clearSearch = function() {
+  document.getElementById('studentSearch').value = '';
+  document.getElementById('selectedStudentId').value = '';
+  document.getElementById('selectedStudentFullName').value = '';
+  document.getElementById('selectedStudentDepartment').value = '';
+  document.getElementById('selectedStudentCampus').value = '';
+  document.getElementById('studentResults').style.display = 'none';
+  document.getElementById('clearSearchBtn').style.display = 'none';
+}
 
 // ============================
 // LOGOUT & BACK
 // ============================
 window.logout = function(){ 
   sessionStorage.removeItem("adminSession"); 
-  window.location.href="admin-login.html"; 
+  showAlert("Logged out successfully", "success");
+  setTimeout(() => {
+    window.location.href="admin-login.html"; 
+  }, 1000);
 }
 
 window.goBack = function(){
     if (document.referrer) window.history.back();
     else window.location.href = "admin-dashboard.html";
+}
+
+// ============================
+// SHOW ALERT
+// ============================
+function showAlert(message, type) {
+  const alertContainer = document.getElementById('alertContainer');
+  const icons = {
+    success: 'fa-check-circle',
+    error: 'fa-exclamation-circle',
+    warning: 'fa-exclamation-triangle',
+    info: 'fa-info-circle'
+  };
+  
+  const alert = document.createElement('div');
+  alert.className = `alert alert-${type}`;
+  alert.innerHTML = `
+    <i class="fas ${icons[type] || 'fa-info-circle'}"></i>
+    <span>${message}</span>
+  `;
+  
+  alertContainer.innerHTML = '';
+  alertContainer.appendChild(alert);
+  
+  setTimeout(() => {
+    alert.remove();
+  }, 3000);
 }
 
 // ============================
@@ -500,6 +1213,7 @@ async function loadCampuses(){
     });
   }catch(err){ 
     console.error("Error loading campuses:", err); 
+    showAlert("Error loading campuses", "error");
   }
 }
 
@@ -513,7 +1227,10 @@ async function loadDepartments(){
       const deptData = docu.data();
       departments[docu.id] = deptData.name || docu.id;
     });
-  }catch(err){ console.error("Error loading departments:", err); }
+  }catch(err){ 
+    console.error("Error loading departments:", err);
+    showAlert("Error loading departments", "error");
+  }
 }
 
 // ============================
@@ -532,35 +1249,9 @@ async function loadStudents(){
         admissionNumber: data.admissionNumber || ""
       };
     });
-    populateStudentDropdown();
-  }catch(err){ console.error("Error loading students:", err); }
-}
-
-// ============================
-// POPULATE STUDENT DROPDOWN (filtered by campus)
-// ============================
-function populateStudentDropdown(campusId = null){
-  const studentSelect = document.getElementById("student");
-  studentSelect.innerHTML = "<option value=''>Select Student</option>";
-  
-  let filteredStudents = students;
-  if(campusId) {
-    filteredStudents = students.filter(s => s.campusId === campusId);
-  }
-  
-  filteredStudents.forEach(s => {
-    const deptName = departments[s.departmentId] || "N/A";
-    const campusName = campuses[s.campusId] || "N/A";
-    studentSelect.innerHTML += `<option value="${s.id}" 
-      data-fullname="${s.fullName}" 
-      data-department="${s.departmentId}"
-      data-campus="${s.campusId}">
-      ${s.fullName} (${s.admissionNumber}) - ${deptName} - ${campusName}
-    </option>`;
-  });
-  
-  if(filteredStudents.length === 0) {
-    studentSelect.innerHTML = "<option value=''>No students in this campus</option>";
+  }catch(err){ 
+    console.error("Error loading students:", err);
+    showAlert("Error loading students", "error");
   }
 }
 
@@ -595,7 +1286,10 @@ async function loadElections(){
         ${e.name} (${e.level})
       </option>`;
     });
-  }catch(err){ console.error("Error loading elections:", err); }
+  }catch(err){ 
+    console.error("Error loading elections:", err);
+    showAlert("Error loading elections", "error");
+  }
 }
 
 // ============================
@@ -605,12 +1299,12 @@ window.filterElectionsByCampus = function(){
   const campusId = document.getElementById("campus").value;
   const electionSelect = document.getElementById("election");
   
-  // Reset student dropdown based on campus
-  populateStudentDropdown(campusId);
+  // Clear selected student
+  clearSearch();
   
   // Filter elections by campus
   const options = electionSelect.options;
-  for(let i = 1; i < options.length; i++) { // Start from 1 to skip placeholder
+  for(let i = 1; i < options.length; i++) {
     const option = options[i];
     const electionCampus = option.dataset.campus;
     if(campusId && electionCampus !== campusId) {
@@ -623,10 +1317,11 @@ window.filterElectionsByCampus = function(){
   // Reset selection
   electionSelect.value = "";
   document.getElementById("position").value = "";
+  document.getElementById("position").disabled = false;
 }
 
 // ============================
-// UPDATE POSITION FIELD AND FILTER STUDENTS
+// UPDATE POSITION FIELD
 // ============================
 window.updatePositionAndFilter = function(){
   const electionSelect = document.getElementById("election");
@@ -636,10 +1331,6 @@ window.updatePositionAndFilter = function(){
   if(!selectedElection) return;
 
   const level = selectedElection.dataset.level;
-  const campusId = selectedElection.dataset.campus;
-  
-  // Filter students by the election's campus
-  populateStudentDropdown(campusId);
   
   if(level === "executive"){
     positionInput.disabled = false;
@@ -655,40 +1346,36 @@ window.updatePositionAndFilter = function(){
 // CREATE CANDIDATE
 // ============================
 document.getElementById("createBtn").addEventListener("click", async ()=>{
-  const studentSelect = document.getElementById("student");
-  const studentId = studentSelect.value;
-  const studentOption = studentSelect.selectedOptions[0];
-  
-  if(!studentOption) {
-    alert("Please select a student");
-    return;
-  }
-  
-  const fullName = studentOption.dataset.fullname;
-  const departmentId = studentOption.dataset.department;
-  const campusId = studentOption.dataset.campus;
+  const studentId = document.getElementById("selectedStudentId").value;
+  const studentName = document.getElementById("selectedStudentFullName").value;
+  const departmentId = document.getElementById("selectedStudentDepartment").value;
+  const campusId = document.getElementById("selectedStudentCampus").value;
   const electionId = document.getElementById("election").value;
   const position = document.getElementById("position").value.trim();
 
-  if(!studentId || !fullName || !electionId || !position){
-    alert("Please fill all required fields!");
+  if(!studentId || !studentName || !electionId || !position){
+    showAlert("Please select a student and fill all required fields!", "error");
     return;
   }
 
-  // Check if candidate already exists for this election
+  // Check if candidate already exists
   const candidateExists = allCandidates.some(c => 
     c.studentId === studentId && c.electionId === electionId
   );
   
   if(candidateExists) {
-    alert("This student is already a candidate in this election!");
+    showAlert("This student is already a candidate in this election!", "warning");
     return;
   }
 
   try{
+    const btn = document.getElementById("createBtn");
+    btn.classList.add("loading");
+    btn.disabled = true;
+    
     await addDoc(collection(db, "candidates"), {
       studentId,
-      fullName,
+      fullName: studentName,
       electionId,
       campusId,
       departmentId,
@@ -697,23 +1384,28 @@ document.getElementById("createBtn").addEventListener("click", async ()=>{
       createdAt: new Date()
     });
 
-    alert("✅ Candidate added successfully!");
+    showAlert("Candidate added successfully!", "success");
     
     // Clear form
-    studentSelect.value = "";
-    document.getElementById("position").value = "";
+    clearSearch();
     document.getElementById("election").value = "";
     document.getElementById("campus").value = "";
+    document.getElementById("position").value = "";
+    document.getElementById("position").disabled = false;
     
     // Refresh candidates list
     await loadCandidates();
     
-    // Reset student dropdown
-    populateStudentDropdown();
+    // Reset election filter display
+    filterElectionsByCampus();
     
   }catch(err){ 
     console.error(err); 
-    alert("❌ Error adding candidate: " + err.message); 
+    showAlert("Error adding candidate: " + err.message, "error"); 
+  } finally {
+    const btn = document.getElementById("createBtn");
+    btn.classList.remove("loading");
+    btn.disabled = false;
   }
 });
 
@@ -722,7 +1414,7 @@ document.getElementById("createBtn").addEventListener("click", async ()=>{
 // ============================
 async function loadCandidates(){
   const table = document.getElementById("candidatesTable");
-  table.innerHTML = "";
+  table.innerHTML = "<tr><td colspan='6' class='no-data'><i class='fas fa-spinner fa-spin'></i> Loading candidates...</td></tr>";
 
   try{
     const snap = await getDocs(collection(db, "candidates"));
@@ -730,6 +1422,7 @@ async function loadCandidates(){
     
     if(snap.empty){
       table.innerHTML = "<tr><td colspan='6' class='no-data'>No candidates found.</td></tr>";
+      updateCandidateCount(0);
       return;
     }
 
@@ -745,11 +1438,12 @@ async function loadCandidates(){
   }catch(err){ 
     console.error("Error loading candidates:", err);
     table.innerHTML = `<tr><td colspan="6" class="no-data">Error loading candidates</td></tr>`;
+    showAlert("Error loading candidates", "error");
   }
 }
 
 // ============================
-// DISPLAY CANDIDATES (with filters)
+// DISPLAY CANDIDATES
 // ============================
 function displayCandidates() {
   const table = document.getElementById("candidatesTable");
@@ -766,6 +1460,8 @@ function displayCandidates() {
     filtered = filtered.filter(c => c.electionId === electionFilter);
   }
   
+  updateCandidateCount(filtered.length);
+  
   if(filtered.length === 0) {
     table.innerHTML = "<tr><td colspan='6' class='no-data'>No candidates match filters</td></tr>";
     return;
@@ -774,24 +1470,31 @@ function displayCandidates() {
   table.innerHTML = "";
   
   filtered.forEach(c => {
-    const deptName = departments[c.departmentId] || c.departmentId || "-";
+    const deptName = departments[c.departmentId] || c.departmentId || "N/A";
     const campusName = campuses[c.campusId] || c.campusId || "N/A";
-    const electionName = elections[c.electionId]?.name || c.electionId || "-";
+    const electionName = elections[c.electionId]?.name || c.electionId || "N/A";
     const electionLevel = elections[c.electionId]?.level || "";
     
     table.innerHTML += `<tr>
-      <td><strong>${c.fullName || "-"}</strong></td>
-      <td><span class="election-badge">${c.position || "-"}</span></td>
+      <td><strong>${c.fullName || "N/A"}</strong></td>
+      <td><span class="election-badge"><i class="fas fa-tag"></i> ${c.position || "N/A"}</span></td>
       <td>${electionName} <span style="color:#666; font-size:0.7rem;">(${electionLevel})</span></td>
-      <td><span class="campus-badge">${campusName}</span></td>
-      <td><span class="dept-badge">${deptName}</span></td>
+      <td><span class="campus-badge"><i class="fas fa-map-marker-alt"></i> ${campusName}</span></td>
+      <td><span class="dept-badge"><i class="fas fa-university"></i> ${deptName}</span></td>
       <td>
         <button class="delete-btn" onclick="deleteCandidate('${c.id}')">
-          <i class="fas fa-trash"></i> Delete
+          <i class="fas fa-trash-alt"></i> Delete
         </button>
       </td>
     </tr>`;
   });
+}
+
+// ============================
+// UPDATE CANDIDATE COUNT
+// ============================
+function updateCandidateCount(count) {
+  document.getElementById('candidateCount').textContent = count;
 }
 
 // ============================
@@ -808,18 +1511,26 @@ window.deleteCandidate = async function(id){
   if(!confirm("⚠️ Are you sure you want to delete this candidate?")) return;
   
   try{
+    const btn = event.target.closest('button');
+    btn.classList.add("loading");
+    btn.disabled = true;
+    
     const docRef = doc(db, "candidates", id);
     await deleteDoc(docRef);
-    alert("✅ Candidate deleted successfully!");
+    
+    showAlert("Candidate deleted successfully!", "success");
     await loadCandidates();
   }catch(err){ 
     console.error(err); 
-    alert("❌ Error deleting candidate!"); 
+    showAlert("Error deleting candidate!", "error"); 
+  } finally {
+    const btn = event.target.closest('button');
+    if (btn) {
+      btn.classList.remove("loading");
+      btn.disabled = false;
+    }
   }
 }
 </script>
-
-<!-- Add Font Awesome for icons (optional but nice) -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
 </body>
 </html>
