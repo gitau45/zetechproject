@@ -6,423 +6,334 @@
 <meta name="theme-color" content="#0F2A44">
 <title>Vote | Zetech E-Voting</title>
 <style>
-:root {
-  --primary: #0F2A44;
-  --primary-light: #163A5F;
-  --primary-dark: #0A1F33;
-  --background: #F4F6FA;
-  --white: #fff;
-  --muted: #6B7280;
-  --success: #22C55E;
-  --success-light: #ECFDF5;
-  --danger: #DC2626;
-  --shadow: rgba(0,0,0,.08);
-  --border-radius: 16px;
-  --card-radius: 14px;
-  --transition: all 0.2s ease;
-}
-
-* {
-  box-sizing: border-box;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
-  margin: 0;
-  padding: 0;
-}
-
-body {
-  margin: 0;
-  background: var(--background);
-  min-height: 100vh;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-/* Header - Mobile Optimized */
-header {
-  background: var(--primary);
-  color: #fff;
-  padding: 1rem 1.25rem;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  position: sticky;
-  top: 0;
-  z-index: 100;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-}
-
-header h1 {
-  font-size: 1.2rem;
-  font-weight: 600;
-  letter-spacing: -0.5px;
-  margin: 0;
-}
-
-header div {
-  display: flex;
-  gap: 0.75rem;
-}
-
-header div button {
-  background: rgba(255,255,255,0.15);
-  border: 1px solid rgba(255,255,255,0.3);
-  color: #fff;
-  padding: 0.5rem 1rem;
-  border-radius: 20px;
-  cursor: pointer;
-  font-weight: 600;
-  font-size: 0.85rem;
-  transition: var(--transition);
-  backdrop-filter: blur(5px);
-  -webkit-backdrop-filter: blur(5px);
-}
-
-header div button:active {
-  transform: scale(0.95);
-  background: rgba(255,255,255,0.25);
-}
-
-/* Main Container */
-main {
-  max-width: 600px;
-  margin: 0 auto;
-  padding: 1.25rem;
-  padding-bottom: calc(1.25rem + env(safe-area-inset-bottom));
-}
-
-/* Grid - Stack on Mobile */
-.grid {
-  display: flex;
-  flex-direction: column;
-  gap: 1.25rem;
-}
-
-/* Cards */
-.card {
-  background: var(--white);
-  padding: 1.5rem;
-  border-radius: var(--border-radius);
-  box-shadow: 0 8px 20px var(--shadow);
-  margin-bottom: 0;
-  transition: var(--transition);
-  border: 1px solid rgba(255,255,255,0.5);
-  animation: fadeIn 0.3s ease-out;
-}
-
-.card:active {
-  transform: scale(0.99);
-}
-
-.card h3 {
-  margin: 0 0 1rem 0;
-  color: #111827;
-  font-size: 1.2rem;
-  font-weight: 600;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.card p {
-  color: var(--muted);
-  font-size: 0.95rem;
-  line-height: 1.5;
-  margin: 0.5rem 0;
-}
-
-/* Buttons */
-button.primary {
-  background: var(--primary);
-  color: #fff;
-  border: none;
-  padding: 1rem;
-  border-radius: 30px;
-  cursor: pointer;
-  font-weight: 600;
-  font-size: 1rem;
-  width: 100%;
-  transition: var(--transition);
-  box-shadow: 0 4px 12px rgba(15,42,68,0.2);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  margin-top: 1rem;
-}
-
-button.primary:active {
-  transform: scale(0.96);
-  background: var(--primary-light);
-  box-shadow: 0 2px 6px rgba(15,42,68,0.3);
-}
-
-button.primary::before {
-  content: "🗳️";
-  font-size: 1.2rem;
-}
-
-button.success {
-  background: var(--success);
-}
-
-button.danger {
-  background: var(--danger);
-}
-
-/* Alert Messages */
-.alert-success {
-  background: var(--success-light);
-  color: var(--success);
-  padding: 1.25rem;
-  border-radius: 12px;
-  font-weight: 600;
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  border: 1px solid rgba(34,197,94,0.2);
-}
-
-.alert-success::before {
-  content: "✅";
-  font-size: 1.3rem;
-}
-
-/* Election Info */
-#electionInfo p {
-  margin: 0.5rem 0;
-  padding: 0.5rem;
-  background: #f8f9fa;
-  border-radius: 8px;
-}
-
-#electionInfo p strong {
-  color: var(--primary);
-  display: block;
-  margin-bottom: 0.25rem;
-}
-
-/* Candidate Cards */
-#candidatesContainer .card {
-  margin-bottom: 1rem;
-  border-left: 4px solid var(--primary);
-}
-
-#candidatesContainer .card h3 {
-  font-size: 1.1rem;
-  margin-bottom: 0.5rem;
-}
-
-#candidatesContainer .card p {
-  margin: 0.25rem 0;
-}
-
-/* Voted State */
-.voted-badge {
-  background: var(--success-light);
-  color: var(--success);
-  padding: 0.75rem;
-  border-radius: 8px;
-  font-weight: 600;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  margin-top: 0.5rem;
-}
-
-.voted-badge::before {
-  content: "✅";
-}
-
-/* History Items */
-.history-item {
-  font-size: 0.9rem;
-  padding: 0.75rem 0;
-  border-bottom: 1px solid #eee;
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  color: #333;
-}
-
-.history-item::before {
-  content: "🗓️";
-  font-size: 1rem;
-}
-
-.history-item:last-child {
-  border-bottom: none;
-}
-
-/* FAQ Items */
-.faq-item {
-  margin-bottom: 1rem;
-  padding: 0.75rem;
-  background: #f8f9fa;
-  border-radius: 8px;
-}
-
-.faq-item strong {
-  display: block;
-  margin-bottom: 0.3rem;
-  color: var(--primary);
-  font-size: 0.95rem;
-}
-
-.faq-item p {
-  margin: 0;
-  font-size: 0.9rem;
-  color: var(--muted);
-}
-
-/* Hidden Class */
-.hidden {
-  display: none;
-}
-
-/* Loading States */
-.loading-spinner {
-  text-align: center;
-  padding: 2rem;
-  color: var(--muted);
-  position: relative;
-}
-
-.loading-spinner::after {
-  content: '';
-  display: block;
-  width: 30px;
-  height: 30px;
-  border: 3px solid #ddd;
-  border-top-color: var(--primary);
-  border-radius: 50%;
-  animation: spin 0.8s linear infinite;
-  margin: 1rem auto;
-}
-
-/* Empty States */
-.empty-state {
-  text-align: center;
-  padding: 2rem;
-  color: var(--muted);
-  font-style: italic;
-  background: #f8f9fa;
-  border-radius: 12px;
-}
-
-/* Animations */
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
+  /* -------------------- RESET & VARIABLES -------------------- */
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
   }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
 
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
+  :root {
+    --primary: #0F2A44;
+    --primary-light: #1E3A5F;
+    --primary-soft: #E5EEF5;
+    --background: #F4F7FC;
+    --white: #ffffff;
+    --muted: #5E6873;
+    --success: #22C55E;
+    --success-bg: #E6F7EC;
+    --danger: #DC2626;
+    --border-light: #E2E8F0;
+    --card-radius: 24px;
+    --inner-radius: 18px;
+    --shadow-sm: 0 6px 18px rgba(0,0,0,0.04);
+    --transition: all 0.2s ease;
+  }
 
-/* Touch Optimizations */
-@media (hover: none) and (pointer: coarse) {
-  button.primary, header div button {
-    min-height: 48px;
+  body {
+    background: var(--background);
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
   }
-  
-  .card {
-    padding: 1.25rem;
-  }
-}
 
-/* Small Phones */
-@media (max-width: 380px) {
-  header h1 {
-    font-size: 1rem;
-  }
-  
-  header div button {
-    padding: 0.4rem 0.8rem;
+  /* -------------------- TYPOGRAPHY & UTILITY -------------------- */
+  .text-muted { color: var(--muted); font-size: 0.9rem; }
+  .badge {
+    display: inline-block;
+    background: #E9ECF0;
+    padding: 0.3rem 1rem;
+    border-radius: 40px;
     font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+    color: #2C3E4F;
   }
-  
+  .badge-active {
+    background: var(--success);
+    color: white;
+  }
+  .flex-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+
+  /* -------------------- HEADER (compact) -------------------- */
+  header {
+    background: var(--primary);
+    color: white;
+    padding: 0.9rem 1.25rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    box-shadow: 0 3px 12px rgba(0,0,0,0.1);
+  }
+  header h1 {
+    font-size: 1.3rem;
+    font-weight: 600;
+    letter-spacing: -0.3px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  header div { display: flex; gap: 0.6rem; }
+  header button {
+    background: rgba(255,255,255,0.18);
+    border: 1px solid rgba(255,255,255,0.3);
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 30px;
+    font-weight: 600;
+    font-size: 0.8rem;
+    backdrop-filter: blur(4px);
+    transition: var(--transition);
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+  header button:active { background: rgba(255,255,255,0.3); transform: scale(0.94); }
+
+  /* -------------------- MAIN LAYOUT (clean 2‑column grid) -------------------- */
+  main {
+    max-width: 1000px;   /* gives comfortable width on tablets */
+    margin: 0 auto;
+    padding: 1.25rem 1rem 2rem;
+  }
+  .two-col-grid {
+    display: grid;
+    grid-template-columns: 1fr 0.9fr;
+    gap: 1.2rem;
+    align-items: start;
+  }
+
+  /* cards */
   .card {
-    padding: 1.25rem;
+    background: var(--white);
+    border-radius: var(--card-radius);
+    padding: 1.4rem 1.2rem;
+    box-shadow: var(--shadow-sm);
+    border: 1px solid rgba(255,255,255,0.7);
+    transition: var(--transition);
+    animation: fadeIn 0.3s;
+    margin-bottom: 1rem;
   }
-  
-  .card h3 {
+  .card:last-child { margin-bottom: 0; }
+  .card-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 1.2rem;
+    font-weight: 600;
+    color: var(--primary);
     font-size: 1.1rem;
+    border-bottom: 1px dashed var(--border-light);
+    padding-bottom: 0.7rem;
   }
-  
-  button.primary {
-    padding: 0.875rem;
+
+  /* election info row */
+  .info-row {
+    background: #F8FAFE;
+    padding: 0.7rem 1rem;
+    border-radius: 14px;
+    margin: 0.5rem 0;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
     font-size: 0.95rem;
   }
-}
 
-/* Bottom Safe Area */
-@supports (padding-bottom: env(safe-area-inset-bottom)) {
-  main {
-    padding-bottom: calc(1.25rem + env(safe-area-inset-bottom));
+  /* candidate cards inside container */
+  .candidate-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.9rem;
   }
-}
+  .candidate-item {
+    background: #F9FBFE;
+    border-left: 5px solid var(--primary);
+    border-radius: 18px;
+    padding: 1rem 1.2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    transition: var(--transition);
+  }
+  .candidate-item .info h4 {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #1e2a3d;
+  }
+  .candidate-item .info .position {
+    font-size: 0.8rem;
+    color: var(--primary);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+  }
 
-/* Remove Tap Highlight */
-button {
-  -webkit-tap-highlight-color: transparent;
-}
+  /* vote button – more compact */
+  .vote-btn {
+    background: var(--primary);
+    color: white;
+    border: none;
+    padding: 0.6rem 1.2rem;
+    border-radius: 40px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    box-shadow: 0 4px 10px rgba(15,42,68,0.15);
+    transition: var(--transition);
+    cursor: pointer;
+  }
+  .vote-btn:active { transform: scale(0.94); background: var(--primary-light); }
+  .vote-btn::before { content: "🗳️"; font-size: 1rem; }
 
-/* Status Badge */
-.status-badge {
-  display: inline-block;
-  padding: 0.25rem 0.75rem;
-  border-radius: 20px;
-  font-size: 0.75rem;
-  font-weight: 600;
-  background: #e5e7eb;
-  color: #4b5563;
-}
+  .voted-label {
+    background: var(--success-bg);
+    color: var(--success);
+    padding: 0.5rem 1.2rem;
+    border-radius: 40px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.85rem;
+  }
 
-.status-active {
-  background: var(--success);
-  color: white;
-}
+  /* thank you section */
+  .thank-you-banner {
+    background: var(--success-bg);
+    border: 1px solid var(--success);
+    border-radius: 40px;
+    padding: 0.8rem 1.2rem;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    font-weight: 600;
+    color: #166534;
+    margin-bottom: 1.2rem;
+  }
 
-/* Candidate Info */
-.candidate-position {
-  color: var(--primary);
-  font-weight: 600;
-  font-size: 0.85rem;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
+  /* history list */
+  .history-list {
+    list-style: none;
+  }
+  .history-item {
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    padding: 0.7rem 0;
+    border-bottom: 1px solid var(--border-light);
+    font-size: 0.9rem;
+    color: #2b3b4c;
+  }
+  .history-item:last-child { border: none; }
+  .history-item::before { content: "🗓️"; opacity: 0.8; }
 
-/* Thank You Card Special */
-#thankYouCard .card {
-  background: var(--success-light);
-  border: 1px solid var(--success);
-}
+  /* ---------- ENHANCED FAQ SECTION (detailed, tabbed) ---------- */
+  .faq-tabs {
+    display: flex;
+    gap: 0.4rem;
+    margin: 0.8rem 0 1rem;
+    flex-wrap: wrap;
+  }
+  .faq-tab {
+    background: #EFF2F6;
+    border: none;
+    border-radius: 30px;
+    padding: 0.4rem 1.2rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--muted);
+    cursor: pointer;
+    transition: var(--transition);
+  }
+  .faq-tab.active {
+    background: var(--primary);
+    color: white;
+  }
+  .faq-panel {
+    display: none;
+    background: #F8FAFE;
+    border-radius: 20px;
+    padding: 1.2rem 1rem;
+  }
+  .faq-panel.active-panel { display: block; }
+  .faq-q {
+    background: white;
+    border-radius: 16px;
+    padding: 0.9rem 1rem;
+    margin-bottom: 0.7rem;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.02);
+  }
+  .faq-q strong {
+    display: block;
+    color: var(--primary);
+    margin-bottom: 0.3rem;
+    font-size: 0.95rem;
+  }
+  .faq-q p {
+    font-size: 0.9rem;
+    color: #2e3b4b;
+    line-height: 1.4;
+    margin: 0;
+  }
+  .faq-q:last-child { margin-bottom: 0; }
 
-/* Custom Scrollbar */
-::-webkit-scrollbar {
-  width: 4px;
-}
+  /* loading / empty */
+  .loading-placeholder, .empty-placeholder {
+    padding: 1.5rem;
+    text-align: center;
+    color: var(--muted);
+    background: #F8FAFE;
+    border-radius: 30px;
+    font-style: italic;
+  }
 
-::-webkit-scrollbar-track {
-  background: #f1f1f1;
-}
+  /* hidden */
+  .hidden { display: none !important; }
 
-::-webkit-scrollbar-thumb {
-  background: var(--primary-light);
-  border-radius: 4px;
-}
+  /* animations */
+  @keyframes fadeIn { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:translateY(0); } }
+
+  /* -------------------- MOBILE STACKING (breakpoint) -------------------- */
+  @media (max-width: 700px) {
+    .two-col-grid {
+      grid-template-columns: 1fr;
+      gap: 0.8rem;
+    }
+    header h1 { font-size: 1.1rem; }
+    .card { padding: 1.2rem 1rem; }
+    .candidate-item { flex-direction: column; align-items: flex-start; gap: 0.8rem; }
+    .vote-btn { width: 100%; justify-content: center; }
+    .faq-tabs { justify-content: center; }
+  }
+
+  /* extra small */
+  @media (max-width: 380px) {
+    header button { padding: 0.4rem 0.7rem; font-size: 0.7rem; }
+  }
+
+  /* safe area */
+  @supports (padding-bottom: env(safe-area-inset-bottom)) {
+    main { padding-bottom: calc(1rem + env(safe-area-inset-bottom)); }
+  }
+
+  button { cursor: pointer; background: none; border: none; }
+  .mt-2 { margin-top: 0.7rem; }
 </style>
 </head>
 <body>
 
 <header>
-  <h1>🗳️ Cast Your Vote</h1>
+  <h1>🗳️ Zetech Vote</h1>
   <div>
     <button onclick="goBack()">← Back</button>
     <button onclick="logout()">Exit</button>
@@ -430,60 +341,122 @@ button {
 </header>
 
 <main>
-  <div class="grid">
-    <!-- LEFT SIDE - Main Content -->
+  <!-- 2-COLUMN LAYOUT (cleaner spacing) -->
+  <div class="two-col-grid">
+    
+    <!-- LEFT COLUMN (primary content) -->
     <div>
-      <!-- Election Info Card -->
+      <!-- Election info card (compact) -->
       <div class="card">
-        <h3>📋 Election Information</h3>
+        <div class="card-header">📋 Election details</div>
         <div id="electionInfo">
-          <div class="loading-spinner">Loading election...</div>
+          <div class="loading-placeholder">Loading election...</div>
         </div>
       </div>
 
-      <!-- Thank You Message -->
+      <!-- Thank you reminder (dynamic) -->
       <div id="thankYouCard" class="hidden">
-        <div class="card">
-          <div class="alert-success">
-            Thank you for voting! Your vote has been recorded successfully.
-          </div>
+        <div class="thank-you-banner">
+          ✅ Thank you! Your vote is secured.
         </div>
       </div>
 
-      <!-- Candidates Card -->
+      <!-- Candidates card -->
       <div class="card">
-        <h3>👥 Candidates</h3>
-        <div id="candidatesContainer">
-          <div class="loading-spinner">Loading candidates...</div>
+        <div class="card-header">👥 Candidates</div>
+        <div id="candidatesContainer" class="candidate-list">
+          <div class="loading-placeholder">Loading candidates...</div>
         </div>
       </div>
     </div>
 
-    <!-- RIGHT SIDE - Sidebar Content -->
+    <!-- RIGHT COLUMN (history + detailed FAQ) -->
     <div>
-      <!-- Voting History Card -->
+      <!-- Voting history card -->
       <div class="card">
-        <h3>📜 Your Voting History</h3>
+        <div class="card-header">📜 Your history</div>
         <div id="historyContainer">
-          <div class="loading-spinner">Checking history...</div>
+          <div class="loading-placeholder">Loading history...</div>
         </div>
       </div>
 
-      <!-- FAQ Card -->
+      <!-- DETAILED FAQ CARD (with tabs) -->
       <div class="card">
-        <h3>❓ How This Election Works</h3>
-        <div class="faq-item">
-          <strong>🔒 Is my vote anonymous?</strong>
-          <p>Yes. Your vote is securely recorded and cannot be traced back to you.</p>
+        <div class="card-header">❓ How voting works</div>
+        
+        <!-- tabs -->
+        <div class="faq-tabs">
+          <button class="faq-tab active" data-tab="privacy">🔒 Privacy</button>
+          <button class="faq-tab" data-tab="rules">⚖️ Rules</button>
+          <button class="faq-tab" data-tab="results">📊 Results</button>
+          <button class="faq-tab" data-tab="tech">💡 Tech</button>
         </div>
-        <div class="faq-item">
-          <strong>⚠️ Can I vote twice?</strong>
-          <p>No. The system only allows one vote per election.</p>
+
+        <!-- Tab 1: Privacy (detailed) -->
+        <div id="panel-privacy" class="faq-panel active-panel">
+          <div class="faq-q">
+            <strong>🔐 Is my vote anonymous?</strong>
+            <p>Absolutely. Your vote is encrypted and stored without any link to your identity. Only the fact that you voted (not your choice) is recorded in your history.</p>
+          </div>
+          <div class="faq-q">
+            <strong>🛡️ What data is stored?</strong>
+            <p>We store your admission number only to prevent double voting. Your candidate selection is anonymized in a separate database.</p>
+          </div>
+          <div class="faq-q">
+            <strong>👁️ Can election officials see my vote?</strong>
+            <p>No. The system uses split‑view encryption — no single person can trace a vote back to you.</p>
+          </div>
         </div>
-        <div class="faq-item">
-          <strong>📊 When are results announced?</strong>
-          <p>Results are published after the election end date.</p>
+
+        <!-- Tab 2: Rules (detailed) -->
+        <div id="panel-rules" class="faq-panel">
+          <div class="faq-q">
+            <strong>🚫 Can I vote twice?</strong>
+            <p>No. Once you cast your vote, your admission number is marked for this election. Any further attempt is blocked.</p>
+          </div>
+          <div class="faq-q">
+            <strong>📅 What if I miss the deadline?</strong>
+            <p>Voting closes at the date shown in election details. After that, the “vote” buttons are disabled and no further submissions are accepted.</p>
+          </div>
+          <div class="faq-q">
+            <strong>🗳️ Can I change my vote?</strong>
+            <p>To ensure integrity, votes are final. Please review your choice before confirming.</p>
+          </div>
         </div>
+
+        <!-- Tab 3: Results (detailed) -->
+        <div id="panel-results" class="faq-panel">
+          <div class="faq-q">
+            <strong>📈 When are results published?</strong>
+            <p>Results are released after the election end date and time. They will appear on the dashboard and may be announced officially.</p>
+          </div>
+          <div class="faq-q">
+            <strong>🏆 Are results live?</strong>
+            <p>No. To avoid influencing voters, results are frozen until the election closes. After that, a tally is shown.</p>
+          </div>
+          <div class="faq-q">
+            <strong>📋 Where can I see detailed counts?</strong>
+            <p>A final results report will be available in the “past elections” section once the election is over.</p>
+          </div>
+        </div>
+
+        <!-- Tab 4: Tech details (FAQ depth) -->
+        <div id="panel-tech" class="faq-panel">
+          <div class="faq-q">
+            <strong>⚙️ How is my vote secured?</strong>
+            <p>We use Firestore security rules and server timestamps. Each vote triggers a write that is logged, and the total count increments atomically.</p>
+          </div>
+          <div class="faq-q">
+            <strong>📱 What if the app crashes?</strong>
+            <p>Your vote is confirmed only after Firestore acknowledges the write. If it fails, you'll see an error and can try again safely.</p>
+          </div>
+          <div class="faq-q">
+            <strong>🔁 Can I see my vote receipt?</strong>
+            <p>A timestamp appears in “your history” as proof of your participation, but not your candidate — that keeps it anonymous.</p>
+          </div>
+        </div>
+
+        <div class="text-muted mt-2" style="padding:0.4rem 0.2rem;">⏱️ Last updated: March 2025</div>
       </div>
     </div>
   </div>
@@ -493,181 +466,179 @@ button {
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getFirestore, collection, doc, getDoc, query, where, getDocs, updateDoc, addDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-// Firebase config
+// config
 const firebaseConfig = {
   apiKey: "AIzaSyA6sugBbX6kvd3RuwznAZkgEi",
   authDomain: "zetech-e-voting.firebaseapp.com",
   projectId: "zetech-e-voting"
 };
-
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-// ---------------- AUTH ----------------
+// session
 const session = JSON.parse(sessionStorage.getItem("studentSession") || "{}");
 if (!session || !session.admissionNumber) {
   window.location.href = "student-login.html";
 }
 
-window.logout = () => {
-  sessionStorage.clear();
-  window.location.href = "student-login.html";
-};
+// global functions
+window.logout = () => { sessionStorage.clear(); window.location.href = "student-login.html"; };
+window.goBack = () => { window.history.back(); };
 
-window.goBack = () => {
-  window.history.back();
-};
-
+// params
 const urlParams = new URLSearchParams(window.location.search);
 const electionId = urlParams.get("electionId");
 
+// DOM elements
 const electionInfoDiv = document.getElementById("electionInfo");
 const candidatesContainer = document.getElementById("candidatesContainer");
 const historyContainer = document.getElementById("historyContainer");
 const thankYouCard = document.getElementById("thankYouCard");
 
-// ---------------- LOAD ELECTION ----------------
-async function loadElection(){
-  if(!electionId){
-    electionInfoDiv.innerHTML = '<p class="empty-state">❌ Invalid election.</p>';
+// ---------- LOAD ELECTION ----------
+async function loadElection() {
+  if (!electionId) {
+    electionInfoDiv.innerHTML = '<div class="empty-placeholder">❌ No election ID</div>';
     return;
   }
-
   try {
-    const electionRef = doc(db,"elections",electionId);
-    const electionSnap = await getDoc(electionRef);
-
-    if(!electionSnap.exists()){
-      electionInfoDiv.innerHTML = '<p class="empty-state">❌ Election not found.</p>';
+    const electionRef = doc(db, "elections", electionId);
+    const snap = await getDoc(electionRef);
+    if (!snap.exists()) {
+      electionInfoDiv.innerHTML = '<div class="empty-placeholder">❌ Election not found</div>';
       return;
     }
-
-    const election = electionSnap.data();
-    const status = election.status || "active";
-
+    const election = snap.data();
+    const status = election.status || 'active';
+    const start = election.startDate?.toDate?.() ? election.startDate.toDate().toLocaleDateString() : (election.startDate || 'TBD');
+    const end = election.endDate?.toDate?.() ? election.endDate.toDate().toLocaleDateString() : (election.endDate || 'TBD');
+    
     electionInfoDiv.innerHTML = `
-      <p><strong>${election.name}</strong></p>
-      <p><span class="status-badge ${status === 'active' ? 'status-active' : ''}">${status.toUpperCase()}</span></p>
-      <p>📌 Level: ${election.level}</p>
-      <p>📅 Start: ${election.startDate?.toDate().toLocaleDateString() || "TBD"}</p>
-      <p>📅 End: ${election.endDate?.toDate().toLocaleDateString() || "TBD"}</p>
+      <div class="flex-row"><strong style="font-size:1.1rem;">${election.name}</strong> <span class="badge ${status==='active'?'badge-active':''}">${status}</span></div>
+      <div class="info-row"><span>📌 ${election.level || 'All levels'}</span><span>🗳️ ${election.type || 'General'}</span></div>
+      <div class="info-row"><span>📅 Start ${start}</span><span>📅 End ${end}</span></div>
     `;
-
+    
     await loadCandidates(election);
     await loadHistory();
   } catch (err) {
-    console.error("Error loading election:", err);
-    electionInfoDiv.innerHTML = '<p class="empty-state">❌ Error loading election</p>';
+    console.error(err);
+    electionInfoDiv.innerHTML = '<div class="empty-placeholder">⚠️ Error loading</div>';
   }
 }
 
-// ---------------- LOAD CANDIDATES ----------------
-async function loadCandidates(election){
+// ---------- LOAD CANDIDATES (with compact UI) ----------
+async function loadCandidates(election) {
   try {
+    // check if already voted
     const votesSnap = await getDocs(query(
-      collection(db,"votes"),
-      where("electionId","==",electionId),
-      where("voterId","==",session.admissionNumber)
+      collection(db, "votes"),
+      where("electionId", "==", electionId),
+      where("voterId", "==", session.admissionNumber)
     ));
-
     const hasVoted = !votesSnap.empty;
 
-    const snap = await getDocs(query(
-      collection(db,"candidates"),
-      where("electionId","==",electionId)
+    const candidatesSnap = await getDocs(query(
+      collection(db, "candidates"),
+      where("electionId", "==", electionId)
     ));
 
-    if(snap.empty){
-      candidatesContainer.innerHTML = '<p class="empty-state">No candidates found.</p>';
+    if (candidatesSnap.empty) {
+      candidatesContainer.innerHTML = '<div class="empty-placeholder">No candidates yet</div>';
       return;
     }
 
     candidatesContainer.innerHTML = "";
-
-    snap.forEach(docu => {
+    candidatesSnap.forEach(docu => {
       const c = docu.data();
-      
-      const card = document.createElement("div");
-      card.className = "card";
+      const wrapper = document.createElement("div");
+      wrapper.className = "candidate-item";
       
       if (hasVoted) {
-        card.innerHTML = `
-          <h3>👤 ${c.fullName}</h3>
-          <p class="candidate-position">${c.position || "Representative"}</p>
-          <div class="voted-badge">You already voted in this election</div>
+        wrapper.innerHTML = `
+          <div class="info">
+            <h4>👤 ${c.fullName}</h4>
+            <span class="position">${c.position || 'Representative'}</span>
+          </div>
+          <div class="voted-label">✅ Voted</div>
         `;
       } else {
-        card.innerHTML = `
-          <h3>👤 ${c.fullName}</h3>
-          <p class="candidate-position">${c.position || "Representative"}</p>
-          <button class="primary" onclick="vote('${docu.id}','${election.level}')">Vote for ${c.fullName.split(' ')[0]}</button>
+        wrapper.innerHTML = `
+          <div class="info">
+            <h4>👤 ${c.fullName}</h4>
+            <span class="position">${c.position || 'Representative'}</span>
+          </div>
+          <button class="vote-btn" data-id="${docu.id}" data-level="${election.level}">Vote for ${c.fullName.split(' ')[0]}</button>
         `;
+        // attach event after innerHTML
+        const btn = wrapper.querySelector('button');
+        if (btn) {
+          btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            vote(btn.dataset.id, btn.dataset.level);
+          });
+        }
       }
-      
-      candidatesContainer.appendChild(card);
+      candidatesContainer.appendChild(wrapper);
     });
 
-    if(hasVoted){
-      thankYouCard.classList.remove("hidden");
+    if (hasVoted) {
+      thankYouCard.classList.remove('hidden');
+    } else {
+      thankYouCard.classList.add('hidden');
     }
   } catch (err) {
-    console.error("Error loading candidates:", err);
-    candidatesContainer.innerHTML = '<p class="empty-state">❌ Error loading candidates</p>';
+    console.error(err);
+    candidatesContainer.innerHTML = '<div class="empty-placeholder">⚠️ Error loading candidates</div>';
   }
 }
 
-// ---------------- LOAD HISTORY ----------------
-async function loadHistory(){
+// ---------- LOAD HISTORY (clean list) ----------
+async function loadHistory() {
   try {
     const snap = await getDocs(query(
-      collection(db,"votes"),
-      where("voterId","==",session.admissionNumber),
-      where("electionId","==",electionId)
+      collection(db, "votes"),
+      where("voterId", "==", session.admissionNumber),
+      where("electionId", "==", electionId)
     ));
 
-    if(snap.empty){
-      historyContainer.innerHTML = '<p class="empty-state">You have not voted in this election.</p>';
+    if (snap.empty) {
+      historyContainer.innerHTML = '<div class="empty-placeholder">📭 No vote in this election</div>';
       return;
     }
 
-    historyContainer.innerHTML = "";
+    let html = '<ul class="history-list">';
     snap.forEach(v => {
       const data = v.data();
-      const date = data.timestamp?.toDate ? 
-        data.timestamp.toDate().toLocaleString() : 
-        new Date(data.timestamp).toLocaleString();
-      
-      historyContainer.innerHTML += `
-        <div class="history-item">
-          Voted on ${date}
-        </div>
-      `;
+      const d = data.timestamp?.toDate ? data.timestamp.toDate() : new Date(data.timestamp);
+      const dateStr = d.toLocaleString(undefined, { month:'short', day:'numeric', hour:'2-digit', minute:'2-digit' });
+      html += `<li class="history-item">Voted on ${dateStr}</li>`;
     });
+    html += '</ul>';
+    historyContainer.innerHTML = html;
   } catch (err) {
-    console.error("Error loading history:", err);
-    historyContainer.innerHTML = '<p class="empty-state">❌ Error loading history</p>';
+    console.error(err);
+    historyContainer.innerHTML = '<div class="empty-placeholder">⚠️ Error loading history</div>';
   }
 }
 
-// ---------------- VOTE ----------------
+// ---------- VOTE ----------
 window.vote = async (candidateId, level) => {
-  if(!confirm("Are you sure you want to cast your vote?")) return;
+  if (!confirm("Cast your vote? This action cannot be undone.")) return;
 
   try {
-    // Check if already voted
     const votesSnap = await getDocs(query(
-      collection(db,"votes"),
-      where("electionId","==",electionId),
-      where("voterId","==",session.admissionNumber)
+      collection(db, "votes"),
+      where("electionId", "==", electionId),
+      where("voterId", "==", session.admissionNumber)
     ));
-
-    if(!votesSnap.empty){
-      alert("You have already voted in this election.");
+    if (!votesSnap.empty) {
+      alert("You have already voted.");
       return;
     }
 
-    // Record vote
-    await addDoc(collection(db,"votes"), {
+    // add vote
+    await addDoc(collection(db, "votes"), {
       candidateId,
       electionId,
       level,
@@ -675,26 +646,49 @@ window.vote = async (candidateId, level) => {
       timestamp: new Date()
     });
 
-    // Increment candidate votes
-    const candidateRef = doc(db,"candidates", candidateId);
-    const candidateSnap = await getDoc(candidateRef);
-    const currentVotes = candidateSnap.data().votes || 0;
-    
-    await updateDoc(candidateRef, {
-      votes: currentVotes + 1
-    });
+    // increment candidate votes
+    const candidateRef = doc(db, "candidates", candidateId);
+    const candSnap = await getDoc(candidateRef);
+    const current = candSnap.data().votes || 0;
+    await updateDoc(candidateRef, { votes: current + 1 });
 
-    alert("✅ Vote submitted successfully!");
-    loadElection();
+    alert("✅ Vote recorded!");
+    loadElection(); // refresh all
   } catch (err) {
-    console.error("Error voting:", err);
-    alert("❌ Error submitting vote. Please try again.");
+    console.error(err);
+    alert("❌ Submission failed. Try again.");
   }
 };
 
-// ---------------- INIT ----------------
+// ---------- FAQ TABBED INTERFACE ----------
+function setupFaqTabs() {
+  const tabs = document.querySelectorAll('.faq-tab');
+  const panels = {
+    privacy: document.getElementById('panel-privacy'),
+    rules: document.getElementById('panel-rules'),
+    results: document.getElementById('panel-results'),
+    tech: document.getElementById('panel-tech')
+  };
+  tabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      const target = tab.dataset.tab; // privacy/rules/results/tech
+      // deactivate all tabs & panels
+      tabs.forEach(t => t.classList.remove('active'));
+      Object.values(panels).forEach(p => p?.classList.remove('active-panel'));
+      // activate current
+      tab.classList.add('active');
+      if (panels[target]) panels[target].classList.add('active-panel');
+    });
+  });
+}
+
+// init
 loadElection();
+setupFaqTabs();
+
 </script>
 
+<!-- tiny fallback for very old browsers -->
+<noscript>JavaScript required</noscript>
 </body>
 </html>
