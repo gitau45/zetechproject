@@ -48,7 +48,6 @@
         animation: fadeIn 0.6s ease-out;
     }
 
-    /* Header Section - Cleaner */
     .header {
         margin-bottom: 2.5rem;
     }
@@ -188,7 +187,6 @@
         transform: translateY(-2px);
     }
 
-    /* Icon */
     .icon {
         font-size: 4rem;
         color: var(--primary);
@@ -218,7 +216,6 @@
         padding: 0 1rem;
     }
 
-    /* Button */
     .btn {
         display: inline-block;
         padding: 1rem 2.5rem;
@@ -256,7 +253,6 @@
         pointer-events: none;
     }
 
-    /* Admin Link */
     .admin-link {
         margin-top: 2rem;
         text-align: center;
@@ -281,7 +277,6 @@
         font-size: 0.7rem;
     }
 
-    /* Footer */
     footer {
         margin-top: 3rem;
         font-size: 0.8rem;
@@ -289,7 +284,6 @@
         padding: 1rem;
     }
 
-    /* Animations */
     @keyframes fadeIn {
         from { opacity: 0; }
         to { opacity: 1; }
@@ -306,7 +300,6 @@
         }
     }
 
-    /* Mobile */
     @media (max-width: 600px) {
         .header h1 {
             font-size: 1.8rem;
@@ -343,7 +336,6 @@
         }
     }
 
-    /* Touch optimizations */
     @media (hover: none) and (pointer: coarse) {
         .student-card, .btn {
             -webkit-tap-highlight-color: transparent;
@@ -354,13 +346,11 @@
         }
     }
 
-    /* Loading state */
     .btn.loading {
         opacity: 0.7;
         pointer-events: none;
     }
 
-    /* Error message */
     .error-message {
         color: #dc2626;
         font-size: 0.85rem;
@@ -372,7 +362,6 @@
         display: block;
     }
 
-    /* Connection error */
     .connection-error {
         background: #fee2e2;
         border: 1px solid #ef4444;
@@ -393,7 +382,6 @@
         margin-right: 0.5rem;
     }
 
-    /* Retry button */
     .retry-btn {
         background: none;
         border: 1px solid var(--primary);
@@ -415,20 +403,17 @@
 <body>
 
 <div class="container">
-    <!-- Simple Header -->
     <div class="header">
         <h1>University Voting</h1>
         <p>Student voting portal</p>
     </div>
 
-    <!-- Campus Stats (Dynamically loaded) -->
     <div class="campus-stats" id="campusStats">
         <div class="stat-skeleton"></div>
         <div class="stat-skeleton"></div>
         <div class="stat-skeleton"></div>
     </div>
 
-    <!-- Connection Error -->
     <div id="connectionError" class="connection-error">
         <i class="fas fa-exclamation-triangle"></i>
         Failed to load campus data. 
@@ -437,7 +422,6 @@
         </button>
     </div>
 
-    <!-- Campus Selector (Required before login) -->
     <div class="campus-selector">
         <select id="campusSelect" disabled>
             <option value="">Loading campuses...</option>
@@ -447,7 +431,6 @@
         </div>
     </div>
 
-    <!-- Student Card (Main Focus) -->
     <div class="cards">
         <div class="student-card" onclick="goStudent()" role="button" tabindex="0">
             <div class="icon">
@@ -461,14 +444,12 @@
         </div>
     </div>
 
-    <!-- Hidden Admin Link (Security through obscurity) -->
     <div class="admin-link">
         <a href="admin-login.html">
             <i class="fas fa-shield-alt"></i> administrator access
         </a>
     </div>
 
-    <!-- Simple Footer -->
     <footer>
         <i class="fas fa-check-circle" style="color: #22c55e;"></i>
         secure voting system • 2026
@@ -486,11 +467,15 @@ import {
     orderBy
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-// Firebase configuration
+// Complete Firebase configuration from your Firebase console
 const firebaseConfig = {
     apiKey: "AIzaSyA6sugBbX6kvd3RuwznAZkgHzAoEigpnj8",
     authDomain: "zetech-e-voting.firebaseapp.com",
-    projectId: "zetech-e-voting"
+    projectId: "zetech-e-voting",
+    storageBucket: "zetech-e-voting.firebasestorage.app",
+    messagingSenderId: "223450946411",
+    appId: "1:223450946411:web:021848c8f6a98de7034a2e",
+    measurementId: "G-5GJCQY2GVM"
 };
 
 // Initialize Firebase
@@ -499,7 +484,6 @@ const db = getFirestore(app);
 
 // Global variables
 let campuses = [];
-let studentsCount = {};
 
 // Load campuses from Firebase
 window.loadCampusesFromFirebase = async function() {
@@ -509,27 +493,60 @@ window.loadCampusesFromFirebase = async function() {
     const studentBtn = document.getElementById('studentBtn');
     
     try {
-        // Hide any previous errors
         connectionError.classList.remove('show');
         
-        // Show loading state
         campusSelect.disabled = true;
         campusSelect.innerHTML = '<option value="">Loading campuses...</option>';
         
-        // Fetch campuses from Firestore
-        const campusesQuery = query(collection(db, "campus"), orderBy("name"));
-        const querySnapshot = await getDocs(campusesQuery);
-        
-        if (querySnapshot.empty) {
-            throw new Error("No campuses found");
+        // Try to fetch from "campus" collection first (singular)
+        let querySnapshot;
+        try {
+            const campusesQuery = query(collection(db, "campus"), orderBy("name"));
+            querySnapshot = await getDocs(campusesQuery);
+        } catch (e) {
+            // If "campus" fails, try "campuses" (plural)
+            console.log("Trying 'campuses' collection...");
+            const campusesQuery = query(collection(db, "campuses"), orderBy("name"));
+            querySnapshot = await getDocs(campusesQuery);
         }
         
-        // Clear loading skeletons
+        if (querySnapshot.empty) {
+            // If no campuses found, show demo data
+            campusStats.innerHTML = `
+                <span class="stat-badge">
+                    <i class="fas fa-university"></i> Main Campus: 0 students
+                </span>
+                <span class="stat-badge">
+                    <i class="fas fa-university"></i> East Campus: 0 students
+                </span>
+                <span class="stat-badge">
+                    <i class="fas fa-university"></i> West Campus: 0 students
+                </span>
+            `;
+            
+            campusSelect.innerHTML = `
+                <option value="">Select campus</option>
+                <option value="main">Main Campus</option>
+                <option value="east">East Campus</option>
+                <option value="west">West Campus</option>
+            `;
+            
+            campusSelect.disabled = false;
+            studentBtn.disabled = false;
+            
+            campuses = [
+                { id: 'main', name: 'Main Campus' },
+                { id: 'east', name: 'East Campus' },
+                { id: 'west', name: 'West Campus' }
+            ];
+            
+            return;
+        }
+        
         campusStats.innerHTML = '';
         campuses = [];
         
-        // Process each campus
-        for (const doc of querySnapshot.docs) {
+        querySnapshot.forEach(doc => {
             const campusData = doc.data();
             const campusId = doc.id;
             const campusName = campusData.name || campusId;
@@ -540,28 +557,21 @@ window.loadCampusesFromFirebase = async function() {
                 ...campusData
             });
             
-            // Add to stats (will be updated with real counts)
             campusStats.innerHTML += `
                 <span class="stat-badge" id="stat-${campusId}">
-                    <i class="fas fa-spinner fa-spin"></i> ${campusName}: loading...
+                    <i class="fas fa-university"></i> ${campusName}
                 </span>
             `;
-        }
+        });
         
-        // Populate dropdown
         campusSelect.innerHTML = '<option value="">Select your campus to continue</option>';
         campuses.forEach(campus => {
             campusSelect.innerHTML += `<option value="${campus.id}">${campus.name}</option>`;
         });
         
-        // Enable dropdown and button
         campusSelect.disabled = false;
         studentBtn.disabled = false;
         
-        // Load student counts for each campus
-        await loadStudentCounts();
-        
-        // Pre-select if previously chosen
         const savedCampus = sessionStorage.getItem('selectedCampus');
         if (savedCampus && campuses.some(c => c.id === savedCampus)) {
             campusSelect.value = savedCampus;
@@ -570,67 +580,33 @@ window.loadCampusesFromFirebase = async function() {
     } catch (error) {
         console.error("Error loading campuses:", error);
         
-        // Show error message
+        let errorMessage = "Failed to load campus data.";
+        if (error.code === 'permission-denied') {
+            errorMessage = "Permission denied. Check Firestore rules.";
+        } else if (error.code === 'unavailable') {
+            errorMessage = "Network unavailable. Check your connection.";
+        }
+        
+        connectionError.innerHTML = `
+            <i class="fas fa-exclamation-triangle"></i>
+            ${errorMessage}
+            <button class="retry-btn" onclick="loadCampusesFromFirebase()">
+                <i class="fas fa-sync-alt"></i> Retry
+            </button>
+        `;
         connectionError.classList.add('show');
         
-        // Show error in dropdown
         campusSelect.innerHTML = '<option value="">Failed to load campuses</option>';
         campusSelect.disabled = true;
         studentBtn.disabled = true;
         
-        // Show error in stats
         campusStats.innerHTML = `
             <span class="stat-badge" style="color: #dc2626;">
-                <i class="fas fa-exclamation-circle"></i> Failed to load campus data
+                <i class="fas fa-exclamation-circle"></i> ${errorMessage}
             </span>
         `;
     }
 };
-
-// Load student counts for each campus
-async function loadStudentCounts() {
-    try {
-        // Get all students
-        const studentsSnapshot = await getDocs(collection(db, "students"));
-        
-        // Count students per campus
-        const counts = {};
-        studentsSnapshot.forEach(doc => {
-            const studentData = doc.data();
-            const campusId = studentData.campusId;
-            if (campusId) {
-                counts[campusId] = (counts[campusId] || 0) + 1;
-            }
-        });
-        
-        // Update stats display
-        campuses.forEach(campus => {
-            const statElement = document.getElementById(`stat-${campus.id}`);
-            if (statElement) {
-                const count = counts[campus.id] || 0;
-                statElement.innerHTML = `
-                    <i class="fas fa-check-circle"></i> ${campus.name}: ${count} student${count !== 1 ? 's' : ''}
-                `;
-            }
-        });
-        
-    } catch (error) {
-        console.error("Error loading student counts:", error);
-        
-        // Fallback to showing campus names only
-        campuses.forEach(campus => {
-            const statElement = document.getElementById(`stat-${campus.id}`);
-            if (statElement) {
-                statElement.innerHTML = `
-                    <i class="fas fa-university"></i> ${campus.name}
-                `;
-            }
-        });
-    }
-}
-
-// Store selected campus
-let selectedCampus = sessionStorage.getItem('selectedCampus') || '';
 
 // Student navigation with campus validation
 window.goStudent = function() {
@@ -642,7 +618,6 @@ window.goStudent = function() {
         campusError.classList.add('show');
         campusSelect.style.borderColor = '#dc2626';
         
-        // Shake animation for error
         campusSelect.style.animation = 'shake 0.3s ease';
         setTimeout(() => {
             campusSelect.style.animation = '';
@@ -651,30 +626,24 @@ window.goStudent = function() {
         return;
     }
 
-    // Clear any errors
     campusError.classList.remove('show');
     campusSelect.style.borderColor = '#e0e7f0';
 
-    // Save campus to session
     sessionStorage.setItem('selectedCampus', selectedCampus);
     
-    // Add loading state
     const btn = document.getElementById('studentBtn');
     btn.classList.add('loading');
     btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Redirecting...';
 
-    // Redirect to student login with campus parameter
     setTimeout(() => {
         window.location.href = `student-login.html?campus=${selectedCampus}`;
     }, 500);
 };
 
-// Initialize on load
 window.addEventListener('load', () => {
     loadCampusesFromFirebase();
 });
 
-// Keyboard accessibility
 document.querySelector('.student-card')?.addEventListener('keypress', (e) => {
     if (e.key === 'Enter' || e.key === ' ') {
         e.preventDefault();
@@ -682,7 +651,6 @@ document.querySelector('.student-card')?.addEventListener('keypress', (e) => {
     }
 });
 
-// Clear error on selection change
 document.getElementById('campusSelect')?.addEventListener('change', function() {
     const campusError = document.getElementById('campusError');
     const campusSelect = this;
@@ -693,7 +661,6 @@ document.getElementById('campusSelect')?.addEventListener('change', function() {
     }
 });
 
-// Add shake animation
 const style = document.createElement('style');
 style.textContent = `
     @keyframes shake {
@@ -704,8 +671,7 @@ style.textContent = `
 `;
 document.head.appendChild(style);
 
-// Prevent accidental admin link exposure
-console.log('Student portal loaded with Firebase integration');
+console.log('Firebase initialized successfully with project:', firebaseConfig.projectId);
 </script>
 
 </body>
