@@ -81,26 +81,153 @@ main {
   padding-bottom: 2rem;
 }
 
-/* WELCOME CARD - Mobile Optimized */
-.welcome {
+/* PROFILE SECTION - NEW! */
+.profile-section {
   background: linear-gradient(135deg, var(--primary), var(--primary-light));
   color: white;
   padding: 1.5rem;
   border-radius: var(--border-radius);
   margin-bottom: 1.5rem;
   box-shadow: 0 10px 25px rgba(15,42,68,0.15);
+  position: relative;
+  overflow: hidden;
 }
 
-.welcome h2 {
-  font-size: 1.5rem;
+.profile-section::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  right: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+  animation: rotate 20s linear infinite;
+}
+
+@keyframes rotate {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.profile-content {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  position: relative;
+  z-index: 2;
+}
+
+/* PROFILE IMAGE - LARGE AND BEAUTIFUL */
+.profile-image {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  border: 4px solid white;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+  overflow: hidden;
+  background: linear-gradient(135deg, #E5EEF5, #D1DFEB);
+  flex-shrink: 0;
+  transition: var(--transition);
+}
+
+.profile-image:hover {
+  transform: scale(1.05);
+  box-shadow: 0 12px 25px rgba(0,0,0,0.25);
+}
+
+.profile-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.profile-image .img-fallback {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, var(--primary-light), var(--primary-dark));
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.profile-details {
+  flex: 1;
+}
+
+.profile-details h2 {
+  font-size: 1.6rem;
+  font-weight: 700;
+  margin-bottom: 0.3rem;
+  line-height: 1.2;
+}
+
+.profile-badges {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
   margin-bottom: 0.5rem;
-  font-weight: 600;
 }
 
-.welcome p {
-  font-size: 0.9rem;
+.profile-badge {
+  background: rgba(255,255,255,0.2);
+  backdrop-filter: blur(5px);
+  padding: 0.3rem 1rem;
+  border-radius: 30px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  border: 1px solid rgba(255,255,255,0.3);
+}
+
+.profile-meta {
+  display: flex;
+  gap: 1rem;
+  font-size: 0.85rem;
   opacity: 0.9;
-  line-height: 1.5;
+}
+
+.profile-meta span {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+/* STATS GRID UNDER PROFILE */
+.profile-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.8rem;
+  margin-top: 1.5rem;
+  position: relative;
+  z-index: 2;
+}
+
+.stat-card {
+  background: rgba(255,255,255,0.15);
+  backdrop-filter: blur(5px);
+  padding: 0.8rem 0.5rem;
+  border-radius: 12px;
+  text-align: center;
+  border: 1px solid rgba(255,255,255,0.2);
+}
+
+.stat-value {
+  font-size: 1.2rem;
+  font-weight: 700;
+  margin-bottom: 0.2rem;
+}
+
+.stat-label {
+  font-size: 0.7rem;
+  opacity: 0.8;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 /* QUICK ACTIONS - Mobile Grid */
@@ -363,13 +490,42 @@ section h2 {
 }
 
 /* SMALL PHONES */
+@media (max-width: 480px) {
+  .profile-content {
+    flex-direction: column;
+    text-align: center;
+    gap: 1rem;
+  }
+  
+  .profile-image {
+    width: 100px;
+    height: 100px;
+  }
+  
+  .profile-meta {
+    justify-content: center;
+  }
+  
+  .profile-badges {
+    justify-content: center;
+  }
+  
+  .profile-stats {
+    grid-template-columns: 1fr 1fr;
+  }
+  
+  .profile-stats .stat-card:last-child {
+    grid-column: span 2;
+  }
+}
+
 @media (max-width: 380px) {
   header h1 {
     font-size: 1.1rem;
   }
   
-  .welcome h2 {
-    font-size: 1.3rem;
+  .profile-details h2 {
+    font-size: 1.4rem;
   }
   
   .action-card h3 {
@@ -441,10 +597,44 @@ section h2 {
 </header>
 
 <main>
-  <!-- Welcome Card -->
-  <div class="welcome">
-    <h2 id="welcomeTitle"></h2>
-    <p>Participate in active elections and view published results.</p>
+  <!-- PROFILE SECTION WITH IMAGE -->
+  <div class="profile-section" id="profileSection">
+    <div class="profile-content">
+      <div class="profile-image" id="profileImage">
+        <!-- Image will be loaded here dynamically -->
+      </div>
+      <div class="profile-details">
+        <h2 id="profileName">Loading...</h2>
+        <div class="profile-badges">
+          <span class="profile-badge" id="profileRole">
+            <i class="fas fa-user-tag"></i> Student
+          </span>
+          <span class="profile-badge" id="profileDept">
+            <i class="fas fa-building"></i> Loading...
+          </span>
+        </div>
+        <div class="profile-meta">
+          <span><i class="fas fa-id-card"></i> <span id="profileAdmission"></span></span>
+          <span><i class="fas fa-map-marker-alt"></i> <span id="profileCampus"></span></span>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Stats Cards -->
+    <div class="profile-stats">
+      <div class="stat-card">
+        <div class="stat-value" id="totalVotes">0</div>
+        <div class="stat-label">Total Votes</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" id="electionsParticipated">0</div>
+        <div class="stat-label">Participated</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" id="memberSince">2025</div>
+        <div class="stat-label">Member Since</div>
+      </div>
+    </div>
   </div>
 
   <!-- Quick Actions Grid -->
@@ -488,6 +678,9 @@ section h2 {
   </section>
 </main>
 
+<!-- Font Awesome for icons -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import {
@@ -495,11 +688,13 @@ import {
   collection,
   query,
   where,
-  getDocs
+  getDocs,
+  doc,
+  getDoc
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyA6sugBbX6kvd3RuwznAZkgEi",
+  apiKey: "AIzaSyA6sugBbX6kvd3RuwznAZkgHzAoEigpnj8",
   authDomain: "zetech-e-voting.firebaseapp.com",
   projectId: "zetech-e-voting"
 };
@@ -514,8 +709,88 @@ if (!session || !session.admissionNumber) {
   location = "student-login.html";
 }
 
-document.getElementById("welcomeTitle").innerText = 
-  `Welcome, ${session.fullName || "Student"}!`;
+// Helper: Get initials for avatar fallback
+function getInitials(name) {
+  if (!name) return '?';
+  return name.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2);
+}
+
+// Helper: Get image path from GitHub
+function getImagePath(admissionNumber) {
+  return `https://gitau45.github.io/zetechproject/images/students/${admissionNumber}.jpg`;
+}
+
+// Load student profile with image
+async function loadStudentProfile() {
+  try {
+    const studentRef = doc(db, "students", session.admissionNumber);
+    const studentSnap = await getDoc(studentRef);
+    
+    if (studentSnap.exists()) {
+      const student = studentSnap.data();
+      const fullName = student.fullName || session.fullName || "Student";
+      const admission = student.admissionNumber || session.admissionNumber;
+      const department = student.departmentId || "N/A";
+      const campus = student.campusId || "Main Campus";
+      const role = student.role || "student";
+      const createdAt = student.createdAt?.toDate?.() || new Date();
+      
+      // Update profile info
+      document.getElementById("profileName").textContent = fullName.split(' ')[0] + " " + (fullName.split(' ')[1] || '');
+      document.getElementById("profileRole").innerHTML = `<i class="fas fa-user-tag"></i> ${role === 'rep' ? 'Representative' : 'Student'}`;
+      document.getElementById("profileDept").innerHTML = `<i class="fas fa-building"></i> ${department}`;
+      document.getElementById("profileAdmission").textContent = admission;
+      document.getElementById("profileCampus").textContent = campus;
+      document.getElementById("memberSince").textContent = createdAt.getFullYear();
+      
+      // Load profile image
+      const imageUrl = getImagePath(admission);
+      const initials = getInitials(fullName);
+      
+      const profileImageDiv = document.getElementById("profileImage");
+      profileImageDiv.innerHTML = `
+        <img src="${imageUrl}" alt="${fullName}" 
+             onload="this.style.display='block'"
+             onerror="this.style.display='none'; this.parentElement.innerHTML='<div class=\\'img-fallback\\'>${initials}</div>';">
+      `;
+      
+      // Load voting stats
+      await loadVotingStats(admission);
+    }
+  } catch (err) {
+    console.error("Error loading student profile:", err);
+    // Fallback to session data
+    document.getElementById("profileName").textContent = session.fullName || "Student";
+    document.getElementById("profileAdmission").textContent = session.admissionNumber || "";
+    document.getElementById("profileDept").innerHTML = `<i class="fas fa-building"></i> ${session.departmentId || 'N/A'}`;
+  }
+}
+
+// Load voting statistics
+async function loadVotingStats(admissionNumber) {
+  try {
+    // Get all votes by this student
+    const votesSnap = await getDocs(query(
+      collection(db, "votes"),
+      where("voterId", "==", admissionNumber)
+    ));
+    
+    const totalVotes = votesSnap.size;
+    document.getElementById("totalVotes").textContent = totalVotes;
+    
+    // Get unique elections participated in
+    const electionIds = new Set();
+    votesSnap.forEach(vote => {
+      electionIds.add(vote.data().electionId);
+    });
+    document.getElementById("electionsParticipated").textContent = electionIds.size;
+    
+  } catch (err) {
+    console.error("Error loading voting stats:", err);
+    document.getElementById("totalVotes").textContent = "0";
+    document.getElementById("electionsParticipated").textContent = "0";
+  }
+}
 
 /* SHOW SECTIONS BASED ON ROLE */
 if (session.role === "student") {
@@ -712,9 +987,10 @@ window.vote = (id) => {
 };
 
 /* INITIALIZE */
-loadDepartmentalElections();
-loadExecutiveElections();
-loadResults();
+await loadStudentProfile();
+await loadDepartmentalElections();
+await loadExecutiveElections();
+await loadResults();
 </script>
 </body>
 </html>
