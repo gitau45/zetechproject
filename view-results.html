@@ -147,6 +147,59 @@ body {
   align-items: center;
 }
 
+/* ELECTION SELECTOR */
+.election-selector {
+  background: white;
+  padding: 20px;
+  border-radius: 12px;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: wrap;
+  border: 1px solid #e2e8f0;
+}
+
+.election-selector label {
+  font-weight: 600;
+  color: #334155;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.election-selector select {
+  padding: 12px 20px;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  font-size: 1rem;
+  min-width: 300px;
+  background: white;
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23333' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 15px center;
+  background-size: 16px;
+  padding-right: 45px;
+}
+
+.election-selector select:focus {
+  outline: none;
+  border-color: #0a3d91;
+  box-shadow: 0 0 0 3px rgba(10,61,145,0.1);
+}
+
+.election-badge {
+  display: inline-block;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  background: #e6f0ff;
+  color: #0a3d91;
+}
+
 /* ANALYTICS CARDS */
 .analytics-grid {
   display: grid;
@@ -749,6 +802,15 @@ tr:hover td {
     width: 100%;
     justify-content: center;
   }
+  
+  .election-selector {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .election-selector select {
+    width: 100%;
+  }
 }
 
 @media (max-width: 480px) {
@@ -815,20 +877,35 @@ tr:hover td {
       Election Control Center
     </h2>
     
+    <!-- Election Selector -->
+    <div class="election-selector">
+      <label>
+        <i class="fas fa-calendar-alt" style="color: #0a3d91;"></i>
+        Select Election:
+      </label>
+      <select id="electionSelector" onchange="switchElection()">
+        <option value="">Loading elections...</option>
+      </select>
+      <span id="totalElections" class="election-badge">0 elections</span>
+    </div>
+    
     <!-- Election Header Info -->
     <div id="electionHeader" class="election-header">
-      <h3 id="electionName">Loading election...</h3>
+      <h3 id="electionName">Select an election to view details</h3>
       <div id="electionMeta" class="election-meta">
-        <span class="status-badge status-draft" id="electionStatus">Loading...</span>
-        <span class="campus-badge" id="electionCampus">Loading...</span>
+        <span class="status-badge status-draft" id="electionStatus">Not Selected</span>
+        <span class="campus-badge" id="electionCampus">-</span>
+        <span class="dept-badge" id="electionDates">-</span>
       </div>
     </div>
     
     <!-- Analytics Cards -->
-    <div id="analyticsCards" class="analytics-grid"></div>
+    <div id="analyticsCards" class="analytics-grid" style="display: none;">
+      <!-- Will be populated by JavaScript -->
+    </div>
     
     <!-- Action Buttons -->
-    <div class="action-group">
+    <div class="action-group" id="actionButtons" style="display: none;">
       <button id="publishBtn" class="btn publish-btn" onclick="publishElection()">
         <i class="fas fa-globe"></i> Publish Results
       </button>
@@ -841,7 +918,7 @@ tr:hover td {
     </div>
 
     <!-- Tabs Navigation -->
-    <div class="tabs">
+    <div class="tabs" id="tabs" style="display: none;">
       <button class="tab-btn active" onclick="switchTab('results', this)">
         <i class="fas fa-trophy"></i> Results
       </button>
@@ -880,7 +957,7 @@ tr:hover td {
               </tr>
             </thead>
             <tbody id="resultsTable">
-              <tr><td colspan="8" style="text-align: center; padding: 40px;">Loading results...</td></tr>
+              <tr><td colspan="8" style="text-align: center; padding: 40px;">Select an election to view results</td></tr>
             </tbody>
           </table>
         </div>
@@ -1056,7 +1133,8 @@ import {
   doc,
   updateDoc,
   runTransaction,
-  Timestamp
+  Timestamp,
+  orderBy
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 // Firebase Config
@@ -1078,6 +1156,7 @@ if (!session || session.role !== "admin") {
 }
 
 // Global State
+let allElections = [];
 let allStudents = [];
 let allVotes = [];
 let allCandidates = [];
@@ -1088,7 +1167,7 @@ let campuses = {};
 // Initialize
 document.addEventListener("DOMContentLoaded", async () => {
   await loadReferenceData();
-  await loadDashboard();
+  await loadAllElections();
   setupEventListeners();
 });
 
@@ -1105,10 +1184,160 @@ async function loadReferenceData() {
       const data = doc.data();
       campuses[doc.id] = data.name || doc.id;
     });
-
-    populateFilters();
   } catch (error) {
     console.error("Error loading reference data:", error);
+  }
+}
+
+// Load All Elections
+async function loadAllElections() {
+  try {
+    const electionsSnap = await getDocs(query(
+      collection(db, "elections"),
+      orderBy("createdAt", "desc")
+    ));
+    
+    allElections = [];
+    electionsSnap.forEach(doc => {
+      allElections.push({ id: doc.id, ...doc.data() });
+    });
+    
+    populateElectionSelector();
+    
+    if (allElections.length > 0) {
+      // Auto-select first election
+      await selectElection(allElections[0].id);
+    }
+    
+  } catch (error) {
+    console.error("Error loading elections:", error);
+    showAlert("Error loading elections", "error");
+  }
+}
+
+// Populate Election Selector
+function populateElectionSelector() {
+  const selector = document.getElementById("electionSelector");
+  const totalSpan = document.getElementById("totalElections");
+  
+  selector.innerHTML = '<option value="">Select an election...</option>';
+  
+  allElections.forEach(election => {
+    const startDate = election.startDate?.toDate?.() 
+      ? election.startDate.toDate().toLocaleDateString() 
+      : election.startDate || 'TBD';
+    const endDate = election.endDate?.toDate?.() 
+      ? election.endDate.toDate().toLocaleDateString() 
+      : election.endDate || 'TBD';
+    
+    selector.innerHTML += `
+      <option value="${election.id}">
+        ${election.name} (${startDate} - ${endDate}) - ${election.level || 'General'}
+      </option>
+    `;
+  });
+  
+  totalSpan.textContent = `${allElections.length} election${allElections.length !== 1 ? 's' : ''}`;
+}
+
+// Switch Election
+window.switchElection = async function() {
+  const selector = document.getElementById("electionSelector");
+  const electionId = selector.value;
+  
+  if (!electionId) {
+    // Hide election-specific content
+    document.getElementById("analyticsCards").style.display = "none";
+    document.getElementById("actionButtons").style.display = "none";
+    document.getElementById("tabs").style.display = "none";
+    
+    // Clear tables
+    document.getElementById("resultsTable").innerHTML = '<tr><td colspan="8" style="text-align: center; padding: 40px;">Select an election to view data</td></tr>';
+    document.getElementById("votersTable").innerHTML = '';
+    document.getElementById("nonVotersTable").innerHTML = '';
+    document.getElementById("votingTimeline").innerHTML = '';
+    document.getElementById("analyticsTable").innerHTML = '';
+    
+    // Clear header
+    document.getElementById("electionName").textContent = "Select an election to view details";
+    document.getElementById("electionStatus").textContent = "Not Selected";
+    document.getElementById("electionStatus").className = "status-badge status-draft";
+    document.getElementById("electionCampus").textContent = "-";
+    document.getElementById("electionDates").textContent = "-";
+    
+    return;
+  }
+  
+  await selectElection(electionId);
+};
+
+// Select and Load Specific Election
+async function selectElection(electionId) {
+  try {
+    showAlert("Loading election data...", "info");
+    
+    // Find selected election
+    currentElection = allElections.find(e => e.id === electionId);
+    
+    if (!currentElection) return;
+    
+    // Load students (always load all students)
+    const studentsSnap = await getDocs(collection(db, "students"));
+    allStudents = studentsSnap.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data()
+    }));
+    
+    // Load votes for this election
+    const votesSnap = await getDocs(query(
+      collection(db, "votes"),
+      where("electionId", "==", electionId)
+    ));
+    allVotes = votesSnap.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data(),
+      timestamp: doc.data().timestamp?.toDate()
+    }));
+    
+    // Load candidates for this election
+    const candidatesSnap = await getDocs(query(
+      collection(db, "candidates"),
+      where("electionId", "==", electionId)
+    ));
+    allCandidates = candidatesSnap.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data()
+    }));
+    
+    // Populate filters
+    populateFilters();
+    
+    // Show election sections
+    document.getElementById("analyticsCards").style.display = "grid";
+    document.getElementById("actionButtons").style.display = "flex";
+    document.getElementById("tabs").style.display = "flex";
+    
+    // Update UI
+    updateElectionHeader();
+    updateAnalytics();
+    updateResults();
+    updateVoters();
+    updateNonVoters();
+    updateTimeline();
+    updateDetailedAnalytics();
+    updateRoleSelect();
+    
+    // Button visibility
+    document.getElementById("publishBtn").style.display = 
+      currentElection.published ? "none" : "inline-flex";
+    document.getElementById("unpublishBtn").style.display = 
+      currentElection.published ? "inline-flex" : "none";
+      
+    showAlert(`Loaded ${currentElection.name} successfully`, "success");
+    
+  } catch (error) {
+    console.error("Error loading election data:", error);
+    showAlert("Error loading election data: " + error.message, "error");
   }
 }
 
@@ -1138,77 +1367,22 @@ function populateFilters() {
   });
 }
 
-// Load Dashboard Data
-async function loadDashboard() {
-  try {
-    // Load elections
-    const electionsSnap = await getDocs(collection(db, "elections"));
-    const elections = [];
-    electionsSnap.forEach(doc => {
-      elections.push({ id: doc.id, ...doc.data() });
-    });
-    
-    if (elections.length === 0) {
-      showAlert("No election found", "error");
-      return;
-    }
-    
-    currentElection = elections[0];
-    
-    // Load students
-    const studentsSnap = await getDocs(collection(db, "students"));
-    allStudents = studentsSnap.docs.map(doc => ({
-      id: doc.id,
-      ...doc.data()
-    }));
-    
-    // Load votes
-    const votesSnap = await getDocs(collection(db, "votes"));
-    allVotes = votesSnap.docs.map(doc => ({
-      id: doc.id,
-      ...doc.data(),
-      timestamp: doc.data().timestamp?.toDate()
-    }));
-    
-    // Load candidates
-    const candidatesSnap = await getDocs(
-      query(collection(db, "candidates"), where("electionId", "==", currentElection.id))
-    );
-    allCandidates = candidatesSnap.docs.map(doc => ({
-      id: doc.id,
-      ...doc.data()
-    }));
-    
-    // Update UI
-    updateElectionHeader();
-    updateAnalytics();
-    updateResults();
-    updateVoters();
-    updateNonVoters();
-    updateTimeline();
-    updateDetailedAnalytics();
-    updateRoleSelect();
-    
-    // Button visibility
-    document.getElementById("publishBtn").style.display = 
-      currentElection.published ? "none" : "inline-flex";
-    document.getElementById("unpublishBtn").style.display = 
-      currentElection.published ? "inline-flex" : "none";
-      
-  } catch (error) {
-    console.error("Error loading dashboard:", error);
-    showAlert("Error loading data: " + error.message, "error");
-  }
-}
-
 // Update Election Header
 function updateElectionHeader() {
   if (!currentElection) return;
+  
+  const startDate = currentElection.startDate?.toDate?.() 
+    ? currentElection.startDate.toDate().toLocaleDateString() 
+    : currentElection.startDate || 'TBD';
+  const endDate = currentElection.endDate?.toDate?.() 
+    ? currentElection.endDate.toDate().toLocaleDateString() 
+    : currentElection.endDate || 'TBD';
   
   document.getElementById("electionName").textContent = currentElection.name || "Unnamed Election";
   document.getElementById("electionStatus").textContent = currentElection.published ? "Published" : "Draft";
   document.getElementById("electionStatus").className = `status-badge ${currentElection.published ? 'status-published' : 'status-draft'}`;
   document.getElementById("electionCampus").textContent = campuses[currentElection.campusId] || currentElection.campusId || "All Campuses";
+  document.getElementById("electionDates").innerHTML = `<i class="fas fa-calendar"></i> ${startDate} - ${endDate}`;
 }
 
 // Update Analytics Cards
@@ -1258,7 +1432,7 @@ function updateResults() {
   const totalVotes = allVotes.length;
   
   if (allCandidates.length === 0) {
-    table.innerHTML = '<tr><td colspan="8" style="text-align: center; padding: 40px;">No candidates found</td></tr>';
+    table.innerHTML = '<tr><td colspan="8" style="text-align: center; padding: 40px;">No candidates found for this election</td></tr>';
     return;
   }
   
@@ -1359,7 +1533,7 @@ function updateVoters() {
     `;
   });
   
-  table.innerHTML = html || '<tr><td colspan="7" style="text-align: center; padding: 40px;">No voters found</td></tr>';
+  table.innerHTML = html || '<tr><td colspan="7" style="text-align: center; padding: 40px;">No voters found for this election</td></tr>';
 }
 
 // Update Non-Voters Table
@@ -1384,7 +1558,7 @@ function updateNonVoters() {
     `;
   });
   
-  table.innerHTML = html || '<tr><td colspan="6" style="text-align: center; padding: 40px;">Everyone has voted!</td></tr>';
+  table.innerHTML = html || '<tr><td colspan="6" style="text-align: center; padding: 40px;">Everyone has voted in this election!</td></tr>';
 }
 
 // Update Timeline
@@ -1393,7 +1567,7 @@ function updateTimeline() {
   const sortedVotes = [...allVotes].sort((a, b) => a.timestamp - b.timestamp);
   
   if (sortedVotes.length === 0) {
-    timeline.innerHTML = '<div style="text-align: center; padding: 40px;">No votes cast yet</div>';
+    timeline.innerHTML = '<div style="text-align: center; padding: 40px;">No votes cast in this election yet</div>';
     return;
   }
   
@@ -1448,7 +1622,7 @@ function updateTimeline() {
 function updateDetailedAnalytics() {
   const totalStudents = allStudents.length;
   const totalVoters = allVotes.length;
-  const turnout = ((totalVoters / totalStudents) * 100).toFixed(1);
+  const turnout = totalStudents ? ((totalVoters / totalStudents) * 100).toFixed(1) : 0;
   
   document.getElementById("detailedAnalytics").innerHTML = `
     <div class="metric-card">
@@ -1462,7 +1636,7 @@ function updateDetailedAnalytics() {
     <div class="metric-card">
       <div class="metric-icon"><i class="fas fa-clock"></i></div>
       <h3>Avg Votes/Hour</h3>
-      <div class="value">${(totalVoters / 24).toFixed(1)}</div>
+      <div class="value">${totalVoters ? (totalVoters / 24).toFixed(1) : 0}</div>
     </div>
     <div class="metric-card">
       <div class="metric-icon"><i class="fas fa-chart-line"></i></div>
@@ -1488,7 +1662,7 @@ function updateDetailedAnalytics() {
   let html = '';
   
   Object.entries(deptStats).forEach(([deptId, stats]) => {
-    const deptTurnout = ((stats.voted / stats.total) * 100).toFixed(1);
+    const deptTurnout = stats.total ? ((stats.voted / stats.total) * 100).toFixed(1) : 0;
     html += `
       <tr>
         <td><strong>${departments[deptId] || deptId}</strong></td>
@@ -1503,7 +1677,7 @@ function updateDetailedAnalytics() {
     `;
   });
   
-  analyticsTable.innerHTML = html || '<tr><td colspan="4" style="text-align: center;">No data available</td></tr>';
+  analyticsTable.innerHTML = html || '<tr><td colspan="4" style="text-align: center;">No data available for this election</td></tr>';
 }
 
 // Helper: Get Peak Hour
@@ -1525,8 +1699,11 @@ function getPeakHour() {
     }
   });
   
+  if (maxVotes === 0) return 'No votes yet';
   const hourNum = parseInt(peakHour);
-  return `${hourNum}:00 (${maxVotes} votes)`;
+  const ampm = hourNum >= 12 ? 'PM' : 'AM';
+  const hour12 = hourNum % 12 || 12;
+  return `${hour12} ${ampm} (${maxVotes} votes)`;
 }
 
 // Helper: Get Initials
@@ -1607,11 +1784,16 @@ window.switchTab = function(tabName, element) {
 // Refresh Data
 window.refreshData = function() {
   showAlert("Refreshing data...", "info");
-  loadDashboard();
+  loadAllElections();
 };
 
 // Export Reports
 window.exportReports = function() {
+  if (!currentElection) {
+    alert("Please select an election first");
+    return;
+  }
+  
   const data = {
     election: currentElection,
     summary: {
@@ -1638,7 +1820,7 @@ window.exportReports = function() {
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = `election-report-${new Date().toISOString().split('T')[0]}.json`;
+  a.download = `${currentElection.name.replace(/\s+/g, '-')}-report-${new Date().toISOString().split('T')[0]}.json`;
   a.click();
   
   showAlert("Report exported successfully!", "success");
@@ -1707,7 +1889,8 @@ window.publishElection = async function() {
     });
     
     showAlert("✅ Results published successfully!", "success");
-    await loadDashboard();
+    await loadAllElections(); // Reload all elections
+    await selectElection(currentElection.id); // Reselect current election
     
   } catch (error) {
     console.error("Error publishing:", error);
@@ -1736,7 +1919,8 @@ window.unpublishElection = async function() {
     });
     
     showAlert("✅ Results unpublished", "success");
-    await loadDashboard();
+    await loadAllElections(); // Reload all elections
+    await selectElection(currentElection.id); // Reselect current election
     
   } catch (error) {
     console.error("Error unpublishing:", error);
@@ -1771,7 +1955,7 @@ window.saveRoleOverride = async function() {
     });
     
     showAlert("✅ Role updated successfully!", "success");
-    await loadDashboard();
+    await loadAllElections(); // Refresh data
     
   } catch (error) {
     console.error("Error updating role:", error);
