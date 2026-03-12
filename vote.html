@@ -221,23 +221,32 @@
     width: 100px;
     height: 100px;
     border-radius: 50%;
-    object-fit: cover;
+    overflow: hidden;
     border: 4px solid var(--white);
     box-shadow: 0 8px 20px rgba(15,42,68,0.2);
     background: linear-gradient(135deg, #E5EEF5, #D1DFEB);
+    flex-shrink: 0;
+    position: relative;
+  }
+
+  .candidate-img img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .img-fallback {
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, var(--primary), var(--primary-light));
+    color: white;
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: 2.5rem;
     font-weight: 600;
-    color: var(--primary);
-    flex-shrink: 0;
-    transition: var(--transition);
-  }
-  
-  .candidate-item:hover .candidate-img {
-    transform: scale(1.05);
-    box-shadow: 0 12px 25px rgba(15,42,68,0.25);
+    border-radius: 50%;
   }
   
   .candidate-info {
@@ -276,6 +285,7 @@
     background: rgba(15,42,68,0.03);
     padding: 0.6rem 1rem;
     border-radius: 40px;
+    flex-wrap: wrap;
   }
   
   .candidate-meta span {
@@ -486,17 +496,6 @@
     to { opacity:1; transform:translateY(0); } 
   }
 
-  /* image fallback */
-  .img-fallback {
-    background: linear-gradient(135deg, var(--primary), var(--primary-light));
-    color: white;
-    font-size: 2.5rem;
-    font-weight: 600;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
   /* -------------------- MOBILE RESPONSIVE -------------------- */
   @media (max-width: 900px) {
     .two-col-grid {
@@ -512,7 +511,6 @@
     .candidate-img {
       width: 80px;
       height: 80px;
-      font-size: 2rem;
     }
     
     .candidate-info h4 {
@@ -568,7 +566,6 @@
     
     .candidate-meta {
       justify-content: center;
-      flex-wrap: wrap;
     }
     
     .vote-btn {
@@ -595,7 +592,6 @@
     .candidate-img {
       width: 80px;
       height: 80px;
-      font-size: 1.8rem;
     }
     
     .candidate-info h4 {
@@ -835,9 +831,34 @@ function getInitials(name) {
   return name.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2);
 }
 
-// Helper: Get image path
-function getImagePath(admissionNumber) {
-  return `https://gitau45.github.io/zetechproject/images/students/${admissionNumber}.jpg`;
+// Helper: Create image HTML with proper fallback
+function createImageHTML(imageUrl, initials, altText) {
+  // Create a container div
+  const div = document.createElement('div');
+  div.className = 'candidate-img';
+  
+  // Create image element
+  const img = document.createElement('img');
+  img.src = imageUrl;
+  img.alt = altText;
+  img.style.width = '100%';
+  img.style.height = '100%';
+  img.style.objectFit = 'cover';
+  img.style.borderRadius = '50%';
+  
+  // Handle image load error
+  img.onerror = function() {
+    // Remove the image
+    this.style.display = 'none';
+    // Create fallback div
+    const fallback = document.createElement('div');
+    fallback.className = 'img-fallback';
+    fallback.textContent = initials;
+    this.parentElement.appendChild(fallback);
+  };
+  
+  div.appendChild(img);
+  return div.outerHTML;
 }
 
 // Load election details
@@ -881,7 +902,7 @@ async function loadElection() {
   }
 }
 
-// Load candidates with LARGER images
+// Load candidates with images
 async function loadCandidates(election) {
   try {
     // Check if student already voted
@@ -908,13 +929,12 @@ async function loadCandidates(election) {
     // Process each candidate
     for (const docu of candidatesSnap.docs) {
       const c = docu.data();
-      const wrapper = document.createElement("div");
-      wrapper.className = "candidate-item";
       
       // Get candidate's student data for image
       let imageUrl = '';
       let initials = '?';
       let studentAdmission = '';
+      let studentName = c.fullName;
       
       if (c.studentId) {
         try {
@@ -922,21 +942,64 @@ async function loadCandidates(election) {
           if (studentSnap.exists()) {
             const student = studentSnap.data();
             studentAdmission = student.admissionNumber;
-            imageUrl = getImagePath(student.admissionNumber);
+            imageUrl = `https://gitau45.github.io/zetechproject/images/students/${student.admissionNumber}.jpg`;
             initials = getInitials(student.fullName);
+            studentName = student.fullName;
           }
         } catch (err) {
           console.log("Student not found for candidate", c.studentId);
+          // Use candidate data as fallback
+          initials = getInitials(c.fullName);
         }
+      } else {
+        // No studentId, use candidate data
+        initials = getInitials(c.fullName);
+      }
+      
+      // Create candidate card
+      const wrapper = document.createElement("div");
+      wrapper.className = "candidate-item";
+      
+      // Create image container
+      const imgContainer = document.createElement("div");
+      imgContainer.className = "candidate-img";
+      
+      // Create image element
+      const img = document.createElement("img");
+      if (imageUrl) {
+        img.src = imageUrl;
+      } else {
+        // If no image URL, immediately show fallback
+        img.style.display = 'none';
+        const fallback = document.createElement('div');
+        fallback.className = 'img-fallback';
+        fallback.textContent = initials;
+        imgContainer.appendChild(fallback);
+      }
+      
+      img.alt = studentName;
+      img.style.width = '100%';
+      img.style.height = '100%';
+      img.style.objectFit = 'cover';
+      img.style.borderRadius = '50%';
+      
+      // Handle image load error
+      img.onerror = function() {
+        this.style.display = 'none';
+        if (!this.parentElement.querySelector('.img-fallback')) {
+          const fallback = document.createElement('div');
+          fallback.className = 'img-fallback';
+          fallback.textContent = initials;
+          this.parentElement.appendChild(fallback);
+        }
+      };
+      
+      if (imageUrl) {
+        imgContainer.appendChild(img);
       }
       
       if (hasVoted) {
         wrapper.innerHTML = `
-          <div class="candidate-img">
-            <img src="${imageUrl}" alt="${c.fullName}" 
-                 style="width:100%; height:100%; object-fit:cover; border-radius:50%;" 
-                 onerror="this.style.display='none'; this.parentElement.classList.add('img-fallback'); this.parentElement.innerHTML='${initials}';">
-          </div>
           <div class="candidate-info">
             <h4><i class="fas fa-user-circle"></i> ${c.fullName}</h4>
             <span class="position"><i class="fas fa-tag"></i> ${c.position || 'Candidate'}</span>
@@ -950,13 +1013,10 @@ async function loadCandidates(election) {
             <i class="fas fa-check-circle"></i> You Voted
           </div>
         `;
+        // Insert image at the beginning
+        wrapper.insertBefore(imgContainer, wrapper.firstChild);
       } else {
         wrapper.innerHTML = `
-          <div class="candidate-img">
-            <img src="${imageUrl}" alt="${c.fullName}" 
-                 style="width:100%; height:100%; object-fit:cover; border-radius:50%;" 
-                 onerror="this.style.display='none'; this.parentElement.classList.add('img-fallback'); this.parentElement.innerHTML='${initials}';">
-          </div>
           <div class="candidate-info">
             <h4><i class="fas fa-user-circle"></i> ${c.fullName}</h4>
             <span class="position"><i class="fas fa-tag"></i> ${c.position || 'Candidate'}</span>
@@ -970,6 +1030,8 @@ async function loadCandidates(election) {
             <i class="fas fa-vote-yea"></i> Vote ${c.fullName.split(' ')[0]}
           </button>
         `;
+        // Insert image at the beginning
+        wrapper.insertBefore(imgContainer, wrapper.firstChild);
         
         // Attach vote event
         const btn = wrapper.querySelector('.vote-btn');
@@ -1007,7 +1069,7 @@ async function loadHistory() {
     ));
 
     if (snap.empty) {
-      historyContainer.innerHTML = '<div class="empty-placeholder"><i class="fas fa-inbox"></i> You haven't voted in this election yet</div>';
+      historyContainer.innerHTML = '<div class="empty-placeholder"><i class="fas fa-inbox"></i> You haven\'t voted in this election yet</div>';
       return;
     }
 
