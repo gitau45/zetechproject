@@ -312,6 +312,83 @@ button:active {
   border-radius: 30px;
 }
 
+/* Student Avatar Styles */
+.student-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  overflow: hidden;
+  cursor: pointer;
+  border: 2px solid var(--primary);
+  background: #f0f0f0;
+}
+
+.avatar-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.avatar-fallback {
+  width: 100%;
+  height: 100%;
+  background: var(--primary-light);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 16px;
+  text-transform: uppercase;
+}
+
+/* Image Modal */
+.image-modal {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.9);
+  z-index: 1000;
+  justify-content: center;
+  align-items: center;
+}
+
+.image-modal img {
+  max-width: 90%;
+  max-height: 90%;
+  object-fit: contain;
+}
+
+.image-modal .close {
+  position: absolute;
+  top: 20px;
+  right: 30px;
+  color: white;
+  font-size: 40px;
+  cursor: pointer;
+  z-index: 1001;
+}
+
+/* Image Upload Button */
+.image-upload-group {
+  margin-top: 1rem;
+  padding: 1rem;
+  background: #f8f9fa;
+  border-radius: 12px;
+}
+
+.image-preview {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  margin: 0.5rem 0;
+  object-fit: cover;
+  border: 2px solid var(--primary);
+}
+
 /* Table Styles - Mobile Optimized */
 .table-wrapper {
   overflow-x: auto;
@@ -325,7 +402,7 @@ button:active {
 table {
   width: 100%;
   border-collapse: collapse;
-  min-width: 800px;
+  min-width: 900px; /* Increased for image column */
 }
 
 th, td {
@@ -599,6 +676,11 @@ button, input, select {
   flex-wrap: wrap;
   gap: 0.5rem;
 }
+
+/* Selected Row */
+.selected-row {
+  background-color: rgba(10, 61, 145, 0.05);
+}
 </style>
 </head>
 <body>
@@ -645,12 +727,27 @@ button, input, select {
       </select>
     </div>
 
+    <!-- Image Upload Section for GitHub Pages -->
+    <div class="image-upload-group">
+      <label>Student Photo (Optional)</label>
+      <p class="helper-text">Upload to GitHub later as: <code>images/students/[admission].jpg</code></p>
+      <div style="display: flex; align-items: center; gap: 1rem;">
+        <img id="imagePreview" class="image-preview" src="images/default-avatar.png" alt="Preview" onerror="this.src='images/default-avatar.png'">
+        <div>
+          <p><strong>Naming Convention:</strong></p>
+          <code id="imageFileName">DCS001.jpg</code>
+          <p class="helper-text">Save your image as this filename in the <strong>images/students/</strong> folder</p>
+        </div>
+      </div>
+    </div>
+
     <button class="add-btn" onclick="addStudent()">📝 Add Student</button>
 
     <!-- UPLOAD SECTION -->
     <div class="upload-box">
       <h4>📤 Bulk Upload Students</h4>
       <p class="helper-text">Supported formats: .xlsx, .xls, .csv (Required columns: fullName, admissionNumber, email, campus, department)</p>
+      <p class="helper-text"><strong>For images:</strong> Save photos as <code>images/students/[admissionNumber].jpg</code></p>
       <input type="file" id="excelFile" accept=".xlsx,.xls,.csv">
       <button class="add-btn" onclick="uploadSpreadsheet()">📎 Upload Spreadsheet</button>
     </div>
@@ -693,6 +790,7 @@ button, input, select {
             <th class="checkbox-cell">
               <input type="checkbox" id="selectAll" class="checkbox-all" onclick="toggleSelectAll()">
             </th>
+            <th>Photo</th>
             <th class="sortable" onclick="sortTable('fullName')">
               Name <i class="fas fa-sort" id="sort-fullName"></i>
             </th>
@@ -720,6 +818,12 @@ button, input, select {
   </div>
 </div>
 
+<!-- Image Modal -->
+<div id="imageModal" class="image-modal" onclick="this.style.display='none'">
+  <span class="close" onclick="document.getElementById('imageModal').style.display='none'">&times;</span>
+  <img id="modalImage" src="">
+</div>
+
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { 
@@ -729,9 +833,7 @@ import {
   setDoc,
   deleteDoc, 
   doc,
-  updateDoc,
-  query,
-  where
+  updateDoc
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -754,6 +856,28 @@ let selectedStudents = new Set();
 let departments = {};
 let campuses = {};
 
+// ================= HELPER FUNCTIONS =================
+function getInitials(name) {
+  if (!name) return '?';
+  return name
+    .split(' ')
+    .map(word => word[0])
+    .join('')
+    .toUpperCase()
+    .substring(0, 2);
+}
+
+function getStudentImagePath(admissionNumber) {
+  return `images/students/${admissionNumber}.jpg`;
+}
+
+function viewImage(imageUrl) {
+  const modal = document.getElementById('imageModal');
+  const modalImg = document.getElementById('modalImage');
+  modalImg.src = imageUrl;
+  modal.style.display = 'flex';
+}
+
 // ================= PROTECTION =================
 document.addEventListener("DOMContentLoaded", async () => {
   const adminSession = JSON.parse(sessionStorage.getItem("adminSession"));
@@ -767,6 +891,16 @@ document.addEventListener("DOMContentLoaded", async () => {
   await loadDepartments();
   await loadStudents();
   setupFilters();
+  
+  // Update image filename preview when admission number changes
+  document.getElementById("regNumber").addEventListener("input", function(e) {
+    const admission = e.target.value.trim();
+    if (admission) {
+      document.getElementById("imageFileName").textContent = admission + '.jpg';
+    } else {
+      document.getElementById("imageFileName").textContent = 'DCS001.jpg';
+    }
+  });
 });
 
 // ================= LOAD CAMPUSES =================
@@ -835,7 +969,7 @@ function updateTable() {
   const paginatedStudents = filteredStudents.slice(start, end);
   
   if (filteredStudents.length === 0) {
-    table.innerHTML = '<tr><td colspan="7" class="empty-state">No students found</td></tr>';
+    table.innerHTML = '<tr><td colspan="8" class="empty-state">No students found</td></tr>';
     document.getElementById("pagination").innerHTML = '';
     return;
   }
@@ -844,12 +978,22 @@ function updateTable() {
   paginatedStudents.forEach(student => {
     const isSelected = selectedStudents.has(student.id);
     const campusName = campuses[student.campusId] || student.campusId || 'Not Assigned';
+    const imagePath = getStudentImagePath(student.admissionNumber);
+    const initials = getInitials(student.fullName);
     
     table.innerHTML += `
       <tr id="row-${student.id}" class="${isSelected ? 'selected-row' : ''}">
         <td class="checkbox-cell">
           <input type="checkbox" class="student-checkbox" value="${student.id}" 
             ${isSelected ? 'checked' : ''} onchange="toggleSelect('${student.id}')">
+        </td>
+        <td>
+          <div class="student-avatar" onclick="viewImage('${imagePath}')">
+            <img src="${imagePath}" 
+                 alt="${student.fullName}" 
+                 class="avatar-img"
+                 onerror="this.style.display='none'; this.parentElement.innerHTML='<div class=\\'avatar-fallback\\'>${initials}</div>'">
+          </div>
         </td>
         <td><span id="name-${student.id}">${student.fullName || '-'}</span></td>
         <td><span class="dept-badge" id="admission-${student.id}">${student.admissionNumber || '-'}</span></td>
@@ -989,7 +1133,6 @@ window.goToPage = function(page) {
 // ================= SELECTION FUNCTIONS =================
 window.toggleSelectAll = function() {
   const selectAll = document.getElementById("selectAll");
-  const checkboxes = document.querySelectorAll('.student-checkbox');
   
   if (selectAll.checked) {
     filteredStudents.forEach(s => selectedStudents.add(s.id));
@@ -1068,8 +1211,12 @@ window.bulkDelete = async function() {
 window.editStudent = function(id) {
   // Hide display row
   const row = document.getElementById(`row-${id}`);
-  const cells = row.querySelectorAll('td:not(:first-child):not(:last-child)');
+  const cells = row.querySelectorAll('td:not(:first-child):not(:last-child):not(:nth-child(2))');
   cells.forEach(cell => cell.style.display = 'none');
+  
+  // Hide avatar column
+  const avatarCell = row.querySelector('td:nth-child(2)');
+  if (avatarCell) avatarCell.style.display = 'none';
   
   // Show edit form
   document.getElementById(`edit-${id}`).style.display = 'block';
@@ -1083,6 +1230,10 @@ window.cancelEdit = function(id) {
   const row = document.getElementById(`row-${id}`);
   const cells = row.querySelectorAll('td:not(:first-child):not(:last-child)');
   cells.forEach(cell => cell.style.display = 'table-cell');
+  
+  // Show avatar column
+  const avatarCell = row.querySelector('td:nth-child(2)');
+  if (avatarCell) avatarCell.style.display = 'table-cell';
   
   // Hide edit form
   document.getElementById(`edit-${id}`).style.display = 'none';
@@ -1109,15 +1260,40 @@ window.saveEdit = async function(id) {
   }
   
   try {
-    await updateDoc(doc(db, "students", id), {
-      fullName: name,
-      admissionNumber: admission,
-      email: email,
-      campusId: campusId,
-      departmentId: dept
-    });
+    // If admission number changed, we need to create new document and delete old
+    const oldStudent = allStudents.find(s => s.id === id);
     
-    alert("✅ Student updated successfully!");
+    if (oldStudent.admissionNumber !== admission) {
+      // Create new document with new admission number
+      await setDoc(doc(db, "students", admission), {
+        fullName: name,
+        admissionNumber: admission,
+        email: email,
+        campusId: campusId,
+        departmentId: dept,
+        role: "student",
+        hasVotedDepartment: false,
+        hasVotedExecutive: false,
+        createdAt: new Date()
+      });
+      
+      // Delete old document
+      await deleteDoc(doc(db, "students", id));
+      
+      alert("✅ Student updated successfully! Note: Admission number changed, so the image should be renamed to: " + admission + ".jpg");
+    } else {
+      // Just update existing
+      await updateDoc(doc(db, "students", id), {
+        fullName: name,
+        admissionNumber: admission,
+        email: email,
+        campusId: campusId,
+        departmentId: dept
+      });
+      
+      alert("✅ Student updated successfully!");
+    }
+    
     await loadStudents();
   } catch (err) {
     alert("❌ Error updating student: " + err.message);
@@ -1158,7 +1334,7 @@ window.addStudent = async function(){
       createdAt: new Date()
     });
 
-    alert("✅ Student added successfully!");
+    alert(`✅ Student added successfully!\n\n📸 Don't forget to add their photo:\nSave as: images/students/${admissionNumber}.jpg`);
     
     // Clear form
     document.getElementById("fullName").value = "";
@@ -1194,6 +1370,7 @@ window.uploadSpreadsheet = async function(){
       let successCount = 0;
       let errorCount = 0;
       const errors = [];
+      const imageReminders = [];
 
       for(const row of rows){
         // Check required fields
@@ -1223,6 +1400,7 @@ window.uploadSpreadsheet = async function(){
             createdAt: new Date()
           });
           
+          imageReminders.push(row.admissionNumber);
           successCount++;
         } catch (err) {
           errorCount++;
@@ -1231,6 +1409,16 @@ window.uploadSpreadsheet = async function(){
       }
 
       let message = `✅ Upload complete!\n📊 ${successCount} students added\n❌ ${errorCount} failed`;
+      
+      if (imageReminders.length > 0) {
+        message += `\n\n📸 Don't forget to add photos:\nSave as images/students/[admission].jpg`;
+        if (imageReminders.length <= 5) {
+          message += `\nFiles needed: ${imageReminders.map(ad => ad + '.jpg').join(', ')}`;
+        } else {
+          message += `\nFirst 5: ${imageReminders.slice(0, 5).map(ad => ad + '.jpg').join(', ')}...`;
+        }
+      }
+      
       if (errors.length > 0) {
         message += `\n\nErrors:\n${errors.slice(0, 5).join('\n')}`;
         if (errors.length > 5) message += `\n...and ${errors.length - 5} more errors`;
@@ -1255,7 +1443,7 @@ window.deleteStudent = async function(id){
   
   try {
     await deleteDoc(doc(db, "students", id));
-    alert("✅ Student deleted successfully!");
+    alert("✅ Student deleted successfully!\n📸 Remember to delete their image from images/students/ folder if needed.");
     selectedStudents.delete(id);
     await loadStudents();
   } catch (err) {
